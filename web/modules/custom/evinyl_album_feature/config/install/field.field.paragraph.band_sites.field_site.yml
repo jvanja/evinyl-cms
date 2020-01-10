@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_site
+    - paragraphs.paragraphs_type.band_sites
+  module:
+    - options
+id: paragraph.band_sites.field_site
+field_name: field_site
+entity_type: paragraph
+bundle: band_sites
+label: Site
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: website
+default_value_callback: ''
+settings: {  }
+field_type: list_string

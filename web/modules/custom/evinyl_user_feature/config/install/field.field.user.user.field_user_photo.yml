@@ -1,0 +1,24 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_user_photo
+    - media.type.image
+  module:
+    - user
+id: user.user.field_user_photo
+field_name: field_user_photo
+entity_type: user
+bundle: user
+label: 'User Photo'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    target_bundles:
+      - image
+  handler: 'default:media'
+field_type: entity_reference

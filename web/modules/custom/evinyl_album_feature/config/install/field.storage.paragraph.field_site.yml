@@ -1,0 +1,41 @@
+langcode: und
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_site
+field_name: field_site
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: website
+      label: 'Band’s website'
+    -
+      value: label
+      label: 'Band’s record label website'
+    -
+      value: facebook
+      label: Facebook
+    -
+      value: instagram
+      label: Instagram
+    -
+      value: youtube
+      label: YouTube
+    -
+      value: soundcloud
+      label: Soundcloud
+    -
+      value: bandsintown
+      label: Bandsintown
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

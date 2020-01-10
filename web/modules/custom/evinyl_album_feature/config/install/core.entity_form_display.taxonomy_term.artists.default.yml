@@ -1,0 +1,136 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.artists.field_band_members
+    - field.field.taxonomy_term.artists.field_band_sites
+    - field.field.taxonomy_term.artists.field_contact_email
+    - field.field.taxonomy_term.artists.field_evinyl_biography
+    - field.field.taxonomy_term.artists.field_genre
+    - field.field.taxonomy_term.artists.field_hometown
+    - field.field.taxonomy_term.artists.field_influences
+    - field.field.taxonomy_term.artists.field_likes
+    - field.field.taxonomy_term.artists.field_similar_artists
+    - field.field.taxonomy_term.artists.field_user_photo
+    - image.style.thumbnail
+    - taxonomy.vocabulary.artists
+  module:
+    - field_layout
+    - image
+    - layout_discovery
+    - paragraphs
+    - path
+    - text
+third_party_settings:
+  field_layout:
+    id: layout_onecol
+    settings: {  }
+id: taxonomy_term.artists.default
+targetEntityType: taxonomy_term
+bundle: artists
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_band_members:
+    weight: 31
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+    region: content
+  field_band_sites:
+    weight: 10
+    type: entity_reference_paragraphs
+    settings:
+      title: Paragraph
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+      default_paragraph_type: ''
+    third_party_settings: {  }
+    region: content
+  field_contact_email:
+    weight: 1
+    type: email_default
+    settings:
+      placeholder: ''
+      size: 60
+    third_party_settings: {  }
+    region: content
+  field_evinyl_biography:
+    weight: 2
+    type: text_textarea
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_genre:
+    weight: 3
+    type: options_buttons
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_hometown:
+    weight: 4
+    type: string_textfield
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_influences:
+    weight: 6
+    type: string_textarea
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_likes:
+    weight: 17
+    type: number
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_similar_artists:
+    weight: 7
+    type: string_textarea
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_user_photo:
+    weight: 8
+    type: image_image
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    region: content
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

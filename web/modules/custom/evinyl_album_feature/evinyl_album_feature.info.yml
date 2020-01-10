@@ -1,0 +1,24 @@
+name: 'Evinyl Album Feature'
+type: module
+core: 8.x
+dependencies:
+  - comment
+  - entity_reference_revisions
+  - field
+  - field_layout
+  - file
+  - image
+  - layout_discovery
+  - link
+  - media
+  - menu_ui
+  - metatag
+  - node
+  - options
+  - paragraphs
+  - path
+  - rdf
+  - taxonomy
+  - text
+  - user
+  - yoast_seo

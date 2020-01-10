@@ -1,0 +1,31 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.album_gallery_photos.field_image
+    - field.field.paragraph.album_gallery_photos.field_photo_description
+    - paragraphs.paragraphs_type.album_gallery_photos
+  module:
+    - image
+id: paragraph.album_gallery_photos.default
+targetEntityType: paragraph
+bundle: album_gallery_photos
+mode: default
+content:
+  field_image:
+    label: above
+    weight: 1
+    type: image
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    region: content
+  field_photo_description:
+    label: above
+    weight: 2
+    type: basic_string
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden: {  }

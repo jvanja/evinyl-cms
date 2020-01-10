@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: top_5_movies
+label: 'Top 5 movies'
+icon_uuid: null
+description: 'Migrated from field_collection field_top_5_movies'
+behavior_plugins: {  }

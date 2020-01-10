@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_user_photo
+    - media.type.image
+    - taxonomy.vocabulary.artists
+id: taxonomy_term.artists.field_user_photo
+field_name: field_user_photo
+entity_type: taxonomy_term
+bundle: artists
+label: 'Band Photo'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    target_bundles:
+      - image
+  handler: 'default:media'
+field_type: entity_reference

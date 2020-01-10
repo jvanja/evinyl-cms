@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_hometown
+    - taxonomy.vocabulary.artists
+id: taxonomy_term.artists.field_hometown
+field_name: field_hometown
+entity_type: taxonomy_term
+bundle: artists
+label: Hometown
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

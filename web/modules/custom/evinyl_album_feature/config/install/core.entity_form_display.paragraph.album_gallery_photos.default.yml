@@ -1,0 +1,40 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.album_gallery_photos.field_image
+    - field.field.paragraph.album_gallery_photos.field_photo_description
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.album_gallery_photos
+  module:
+    - field_layout
+    - image
+    - layout_discovery
+third_party_settings:
+  field_layout:
+    id: layout_onecol
+    settings: {  }
+id: paragraph.album_gallery_photos.default
+targetEntityType: paragraph
+bundle: album_gallery_photos
+mode: default
+content:
+  field_image:
+    weight: 0
+    type: image_image
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    region: content
+  field_photo_description:
+    weight: 1
+    type: string_textarea
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+hidden:
+  created: true
+  status: true

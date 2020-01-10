@@ -1,0 +1,32 @@
+evinyl_album.content:
+  path: '/api/album/{id}'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\AlbumController::content'
+    _title: 'Album Controller'
+    id: 0
+  requirements:
+    _permission: 'access content'
+
+evinyl_increment_track_count.content:
+  path: '/api/track/play/{id}'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\IncrementTrackPlayController::content'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'
+
+evinyl_like-album.content:
+  path: '/api/like-album/{id}'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\LikeAlbumController::content'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'
+
+evinyl_dislike-album.content:
+  path: '/api/dislike-album/{id}'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\DislikeAlbumController::content'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'

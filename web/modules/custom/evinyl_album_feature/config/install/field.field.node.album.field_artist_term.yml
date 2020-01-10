@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_artist_term
+    - node.type.album
+    - taxonomy.vocabulary.artists
+id: node.album.field_artist_term
+field_name: field_artist_term
+entity_type: node
+bundle: album
+label: Artist
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    sort:
+      field: _none
+    target_bundles:
+      artists: artists
+  handler: 'default:taxonomy_term'
+field_type: entity_reference

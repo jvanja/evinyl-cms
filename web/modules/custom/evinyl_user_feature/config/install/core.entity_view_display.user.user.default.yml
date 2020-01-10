@@ -1,0 +1,147 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.user.user.field_contact_allowed
+    - field.field.user.user.field_evinyl_biography
+    - field.field.user.user.field_followed_artists
+    - field.field.user.user.field_is_artist
+    - field.field.user.user.field_liked_albums
+    - field.field.user.user.field_my_top_5_s
+    - field.field.user.user.field_top_5_albums
+    - field.field.user.user.field_top_5_artists
+    - field.field.user.user.field_top_5_books
+    - field.field.user.user.field_top_5_concerts
+    - field.field.user.user.field_top_5_movies
+    - field.field.user.user.field_top_5_songs
+    - field.field.user.user.field_top_5_tv_shows
+    - field.field.user.user.field_user_photo
+    - field.field.user.user.user_picture
+    - image.style.thumbnail
+  module:
+    - entity_reference_revisions
+    - image
+    - options
+    - text
+    - user
+id: user.user.default
+targetEntityType: user
+bundle: user
+mode: default
+content:
+  field_contact_allowed:
+    label: hidden
+    weight: 3
+    type: list_default
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_evinyl_biography:
+    label: above
+    weight: 1
+    type: text_default
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_is_artist:
+    label: hidden
+    weight: 2
+    type: list_default
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_my_top_5_s:
+    label: above
+    weight: 4
+    type: list_default
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_top_5_albums:
+    label: above
+    weight: 5
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_artists:
+    label: above
+    weight: 11
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_books:
+    label: above
+    weight: 6
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_concerts:
+    label: above
+    weight: 7
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_movies:
+    label: above
+    weight: 8
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_songs:
+    label: above
+    weight: 9
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_top_5_tv_shows:
+    label: above
+    weight: 10
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_user_photo:
+    label: hidden
+    weight: 0
+    type: image
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    region: content
+  member_for:
+    weight: 5
+    region: content
+  user_picture:
+    type: image
+    weight: 0
+    region: content
+    settings:
+      image_style: thumbnail
+      image_link: content
+    third_party_settings: {  }
+    label: hidden
+hidden:
+  field_followed_artists: true
+  field_liked_albums: true
+  main_profiles: true

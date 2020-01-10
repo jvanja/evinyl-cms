@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_band_members
+    - node.type.album
+  module:
+    - text
+id: node.album.field_band_members
+field_name: field_band_members
+entity_type: node
+bundle: album
+label: 'Band Members'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

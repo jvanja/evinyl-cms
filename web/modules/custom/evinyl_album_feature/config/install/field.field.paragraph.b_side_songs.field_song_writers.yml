@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_song_writers
+    - paragraphs.paragraphs_type.b_side_songs
+id: paragraph.b_side_songs.field_song_writers
+field_name: field_song_writers
+entity_type: paragraph
+bundle: b_side_songs
+label: 'Song Writers'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

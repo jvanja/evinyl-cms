@@ -1,0 +1,63 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.album.body
+    - field.field.node.album.field_a_side_songs
+    - field.field.node.album.field_album_duration
+    - field.field.node.album.field_album_gallery_photos
+    - field.field.node.album.field_artist_term
+    - field.field.node.album.field_b_side_songs
+    - field.field.node.album.field_band_members
+    - field.field.node.album.field_buy_cassette_link
+    - field.field.node.album.field_buy_record_link
+    - field.field.node.album.field_featured
+    - field.field.node.album.field_genre
+    - field.field.node.album.field_image
+    - field.field.node.album.field_is_vinyl
+    - field.field.node.album.field_label
+    - field.field.node.album.field_likes
+    - field.field.node.album.field_meta_tags
+    - field.field.node.album.field_release_year
+    - field.field.node.album.field_yoast_seo
+    - node.type.album
+  module:
+    - text
+    - user
+id: node.album.teaser
+targetEntityType: node
+bundle: album
+mode: teaser
+content:
+  body:
+    label: hidden
+    weight: 0
+    type: text_summary_or_trimmed
+    settings:
+      trim_length: 600
+    third_party_settings: {  }
+    region: content
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  field_a_side_songs: true
+  field_album_duration: true
+  field_album_gallery_photos: true
+  field_artist_term: true
+  field_b_side_songs: true
+  field_band_members: true
+  field_buy_cassette_link: true
+  field_buy_record_link: true
+  field_featured: true
+  field_genre: true
+  field_image: true
+  field_is_vinyl: true
+  field_label: true
+  field_likes: true
+  field_meta_tags: true
+  field_release_year: true
+  field_yoast_seo: true

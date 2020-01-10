@@ -1,0 +1,38 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.top_5_tv_shows.field_comment
+    - field.field.paragraph.top_5_tv_shows.field_tv_show_name
+    - paragraphs.paragraphs_type.top_5_tv_shows
+  module:
+    - field_layout
+    - layout_discovery
+third_party_settings:
+  field_layout:
+    id: layout_onecol
+    settings: {  }
+id: paragraph.top_5_tv_shows.default
+targetEntityType: paragraph
+bundle: top_5_tv_shows
+mode: default
+content:
+  field_comment:
+    weight: 1
+    type: string_textarea
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+  field_tv_show_name:
+    weight: 0
+    type: string_textfield
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    region: content
+hidden:
+  created: true
+  status: true

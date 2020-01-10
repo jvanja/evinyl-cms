@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_band_members
+    - taxonomy.vocabulary.artists
+id: taxonomy_term.artists.field_band_members
+field_name: field_band_members
+entity_type: taxonomy_term
+bundle: artists
+label: 'Band Members'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

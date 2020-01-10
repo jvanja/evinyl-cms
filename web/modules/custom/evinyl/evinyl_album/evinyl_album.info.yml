@@ -1,0 +1,6 @@
+name: Evinyl Album
+description: Different Album creation functionality
+package: Evinyl
+type: module
+version: 1.0
+core: 8.x

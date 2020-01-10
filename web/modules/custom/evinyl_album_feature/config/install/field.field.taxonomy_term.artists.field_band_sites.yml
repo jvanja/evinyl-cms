@@ -1,0 +1,60 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_band_sites
+    - paragraphs.paragraphs_type.band_sites
+    - taxonomy.vocabulary.artists
+  module:
+    - entity_reference_revisions
+id: taxonomy_term.artists.field_band_sites
+field_name: field_band_sites
+entity_type: taxonomy_term
+bundle: artists
+label: 'Band Sites'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    negate: 0
+    target_bundles:
+      band_sites: band_sites
+    target_bundles_drag_drop:
+      band_sites:
+        enabled: true
+        weight: 1
+      album_gallery_photos:
+        enabled: false
+        weight: 2
+      a_side_songs:
+        enabled: false
+        weight: 3
+      b_side_songs:
+        enabled: false
+        weight: 4
+      top_5_albums:
+        enabled: false
+        weight: 5
+      top_5_artists:
+        enabled: false
+        weight: 6
+      top_5_books:
+        enabled: false
+        weight: 7
+      top_5_concerts:
+        enabled: false
+        weight: 8
+      top_5_movies:
+        enabled: false
+        weight: 9
+      top_5_songs:
+        enabled: false
+        weight: 10
+      top_5_tv_shows:
+        enabled: false
+        weight: 11
+  handler: 'default:paragraph'
+field_type: entity_reference_revisions

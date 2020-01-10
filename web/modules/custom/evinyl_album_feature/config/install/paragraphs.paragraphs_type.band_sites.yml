@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: band_sites
+label: 'Band sites'
+icon_uuid: null
+description: 'Migrated from field_collection field_band_sites'
+behavior_plugins: {  }

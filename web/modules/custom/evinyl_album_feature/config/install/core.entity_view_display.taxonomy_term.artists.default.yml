@@ -1,0 +1,110 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.artists.field_band_members
+    - field.field.taxonomy_term.artists.field_band_sites
+    - field.field.taxonomy_term.artists.field_contact_email
+    - field.field.taxonomy_term.artists.field_evinyl_biography
+    - field.field.taxonomy_term.artists.field_genre
+    - field.field.taxonomy_term.artists.field_hometown
+    - field.field.taxonomy_term.artists.field_influences
+    - field.field.taxonomy_term.artists.field_likes
+    - field.field.taxonomy_term.artists.field_similar_artists
+    - field.field.taxonomy_term.artists.field_user_photo
+    - taxonomy.vocabulary.artists
+  module:
+    - entity_reference_revisions
+    - image
+    - text
+id: taxonomy_term.artists.default
+targetEntityType: taxonomy_term
+bundle: artists
+mode: default
+content:
+  description:
+    label: hidden
+    type: text_default
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_band_members:
+    weight: 10
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+    region: content
+  field_band_sites:
+    label: above
+    weight: 8
+    type: entity_reference_revisions_entity_view
+    settings:
+      view_mode: full
+      link: ''
+    third_party_settings: {  }
+    region: content
+  field_contact_email:
+    label: above
+    weight: 0
+    type: email_mailto
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_evinyl_biography:
+    label: above
+    weight: 1
+    type: text_default
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_genre:
+    label: above
+    weight: 2
+    type: entity_reference_label
+    settings:
+      link: true
+    third_party_settings: {  }
+    region: content
+  field_hometown:
+    label: above
+    weight: 3
+    type: string
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    region: content
+  field_influences:
+    label: above
+    weight: 5
+    type: basic_string
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_likes:
+    label: above
+    weight: 9
+    type: number_integer
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    region: content
+  field_similar_artists:
+    label: above
+    weight: 6
+    type: basic_string
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_user_photo:
+    label: above
+    weight: 7
+    type: image
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    region: content
+hidden: {  }

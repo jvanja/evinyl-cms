@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_influences
+    - taxonomy.vocabulary.artists
+id: taxonomy_term.artists.field_influences
+field_name: field_influences
+entity_type: taxonomy_term
+bundle: artists
+label: Influences
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_genre
+    - node.type.album
+    - taxonomy.vocabulary.genre
+id: node.album.field_genre
+field_name: field_genre
+entity_type: node
+bundle: album
+label: Genre
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    sort:
+      field: _none
+    target_bundles:
+      genre: genre
+  handler: 'default:taxonomy_term'
+field_type: entity_reference

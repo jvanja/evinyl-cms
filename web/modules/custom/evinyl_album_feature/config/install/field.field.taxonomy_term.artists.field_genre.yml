@@ -1,0 +1,25 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_genre
+    - taxonomy.vocabulary.artists
+    - taxonomy.vocabulary.genre
+id: taxonomy_term.artists.field_genre
+field_name: field_genre
+entity_type: taxonomy_term
+bundle: artists
+label: Genre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler_settings:
+    sort:
+      field: _none
+    target_bundles:
+      genre: genre
+  handler: 'default:taxonomy_term'
+field_type: entity_reference
