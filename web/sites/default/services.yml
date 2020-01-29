@@ -159,17 +159,16 @@ parameters:
    # for more information about the topic in general.
    # Note: By default the configuration is disabled.
   cors.config:
-    enabled: enabled
+    enabled: true
     # Specify allowed headers, like 'x-allowed-header'.
-    allowedHeaders: ['X-CSRF-Token', 'Content-Type', 'Authorization', 'xhrFields']
+    allowedHeaders: ['x-csrf-token','authorization','content-type','accept','origin','x-requested-with', 'access-control-allow-origin','x-allowed-header','*']
     # Specify allowed request methods, specify ['*'] to allow all possible ones.
-    allowedMethods: ['GET', 'POST', 'PATCH', 'DELETE']
+    allowedMethods: ['*']
     # Configure requests allowed from specific origins.
-    allowedOrigins: ['*']
+    allowedOrigins: ['https://v2.evinyl.net','https://evinyl.net','https://dev.evinyl.net','http://localhost:3000']
     # Sets the Access-Control-Expose-Headers header.
     exposedHeaders: false
     # Sets the Access-Control-Max-Age header.
     maxAge: false
     # Sets the Access-Control-Allow-Credentials header.
     supportsCredentials: true
-
