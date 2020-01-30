@@ -12,8 +12,8 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
 }
 
 function calculate_song_duration($entity) {
-  var_dump($entity);
-  die;
+  // var_dump($entity);
+  // die;
 // 		$file = file_load($entity->field_song['und'][0]['fid']);
 // 		$fileinfo = getid3_analyze_file($file);
 // 		$song_duration = round($fileinfo['playtime_seconds']);
