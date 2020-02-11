@@ -1,0 +1,13 @@
+name: UserSwitch
+description: Switch user account.
+core: 8.x
+package: Custom
+configure: userswitch.user.user_list
+dependencies:
+  - drupal:block
+type: module
+
+# Information added by Drupal.org packaging script on 2020-01-05
+version: '8.x-1.6'
+project: 'userswitch'
+datestamp: 1578217087
