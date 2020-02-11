@@ -191,7 +191,7 @@ AddEncoding gzip svgz
   RequestHeader unset Proxy
 </IfModule>
 
-# Various header fixes.
+# Adding localhost bs
 <IfModule mod_headers.c>
   SetEnvIf Host "^localhost$" is_localhost
   Header unset Access-Control-Allow-Origin env=is_localhost
