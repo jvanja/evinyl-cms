@@ -1,69 +1,84 @@
 <?php
 
 // use getID3;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_entity_presave().
  */
 function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
-  if($entity->bundle() == 'a_side_songs' || $entity->bundle() == 'b_side_songs') {
-    calculate_song_duration($entity);
-  }
-}
-
-function calculate_song_duration($entity) {
-  // var_dump($entity);
-  // die;
-// 		$file = file_load($entity->field_song['und'][0]['fid']);
-// 		$fileinfo = getid3_analyze_file($file);
-// 		$song_duration = round($fileinfo['playtime_seconds']);
-// 		$entity->field_song_duration['und'][0]['value'] =  theme_getid3_duration(array( 'duration' => $song_duration));
-}
-/**
- * Implements hook_node_presave();
- *
- * @param \Drupal\node\NodeInterface $node
- */
-
-function evinyl_album_node_presave(\Drupal\node\NodeInterface $node) {
-  switch($node->bundle()) {
+  switch($entity->bundle()) {
    case 'album':
-    calculate_album_duration($node);
+    update_json_output();
+    break;
+   case 'a_side_songs':
+   case 'b_side_songs':
+    calculate_song_duration($entity);
     break;
   }
 }
 
-function calculate_album_duration($node) {
+function calculate_song_duration($entity) {
   $getID3 = new getID3();
   $id3 = $getID3->version();
+  $file_id = $entity->field_song->getValue()[0]['target_id'];
+  $database = \Drupal::database();
+  $query = $database->query("SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id", [
+    ':entity_id' => $file_id
+  ]);
+  $result = $query->fetchAll();
+  if (count($result) > 0) {
+    $final_file_id = $result[0]->field_media_audio_file_target_id;
+    $file = \Drupal\file\Entity\File::load($final_file_id);
+    $uri = $file->getFileUri();
+    $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
+    $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
+    $entity->set('field_song_duration', $song_duration);
+  }
+}
 
-  $a_side_songs = $node->field_a_side_songs;
-  $b_side_songs = $node->field_b_side_songs;
-  $duration = 0;
-  foreach ($a_side_songs as $index=>$song_field){
-    $targetId = $song_field->get('target_id')->getValue();
-    $p = \Drupal\paragraphs\Entity\Paragraph::load( $targetId );
-    $file_id = $p->field_song->getValue()[0]['target_id'];
-    $file = \Drupal\file\Entity\File::load($file_id);
-    $uri = $file->getFileUri();
-    $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
-    $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
-    $duration += $song_duration;
+
+/**
+ * Implements hook_entity_delete().
+ */
+function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  switch($entity->bundle()) {
+   case 'album':
+    update_json_output();
+    break;
   }
-  foreach ($b_side_songs as $index=>$song_field){
-    $targetId = $song_field->get('target_id')->getValue();
-    $p = \Drupal\paragraphs\Entity\Paragraph::load( $targetId );
-    $file_id = $p->field_song->getValue()[0]['target_id'];
-    $file = \Drupal\file\Entity\File::load($file_id);
-    $uri = $file->getFileUri();
-    $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
-    $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
-    $duration += $song_duration;
+}
+/**
+ * Implements hook_entity_update();
+ *
+ * @param \Drupal\Core\Entity\EntityInterface
+ */
+// function evinyl_album_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+//   switch($entity->original->bundle()) {
+//    case 'album':
+//     update_json_output();
+//     break;
+//   }
+// }
+
+function update_json_output () {
+  \Drupal::logger('evinyl_album')->notice('POST SAVE!!!');
+
+  if($_SERVER['SERVER_NAME'] == 'localhost') {
+    $wget = '/usr/local/bin/wget --header="Accept: application/vnd.api+json"';
+    $api = ' -O album.json "http://localhost/evinyl8/web/jsonapi/node/album';
+  } else {
+    $wget = '/usr/bin/wget --header="Accept: application/vnd.api+json"';
+    $api = ' -O album.json "https://lab.evinyl.net/jsonapi/node/album';
   }
-  // dpm($node);
-  $duration_min_sec_format = theme_getid3_duration(array( 'duration' => $duration ));
-  $node->set('field_album_duration', $duration_min_sec_format);
-  return $duration_min_sec_format;
+  $include = '?include=field_genre,field_artist_term,field_image&filter[status][value]=1"';
+  $command = $wget . $api . $include;
+
+  $result = exec($command . ' > /dev/null &', $response, $return_code);
+  // \Drupal::logger('evinyl_album')->notice($command);
+  // \Drupal::logger('evinyl_album')->notice('result was' . $wget);
+  // \Drupal::logger('evinyl_album')->notice('response was' . $response);
+  // \Drupal::logger('evinyl_album')->notice('return code' . $return_code);
 }
 
 /**
