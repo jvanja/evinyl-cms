@@ -5,46 +5,42 @@
  */
 namespace Drupal\evinyl_album\Controller;
 use Drupal\node\Entity\Node;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class AlbumController {
   public function content($id = 0) {
-      // Get an array of all 'article' node ids.
-  // $article_nids = \Drupal::entityQuery('node')
-  //   ->condition('type', 'album')
-  //   ->execute();
 
-  // Load all the articles.
-  // $articles = Node::loadMultiple($article_nids);
-  // foreach ($articles as $article) {
-  //   $article->save();
-  // }
-
-  /* ==========================================================================
-
-    ========================================================================== */
-
-    // use Drupal\node\Entity\Node;
+    // $albums_nids = \Drupal::entityQuery('node')
+    //   ->condition('type', 'album')
+    //   ->execute();
     //
-    // $node = Node::load($nid);
-    // //set value for field
-    // $node->body->value = 'body';
-    // $node->body->format = 'full_html';
-    // //field tag
-    // $node->field_tags = [1];
-    // //field image
-    // $field_image = array(
-    //   'target_id' => $fileID,
-    //   'alt' => "My 'alt'",
-    //   'title' => "My 'title'",
+    // $albums = Node::loadMultiple($albums_nids);
+
+    // Load entities by their property values.
+    $entities = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['type' => 'album']);
+
+    $return_object = [
+      'count' => count($entities),
+      'data' => $entities
+    ];
+
+    $cache_options = [
+      'public' => TRUE,
+      'max_age' => '31536000'
+    ];
+
+    $serializer = \Drupal::service('serializer');
+    $json_data = $serializer->serialize($return_object, 'json');
+    $response = new Response();
+    $response->setContent($json_data);
+    $response->headers->set('Content-Type', 'application/json');
+    $response->setCache($cache_options);
+    return $response;
+
+    // return array(
+    //   '#type' => 'markup',
+    //   '#markup' => t('Not neccessary any more. Use core JSON:API'),
     // );
-    // $node->field_image = $field_image;
-    //
-    // $node->save();
-
-
-    return array(
-      '#type' => 'markup',
-      '#markup' => t('Not neccessary any more. Use core JSON:API'),
-    );
   }
 }

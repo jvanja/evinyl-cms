@@ -8,25 +8,10 @@ evinyl_album.content:
     _permission: 'access content'
 
 evinyl_increment_track_count.content:
-  path: '/api/track/play/{id}'
+  path: '/api/getjson'
   defaults:
-    _controller: '\Drupal\evinyl_album\Controller\IncrementTrackPlayController::content'
-    _title: 'Hello World'
+    _controller: '\Drupal\evinyl_album\Controller\GetJsonController::content'
+    _title: 'Getting JSON'
   requirements:
     _permission: 'access content'
 
-evinyl_like-album.content:
-  path: '/api/like-album/{id}'
-  defaults:
-    _controller: '\Drupal\evinyl_album\Controller\LikeAlbumController::content'
-    _title: 'Hello World'
-  requirements:
-    _permission: 'access content'
-
-evinyl_dislike-album.content:
-  path: '/api/dislike-album/{id}'
-  defaults:
-    _controller: '\Drupal\evinyl_album\Controller\DislikeAlbumController::content'
-    _title: 'Hello World'
-  requirements:
-    _permission: 'access content'
