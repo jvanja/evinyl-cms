@@ -26,26 +26,24 @@ class AlbumController {
       `node_field_data`.`title` AS title,
       `node__field_image`.`field_image_target_id` AS image_id,
       `node__field_artist_term`.`field_artist_term_target_id` AS artist_id,
-      `node__field_genre`.`field_genre_target_id` AS genre_id,
-      `taxonomy_term_field_data`.`tid` AS term_id,
-      `taxonomy_term_field_data`.`name` AS term_name
+      `node__field_genre`.`field_genre_target_id` AS genre_id
       FROM `node`
       INNER JOIN `node_field_data` ON `node`.`nid` = `node_field_data`.`nid`
       INNER JOIN `node__field_image` ON `node`.`nid` = `node__field_image`.`entity_id`
       INNER JOIN `node__field_artist_term` ON `node`.`nid` = `node__field_artist_term`.`entity_id`
       INNER JOIN `node__field_genre` ON `node`.`nid` = `node__field_genre`.`entity_id`
-      INNER JOIN `taxonomy_term_field_data` ON `node__field_genre`.`entity_id` = `taxonomy_term_field_data`.`tid`
       WHERE node_field_data.status = '1' AND node.type = 'album'
     ");
       // ORDER BY "
 
+
+    $artists_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('artists');
+    $genres_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('genre');
+    $artists = $this->buildTermsArray($artists_query);
+    $genres = $this->buildTermsArray($genres_query);
+
     $entities = $query->fetchAll();
     $albums = $this->buildNodesArray($entities);
-
-    // $artists_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('artists');
-    // $genres_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('genre');
-    // $artists = $this->buildTermsArray($artists_query);
-    // $genres = $this->buildTermsArray($genres_query);
 
     $return_object = [
       'count' => count($albums),
@@ -85,31 +83,28 @@ class AlbumController {
   // `node__field_image`.`field_image_target_id` AS image_id,
   // `node__field_artist_term`.`field_artist_term_target_id` AS artist_id,
   // `node__field_genre`.`field_genre_target_id` AS genre_id,
-  // `taxonomy_term_field_data`.`name` AS term_name
   public function buildNodesArray($nodes) {
     $output = [];
     $style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
+    $artists_ids = [];
+    $genres_ids = [];
     foreach($nodes as $node) {
       $file = File::load($node->image_id);
       $thumb = $style->buildUrl($file->uri->value);
       $image_url = $file->uri;
       $cover = ['thumb' => $thumb, 'image' => $file->uri];
-      $artist_name = '';
-      $genre_name = '';
-      if ($node->term_id == $node->artist_id) {
-        $artist_name = $node->term_name;
+      if (!in_array($node->$artist_id, $artists_ids)) {
+        array_push($artists_ids, $node->artist_id);
       }
-      if ($node->term_id == $node->genre_id) {
-        $genre_name = $node->term_name;
+      if (!in_array($node->$genre_id, $genres_ids)) {
+        array_push($genres_ids, $node->genre_id);
       }
-
       array_push($output, array(
         'name' => $node->title,
         'nid' => $node->nid,
         'uuid' => $node->uuid,
-        'tid' => $node->term_id,
-        'artist' => [id => $node->artist_id, name => $artist_name],
-        'genre' => [id => $node->genre_id, name => $genre_name],
+        'artist_id' => $artists_ids,
+        'genres_id' => $genres_ids,
         'cover' => $cover,
         'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid),
       ));
