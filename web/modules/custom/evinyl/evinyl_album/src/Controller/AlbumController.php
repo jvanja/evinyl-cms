@@ -36,7 +36,6 @@ class AlbumController {
     ");
       // ORDER BY "
 
-
     $artists_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('artists');
     $genres_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('genre');
     $artists = $this->buildTermsArray($artists_query);
@@ -48,8 +47,8 @@ class AlbumController {
     $return_object = [
       'count' => count($albums),
       'albums' => $albums,
-      // 'artists' => $artists,
-      // 'genres' => $genres,
+      'artists' => $artists,
+      'genres' => $genres,
     ];
 
     $cache_options = [
@@ -68,7 +67,6 @@ class AlbumController {
 
   public function buildTermsArray($terms) {
     $output = [];
-    // var_dump($terms);
     foreach($terms as $term) {
       array_push($output, array(
         'tid' => $term->tid,
@@ -78,11 +76,6 @@ class AlbumController {
     return $output;
   }
 
-  // `node`.`uuid` AS uuid,
-  // `node_field_data`.`title` AS title,
-  // `node__field_image`.`field_image_target_id` AS image_id,
-  // `node__field_artist_term`.`field_artist_term_target_id` AS artist_id,
-  // `node__field_genre`.`field_genre_target_id` AS genre_id,
   public function buildNodesArray($nodes) {
     $output = [];
     $style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
@@ -93,21 +86,22 @@ class AlbumController {
       $thumb = $style->buildUrl($file->uri->value);
       $image_url = $file->uri;
       $cover = ['thumb' => $thumb, 'image' => $file->uri];
-      if (!in_array($node->$artist_id, $artists_ids)) {
-        array_push($artists_ids, $node->artist_id);
+      array_push($artists_ids, $node->artist_id);
+      array_push($genres_ids, $node->genre_id);
+      $key = array_search($node->nid, array_column($output, 'nid'));
+      if ($key !== false) {
+        array_push($output[$key]['genres_id'], $node->genre_id);
+      } else {
+        array_push($output, array(
+          'name' => $node->title,
+          'nid' => $node->nid,
+          'uuid' => $node->uuid,
+          'artist_id' => [$node->artist_id],
+          'genres_id' => [$node->genre_id],
+          'cover' => $cover,
+          'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid),
+        ));
       }
-      if (!in_array($node->$genre_id, $genres_ids)) {
-        array_push($genres_ids, $node->genre_id);
-      }
-      array_push($output, array(
-        'name' => $node->title,
-        'nid' => $node->nid,
-        'uuid' => $node->uuid,
-        'artist_id' => $artists_ids,
-        'genres_id' => $genres_ids,
-        'cover' => $cover,
-        'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid),
-      ));
     }
     return $output;
   }
