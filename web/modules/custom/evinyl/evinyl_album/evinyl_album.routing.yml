@@ -1,9 +1,16 @@
 evinyl_album.content:
-  path: '/api/album/{id}'
+  path: '/api/albums'
   defaults:
     _controller: '\Drupal\evinyl_album\Controller\AlbumController::content'
     _title: 'Album Controller'
-    id: 0
+  requirements:
+    _permission: 'access content'
+
+evinyl_cassettes.content:
+  path: '/api/cassettes'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\CassetteController::content'
+    _title: 'Album Controller'
   requirements:
     _permission: 'access content'
 

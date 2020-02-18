@@ -1,14 +1,14 @@
 <?php
 /**
  * @file
- * Contains \Drupal\evinyl_album\Controller\AlbumController.
+ * Contains \Drupal\evinyl_album\Controller\CassetteController.
  */
 namespace Drupal\evinyl_album\Controller;
 // use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\file\Entity\File;
 
-class AlbumController {
+class CassetteController {
   public function content() {
 
     $database = \Drupal::database();
@@ -30,7 +30,7 @@ class AlbumController {
       LEFT JOIN `node__field_artist_term` ON `node`.`nid` = `node__field_artist_term`.`entity_id`
       LEFT JOIN `node__field_genre` ON `node`.`nid` = `node__field_genre`.`entity_id`
       LEFT JOIN `node__field_is_vinyl` ON `node`.`nid` = `node__field_is_vinyl`.`entity_id`
-      WHERE node_field_data.status = '1' AND node.type = 'album' AND node__field_is_vinyl.field_is_vinyl_value = '0'
+      WHERE node_field_data.status = '1' AND node.type = 'album' AND node__field_is_vinyl.field_is_vinyl_value = '1'
     ");
 
     $entities = $query->fetchAll();
