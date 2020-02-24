@@ -22,3 +22,10 @@ evinyl_increment_track_count.content:
   requirements:
     _permission: 'access content'
 
+evinyl_auth.content:
+  path: '/api/getAuth'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\GetAuthController::content'
+    _title: 'Getting AUTH JSON'
+  requirements:
+    _permission: 'access content'
