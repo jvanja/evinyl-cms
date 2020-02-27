@@ -2,6 +2,9 @@
 
 // use getID3;
 use Drupal\Core\Url;
+use Drupal\user\Entity\User;
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements hook_entity_presave().
@@ -15,7 +18,46 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
    case 'b_side_songs':
     calculate_song_duration($entity);
     break;
+   case 'comment':
+    sendNodeJsMessageToAll($entity);
+    break;
   }
+}
+function sendNodeJsMessageToAll($entity) {
+  // var_dump($entity);
+  //
+  // die;
+  //
+
+  $channel = 'nodejs_ajax_broadcast';
+  $uid = $entity->uid->getValue()[0]['target_id'];
+  $created = $entity->created->getValue()[0]['value'];
+  $subject = $entity->subject->getValue();
+  $body = $entity->comment_body->getValue()[0]['value'];
+  $user = User::load($uid);
+  $userPhoto = File::load($user->field_user_photo->getValue()[0]['target_id']);
+  $userPhotoUri = $userPhoto->getFileUri();
+  $style = ImageStyle::load('thumbnail');
+  $userPhotoUrl = $style->buildUrl($userPhotoUri);
+
+  $message = (object) array(
+    'data' => (object) array(
+      'uid' => $uid,
+      'created' => $created,
+      'subject' => '',
+      'body' => $body,
+      'user' => (object) array(
+        'name' => $user->name->getValue()[0]['value'],
+        'uuid' => $user->uuid->getValue()[0]['value'],
+        'field_is_artist' => $user->field_is_artist->getValue()[0]['value'],
+        'field_user_photo' => $userPhotoUrl,
+      )
+    ),
+    'channel' => $channel,
+  );
+  // var_dump($message);
+  // die;
+  nodejs_enqueue_message($message);
 }
 
 function calculate_song_duration($entity) {
