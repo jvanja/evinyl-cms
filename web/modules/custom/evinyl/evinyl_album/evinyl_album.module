@@ -30,8 +30,10 @@ function sendNodeJsMessageToAll($entity) {
   //
 
   $channel = 'nodejs_ajax_broadcast';
+  $uuid = $entity->uuid->getValue()[0]['value'];
   $uid = $entity->uid->getValue()[0]['target_id'];
-  $created = $entity->created->getValue()[0]['value'];
+  $timestamp = $entity->created->getValue()[0]['value'];
+  $created = date('Y-m-d\TH:i:s', $timestamp);
   $subject = $entity->subject->getValue();
   $body = $entity->comment_body->getValue()[0]['value'];
   $user = User::load($uid);
@@ -42,14 +44,15 @@ function sendNodeJsMessageToAll($entity) {
 
   $message = (object) array(
     'data' => (object) array(
+      'id' => $uuid,
       'uid' => $uid,
       'created' => $created,
       'subject' => '',
       'body' => $body,
       'user' => (object) array(
         'name' => $user->name->getValue()[0]['value'],
-        'uuid' => $user->uuid->getValue()[0]['value'],
-        'field_is_artist' => $user->field_is_artist->getValue()[0]['value'],
+        'id' => $user->uuid->getValue()[0]['value'],
+        'field_is_artist' => (bool) $user->field_is_artist->getValue()[0]['value'],
         'field_user_photo' => $userPhotoUrl,
       )
     ),
