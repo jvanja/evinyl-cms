@@ -95,15 +95,17 @@ class AlbumController {
 
   public function buildNodesArray($nodes) {
     $output = [];
-    $style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
+    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
+    $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
     $artists_ids = [];
     $genres_ids = [];
     $likes_ids = [];
     foreach($nodes as $node) {
       $file = File::load($node->image_id);
-      $thumb = $style->buildUrl($file->uri->value);
+      $thumb = $thumb_style->buildUrl($file->uri->value);
+      $medium = $medium_style->buildUrl($file->uri->value);
       $image_url = $file->uri;
-      $cover = ['thumb' => $thumb, 'image' => $file->uri];
+      $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $file->uri];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
         if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
