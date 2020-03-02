@@ -8,7 +8,7 @@ namespace Drupal\evinyl_album\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\file\Entity\File;
 
-class CassetteController {
+class CassetteController extends AlbumController {
   public function content() {
 
     $database = \Drupal::database();
@@ -52,11 +52,6 @@ class CassetteController {
     $artists = $this->buildTermsArray($terms, 'artists');
     $genres = $this->buildTermsArray($terms, 'genre');
 
-    // $artists_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('artists');
-    // $genres_query = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree('genre');
-    // $artists = $this->buildTermsArray($artists_query);
-    // $genres = $this->buildTermsArray($genres_query);
-
     $return_object = [
       'count' => count($albums),
       'albums' => $albums,
@@ -76,60 +71,6 @@ class CassetteController {
     $response->headers->set('Content-Type', 'application/json');
     // $response->setCache($cache_options);
     return $response;
-  }
-
-  public function buildTermsArray($terms, $vid) {
-    $output = [];
-    foreach($terms as $term) {
-      if ($term->vid == $vid) {
-        array_push($output, array(
-          'id' => $term->uuid,
-          'tid' => $term->tid,
-          'name' => $term->name,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/taxonomy/term/'.$term->tid),
-        ));
-      }
-    }
-    return $output;
-  }
-
-  public function buildNodesArray($nodes) {
-    $output = [];
-    $style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
-    $artists_ids = [];
-    $genres_ids = [];
-    $likes_ids = [];
-    foreach($nodes as $node) {
-      $file = File::load($node->image_id);
-      $thumb = $style->buildUrl($file->uri->value);
-      $image_url = $file->uri;
-      $cover = ['thumb' => $thumb, 'image' => $file->uri];
-      $key = array_search($node->nid, array_column($output, 'id'));
-      if ($key !== false) {
-        if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
-          array_push($output[$key]['genres_ids'], (int)$node->genre_id);
-        }
-        if ($node->artist_id && !in_array($node->artist_id ,$output[$key]['artists_ids'])) {
-          array_push($output[$key]['artists_ids'], (int)$node->artist_id);
-        }
-        if ($node->likes && !in_array($node->likes ,$output[$key]['likes_ids'])) {
-          array_push($output[$key]['likes_ids'], $node->likes);
-        }
-      } else {
-        array_push($output, array(
-          'name' => $node->title,
-          'id' => $node->nid,
-          'uuid' => $node->uuid,
-          'featured' => $node->featured,
-          'likes_ids' => array_unique($likes_ids),
-          'artists_ids' => [(int)$node->artist_id],
-          'genres_ids' => [(int)$node->genre_id],
-          'cover' => $cover,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid),
-        ));
-      }
-    }
-    return $output;
   }
 
 }
