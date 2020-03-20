@@ -14,11 +14,19 @@ evinyl_cassettes.content:
   requirements:
     _permission: 'access content'
 
-evinyl_increment_track_count.content:
+evinyl_getjson.content:
   path: '/api/getjson'
   defaults:
     _controller: '\Drupal\evinyl_album\Controller\GetJsonController::content'
     _title: 'Getting JSON'
+  requirements:
+    _permission: 'access content'
+
+evinyl_albumfrompath.content:
+  path: '/api/getalbumfrompath'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\GetJsonController::album'
+    _title: 'Getting album'
   requirements:
     _permission: 'access content'
 

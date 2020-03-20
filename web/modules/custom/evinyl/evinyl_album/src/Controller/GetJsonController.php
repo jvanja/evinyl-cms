@@ -5,6 +5,7 @@
  */
 namespace Drupal\evinyl_album\Controller;
 
+use Drupal\jsonapi\Routing\Routes;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GetJsonController {
@@ -21,6 +22,15 @@ class GetJsonController {
     $command = $wget . $api . $include;
 
     $result = exec($command . ' > /dev/null &', $response, $return_code);
+    return array(
+      '#type' => 'markup',
+      '#markup' => t('New albums.json generated'),
+    );
+  }
+
+  public function album() {
+    $routes = Routes->routes();
+
     return array(
       '#type' => 'markup',
       '#markup' => t('New albums.json generated'),
