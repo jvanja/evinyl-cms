@@ -1,0 +1,7 @@
+evinyl_getjson.content:
+  path: '/api/search/{needle}'
+  defaults:
+    _controller: '\Drupal\evinyl_search\Controller\SearchController::content'
+    _title: 'Search'
+  requirements:
+    _permission: 'access content'

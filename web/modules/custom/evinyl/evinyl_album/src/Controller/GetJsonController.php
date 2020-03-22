@@ -5,7 +5,7 @@
  */
 namespace Drupal\evinyl_album\Controller;
 
-use Drupal\jsonapi\Routing\Routes;
+// use Drupal\jsonapi\Routing\Routes;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GetJsonController {
@@ -29,7 +29,7 @@ class GetJsonController {
   }
 
   public function album() {
-    $routes = Routes->routes();
+    // $routes = Routes->routes();
 
     return array(
       '#type' => 'markup',
