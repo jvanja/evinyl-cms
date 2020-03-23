@@ -6,6 +6,7 @@
 namespace Drupal\evinyl_search\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Drupal\file\Entity\File;
 
 class SearchController {
   public function content($needle) {
@@ -13,25 +14,29 @@ class SearchController {
     $query = $database->query("
       SELECT `node_field_data`.`nid` AS nid,
             `node_field_data`.`title` AS title,
-            `node_field_data`.`type` AS type
+            `node_field_data`.`type` AS type,
+            `node__field_image`.`field_image_target_id` AS image_id
       FROM node_field_data
+      LEFT JOIN `node__field_image` ON `node_field_data`.`nid` = `node__field_image`.`entity_id`
       WHERE node_field_data.status = '1' AND
             node_field_data.type = 'album' AND
             title LIKE '%{$needle}%'
       UNION
       SELECT `taxonomy_term_field_data`.`tid` AS nid,
       `taxonomy_term_field_data`.`name` AS name,
-      `taxonomy_term_field_data`.`vid` AS type
+      `taxonomy_term_field_data`.`vid` AS type,
+      `taxonomy_term__field_user_photo`.`field_user_photo_target_id` AS image_id
       FROM taxonomy_term_field_data
+      LEFT JOIN `taxonomy_term__field_user_photo` ON `taxonomy_term_field_data`.`tid` = `taxonomy_term__field_user_photo`.`entity_id`
       WHERE taxonomy_term_field_data.status = '1' AND
             taxonomy_term_field_data.vid = 'artists' AND
             name LIKE '%{$needle}%'
     ");
     $entities = $query->fetchAll();
-    $albums = $this->buildNodesArray($entities);
+    $results = $this->buildNodesArray($entities);
 
     $return_object = [
-      'albums' => $albums,
+      'results' => $results,
       'search' => $needle
     ];
 
@@ -45,7 +50,10 @@ class SearchController {
 
   public function buildNodesArray($nodes) {
     $output = [];
+    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     foreach($nodes as $node) {
+      $file = File::load($node->image_id);
+      $thumb = $thumb_style->buildUrl($file->uri->value);
       if ($node->type == 'album') {
         $path_base = '/node/';
       } else {
@@ -55,6 +63,7 @@ class SearchController {
         'name' => $node->title,
         'id' => $node->nid,
         'type' => $node->type,
+        'thumb' => $thumb,
         'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
       ));
     }
