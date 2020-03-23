@@ -49,23 +49,30 @@ class SearchController {
   }
 
   public function buildNodesArray($nodes) {
-    $output = [];
+    $output = ['albums' => [], 'artists' => []];
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     foreach($nodes as $node) {
       $file = File::load($node->image_id);
       $thumb = $thumb_style->buildUrl($file->uri->value);
       if ($node->type == 'album') {
         $path_base = '/node/';
+        array_push($output['albums'], array(
+          'name' => $node->title,
+          'id' => $node->nid,
+          'type' => $node->type,
+          'thumb' => $thumb,
+          'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
+        ));
       } else {
         $path_base = '/taxonomy/term/';
+        array_push($output['artists'], array(
+          'name' => $node->title,
+          'id' => $node->nid,
+          'type' => $node->type,
+          'thumb' => $thumb,
+          'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
+        ));
       }
-      array_push($output, array(
-        'name' => $node->title,
-        'id' => $node->nid,
-        'type' => $node->type,
-        'thumb' => $thumb,
-        'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
-      ));
     }
     return $output;
   }
