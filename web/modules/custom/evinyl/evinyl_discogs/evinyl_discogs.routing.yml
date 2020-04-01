@@ -1,0 +1,9 @@
+discogs.settings:
+  path: '/admin/content/import-discogs'
+  defaults:
+    _form: '\Drupal\evinyl_discogs\Form\EvinylDiscogsForm'
+    _title: 'Import Discogs Releases'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE

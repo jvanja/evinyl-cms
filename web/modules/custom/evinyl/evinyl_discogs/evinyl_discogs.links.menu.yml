@@ -1,0 +1,6 @@
+discogs.settings:
+  title: 'Import Discogs Releases'
+  description: 'Import albums from Discogs IDs'
+  parent: system.admin_content
+  route_name: discogs.settings
+  weight: 100
