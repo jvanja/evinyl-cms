@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use GuzzleHttp\Client;
 use \Drupal\node\Entity\Node;
 use \Drupal\Core\Link;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Class MyController.
@@ -79,10 +80,14 @@ class EvinylDiscogsController extends ControllerBase {
 
 
   protected function createAlbums($albumData) {
+    $artistTid = $this->addTaxonomyTerm('artists', $albumData->artists[0]->name);
+    $labelTid = $this->addTaxonomyTerm('labels', $albumData->labels[0]->name);
     $node = Node::create([
-      'type'        => 'album',
-      'status'      => 0,
-      'title'       => $albumData->title,
+      'type'              => 'album',
+      'status'            => 0,
+      'title'             => $albumData->title,
+      'field_artist_term' =>  [['target_id' => $artistTid]],
+      'field_label'       =>  [['target_id' => $labelTid]],
     ]);
     $node->save();
 
@@ -91,4 +96,32 @@ class EvinylDiscogsController extends ControllerBase {
 
     return $link->toString();
   }
+
+  /**
+   * creates new taxonomy term if it doesnt exist
+   * otherwise it returns the existing tid
+   *
+   * @param string $voc
+   *   Vocabulary machine name
+   * @param string $term
+   *   Term name
+   * @return string
+   *   Term ID
+   */
+  protected function addTaxonomyTerm($voc, $term_name) {
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $term_name, 'vid' => $voc]);
+    $term = reset($term);
+    if (empty($term)) {
+      $new_term = Term::create([
+          'vid' => $voc,
+          'name' => $term_name,
+      ]);
+      $new_term->save();
+      return $new_term->id();
+    } else {
+      return $term->id();
+    }
+  }
+
+
 }

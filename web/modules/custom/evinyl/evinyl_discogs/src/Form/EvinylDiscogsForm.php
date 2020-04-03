@@ -31,16 +31,16 @@ class EvinylDiscogsForm extends FormBase {
 
     $form['ids'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Discogs Ids'),
+      '#title' => $this->t('Discogs IDs'),
       '#default_value' => '',
-      '#description' => 'Enter Discogs IDs each on a new line'
+      '#description' => 'Enter Discogs IDs. One per line.'
     ];
 
     $form['actions']['#type'] = 'actions';
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Save'),
+      '#value' => $this->t('Start importing'),
       '#button_type' => 'primary',
     ];
 
@@ -67,7 +67,7 @@ class EvinylDiscogsForm extends FormBase {
     $importController = new EvinylDiscogsController;
     $releases = $importController->posts($ids);
 
-    $this->messenger()->addStatus($this->t('Your realeases are ready: @albums', ['@albums' => $releases]));
+    $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
   }
 
 }
