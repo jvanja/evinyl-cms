@@ -61,13 +61,19 @@ class EvinylDiscogsForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    global $base_url;
+    $edit_unpublish_url = $base_url . '/admin/content?type=album&status=2';
+
     $cleanIds = trim($form_state->getValue('ids'));
     $ids = explode('\n', $cleanIds);
 
     $importController = new EvinylDiscogsController;
     $releases = $importController->posts($ids);
 
-    $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
+    if ($releases) {
+      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <a href="'.$edit_unpublish_url.'">new content</a>. '));
+    }
+    // $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
   }
 
 }
