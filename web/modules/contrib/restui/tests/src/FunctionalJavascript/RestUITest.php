@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\restui\Functional;
+namespace Drupal\Tests\restui\FunctionalJavascript;
 
 use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\rest\RestResourceConfigInterface;
@@ -11,6 +11,11 @@ use Drupal\rest\RestResourceConfigInterface;
  * @group restui
  */
 class RestUITest extends WebDriverTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
 
   /**
    * {@inheritdoc}
@@ -26,7 +31,7 @@ class RestUITest extends WebDriverTestBase {
     // Create a user with permissions to manage.
     $permissions = [
       'administer site configuration',
-      'administer rest resources'
+      'administer rest resources',
     ];
     $account = $this->drupalCreateUser($permissions);
 
