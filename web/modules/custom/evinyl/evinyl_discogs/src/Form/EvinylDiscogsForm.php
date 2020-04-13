@@ -72,6 +72,8 @@ class EvinylDiscogsForm extends FormBase {
 
     if ($releases) {
       $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <a href="'.$edit_unpublish_url.'">new content</a>. '));
+    } else {
+      $this->messenger()->addWarning($this->t('Your import FAILED. Please double check your IDs'));
     }
     // $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
   }

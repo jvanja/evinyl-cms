@@ -4,10 +4,12 @@ namespace Drupal\evinyl_discogs\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use GuzzleHttp\Client;
 use \Drupal\node\Entity\Node;
 use \Drupal\Core\Link;
 use Drupal\taxonomy\Entity\Term;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Exception\ConnectException;
 
 /**
  * Class MyController.
@@ -27,17 +29,27 @@ class EvinylDiscogsController extends ControllerBase {
    * {@inheritdoc}
    */
   public function __construct() {
-    $this->httpClient = \Drupal::httpClient();
+    // $this->httpClient = \Drupal::httpClient();
+
+    // $clientFactory = \Drupal::service('http_client_factory');
+    // $this->httpClient = $clientFactory->fromOptions(['base_uri' => 'https://api.discogs.com/']);
+
+    $this->httpClient = new Client([
+      // Base URI is used with relative requests
+      'base_uri' => 'https://api.discogs.com/releases/'
+      // 'base_uri' => 'http://httpbin.org'
+    ]);
+
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('http_client')
-    );
-  }
+  // /**
+  //  * {@inheritdoc}
+  //  */
+  // public static function create(ContainerInterface $container) {
+  //   return new static(
+  //     $container->get('http_client')
+  //   );
+  // }
 
   /**
    * Posts route callback.
@@ -49,33 +61,36 @@ class EvinylDiscogsController extends ControllerBase {
    */
   public function posts($ids) {
 
-    $apiBaseUrl = 'https://api.discogs.com/releases/249504';
-
     // CONCURRENTLY
     // http://docs.guzzlephp.org/en/latest/quickstart.html#concurrent-requests
-
-    $request = $this->httpClient->request('GET', $apiBaseUrl);
-
-    if ($request->getStatusCode() != 200) {
-      return $build;
+    $promises = [];
+    foreach ($ids as $id) {
+      $cleanId = trim($id);
+      array_push($promises, $this->httpClient->getAsync($cleanId));
     }
 
-    $posts = $request->getBody()->getContents();
+    // Wait for the requests to complete; throws a ConnectException
+    // if any of the requests fail
+    try {
+      $responses = Promise\unwrap($promises);
+      // $responses = Promise\settle($promises)->wait();
+    } catch (ConnectException $e) {
+      return false;
+    }
 
-    // create albums
-    $postObject = json_decode($posts);
-    $album = $this->createAlbums($postObject);
+    foreach ($responses as $response) {
 
+      if ($response->getStatusCode() != 200) {
+        return $build;
+      }
+      $posts = $response->getBody()->getContents();
 
-    // foreach ($posts as $post) {
-    //   $build['#posts'][] = [
-    //     'id' => $post['id'],
-    //     'title' => $post['title'],
-    //     'text' => $post['text'],
-    //   ];
-    // }
+      // create albums
+      $postObject = json_decode($posts);
+      $album = $this->createAlbums($postObject);
+    }
 
-    return $album;
+    return true;
   }
 
 
