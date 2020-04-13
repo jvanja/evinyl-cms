@@ -65,7 +65,7 @@ class EvinylDiscogsForm extends FormBase {
     $edit_unpublish_url = $base_url . '/admin/content?type=album&status=2';
 
     $cleanIds = trim($form_state->getValue('ids'));
-    $ids = explode('\n', $cleanIds);
+    $ids = explode(PHP_EOL, $cleanIds);
 
     $importController = new EvinylDiscogsController;
     $releases = $importController->posts($ids);
