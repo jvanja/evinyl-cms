@@ -24,10 +24,6 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
   }
 }
 function sendNodeJsMessageToAll($entity) {
-  // var_dump($entity);
-  //
-  // die;
-  //
 
   $channel = 'nodejs_ajax_broadcast';
   $uuid = $entity->uuid->getValue()[0]['value'];
