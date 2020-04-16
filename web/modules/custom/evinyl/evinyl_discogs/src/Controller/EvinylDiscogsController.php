@@ -2,11 +2,12 @@
 
 namespace Drupal\evinyl_discogs\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use \Drupal\node\Entity\Node;
 use \Drupal\Core\Link;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\paragraphs\Entity\Paragraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Exception\ConnectException;
@@ -97,12 +98,24 @@ class EvinylDiscogsController extends ControllerBase {
   protected function createAlbums($albumData) {
     $artistTid = $this->addTaxonomyTerm('artists', $albumData->artists[0]->name);
     $labelTid = $this->addTaxonomyTerm('labels', $albumData->labels[0]->name);
+    $aSideTracks = array_filter($albumData->tracklist, function($track) {
+      return ($track->position[0] == 'A');
+    });
+    $bSideTracks = array_filter($albumData->tracklist, function($track) {
+      return ($track->position[0] == 'B');
+    });
+    $aSideSongs = $this->createSongsParagraphs('a_side_songs', $aSideTracks);
+    $bSideSongs = $this->createSongsParagraphs('b_side_songs', $bSideTracks);
+    // var_dump($aSideSongs);
+    // die;
     $node = Node::create([
-      'type'              => 'album',
-      'status'            => 0,
-      'title'             => $albumData->title,
-      'field_artist_term' =>  [['target_id' => $artistTid]],
-      'field_label'       =>  [['target_id' => $labelTid]],
+      'type'               => 'album',
+      'status'             => 0,
+      'title'              => $albumData->title,
+      'field_artist_term'  => [['target_id' => $artistTid]],
+      'field_label'        => [['target_id' => $labelTid]],
+      'field_a_side_songs' => $aSideSongs,
+      'field_b_side_songs' => $bSideSongs,
     ]);
     $node->save();
 
@@ -138,5 +151,32 @@ class EvinylDiscogsController extends ControllerBase {
     }
   }
 
+  /**
+   * creates new field_a_side_songs paragraph and returns id
+   *
+   * @param string $paragraphName
+   *   'a_side_songs' or 'b_side_songs'
+   * @param array $tracksArray for the following fields
+   *  field_song
+   *  field_song_duration
+   *  field_song_name // required
+   *  field_song_writers
+   *  field_track_plays
+   * @return array
+   *   List of paragraphs
+   */
+  protected function createSongsParagraphs($paragraphName, $tracksArray) {
+    $paragraphs = [];
+    foreach($tracksArray as $track) {
+      $song_paragraph = Paragraph::create([
+        'type' => $paragraphName,
+        'field_song_duration' => $track->duration,
+        'field_song_name' => $track->title,
+        // 'field_song_writers'
+      ]);
+      $paragraphs[] = $song_paragraph;
+    }
+    return $paragraphs;
+  }
 
 }
