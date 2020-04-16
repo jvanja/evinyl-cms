@@ -6,6 +6,7 @@ use Drupal\user\Entity\User;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 
+
 /* ==========================================================================
   HOOKS
   ========================================================================== */
