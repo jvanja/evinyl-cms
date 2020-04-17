@@ -96,8 +96,9 @@ class EvinylDiscogsController extends ControllerBase {
 
 
   protected function createAlbums($albumData) {
-    $artistTid = $this->addTaxonomyTerm('artists', $albumData->artists[0]->name);
-    $labelTid = $this->addTaxonomyTerm('labels', $albumData->labels[0]->name);
+    $artistTerms = $this->addTaxonomyTerm('artists', $albumData->artists);
+    $labelTerms = $this->addTaxonomyTerm('labels', $albumData->labels);
+    $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres);
     $aSideTracks = array_filter($albumData->tracklist, function($track) {
       return ($track->position[0] == 'A');
     });
@@ -106,16 +107,18 @@ class EvinylDiscogsController extends ControllerBase {
     });
     $aSideSongs = $this->createSongsParagraphs('a_side_songs', $aSideTracks);
     $bSideSongs = $this->createSongsParagraphs('b_side_songs', $bSideTracks);
-    // var_dump($aSideSongs);
+    // var_dump($genreTerms);
     // die;
     $node = Node::create([
       'type'               => 'album',
       'status'             => 0,
       'title'              => $albumData->title,
-      'field_artist_term'  => [['target_id' => $artistTid]],
-      'field_label'        => [['target_id' => $labelTid]],
+      'field_artist_term'  => $artistTerms,
+      'field_label'        => $labelTerms,
+      'field_genre'        => $genreTerms,
       'field_a_side_songs' => $aSideSongs,
       'field_b_side_songs' => $bSideSongs,
+      'field_release_year' => $albumData->year,
     ]);
     $node->save();
 
@@ -136,19 +139,24 @@ class EvinylDiscogsController extends ControllerBase {
    * @return string
    *   Term ID
    */
-  protected function addTaxonomyTerm($voc, $term_name) {
-    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $term_name, 'vid' => $voc]);
-    $term = reset($term);
-    if (empty($term)) {
-      $new_term = Term::create([
-          'vid' => $voc,
-          'name' => $term_name,
-      ]);
-      $new_term->save();
-      return $new_term->id();
-    } else {
-      return $term->id();
+  protected function addTaxonomyTerm($voc, $termsArray) {
+    $terms = [];
+    foreach($termsArray as $discogsTerm) {
+      $discogsTermName = ($voc == 'genre') ? $discogsTerm : $discogsTerm->name;
+      $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $discogsTermName, 'vid' => $voc]);
+      $term = reset($term);
+      if (empty($term)) {
+        $new_term = Term::create([
+            'vid' => $voc,
+            'name' => $discogsTermName,
+        ]);
+        $new_term->save();
+        $terms[] = ['target_id' => $new_term->id()];
+      } else {
+        $terms[] = ['target_id' => $term->id()];
+      }
     }
+    return $terms;
   }
 
   /**
