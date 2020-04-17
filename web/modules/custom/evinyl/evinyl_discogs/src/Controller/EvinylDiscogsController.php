@@ -113,6 +113,7 @@ class EvinylDiscogsController extends ControllerBase {
       'type'               => 'album',
       'status'             => 0,
       'title'              => $albumData->title,
+      'body'               => nl2br($albumData->notes),
       'field_artist_term'  => $artistTerms,
       'field_label'        => $labelTerms,
       'field_genre'        => $genreTerms,
