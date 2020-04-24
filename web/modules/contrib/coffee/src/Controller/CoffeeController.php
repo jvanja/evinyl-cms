@@ -8,6 +8,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Menu\LocalTaskManagerInterface;
 use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,11 +58,12 @@ class CoffeeController extends ControllerBase {
    * @param \Drupal\Core\Access\AccessManagerInterface $access_manager
    *   The access manager service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MenuLinkTreeInterface $menu_link_tree, LocalTaskManagerInterface $local_task_manager, AccessManagerInterface $access_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, MenuLinkTreeInterface $menu_link_tree, LocalTaskManagerInterface $local_task_manager, AccessManagerInterface $access_manager, UrlGeneratorInterface $url_generator) {
     $this->config = $config_factory->get('coffee.configuration');
     $this->menuLinkTree = $menu_link_tree;
     $this->localTaskManager = $local_task_manager;
     $this->accessManager = $access_manager;
+    $this->urlGenerator = $url_generator;
   }
 
   /**
@@ -72,7 +74,8 @@ class CoffeeController extends ControllerBase {
       $container->get('config.factory'),
       $container->get('menu.link_tree'),
       $container->get('plugin.manager.menu.local_task'),
-      $container->get('access_manager')
+      $container->get('access_manager'),
+      $container->get('coffee.url_generator')
     );
   }
 
@@ -83,7 +86,7 @@ class CoffeeController extends ControllerBase {
    *   The json response.
    */
   public function coffeeData() {
-    $output = array();
+    $output = [];
 
     foreach ($this->config->get('coffee_menus') as $menu_name) {
       $tree = $this->getMenuTreeElements($menu_name);
@@ -92,21 +95,21 @@ class CoffeeController extends ControllerBase {
       foreach ($tree as $tree_element) {
         $link = $tree_element->link;
 
-        $output[$link->getRouteName()] = array(
-          'value' => $link->getUrlObject()->toString(),
+        $output[$link->getRouteName()] = [
+          'value' => $link->getUrlObject()->setUrlGenerator($this->urlGenerator)->toString(),
           'label' => $link->getTitle(),
           'command' => $commands_group,
-        );
+        ];
 
         $tasks = $this->getLocalTasksForRoute($link->getRouteName(), $link->getRouteParameters());
 
         foreach ($tasks as $route_name => $task) {
           if (empty($output[$route_name])) {
-            $output[$route_name] = array(
-              'value' => $task['url']->toString(),
+            $output[$route_name] = [
+              'value' => $task['url']->setUrlGenerator($this->urlGenerator)->toString(),
               'label' => $link->getTitle() . ' - ' . $task['title'],
               'command' => NULL,
-            );
+            ];
           }
         }
       }
@@ -178,7 +181,7 @@ class CoffeeController extends ControllerBase {
    *     - localized_options: the localized options for the local task.
    */
   protected function getLocalTasksForRoute($route_name, array $route_parameters) {
-    $links = array();
+    $links = [];
 
     $tree = $this->localTaskManager->getLocalTasksForRoute($route_name);
     $route_match = \Drupal::routeMatch();
@@ -191,7 +194,7 @@ class CoffeeController extends ControllerBase {
         // calculate the local tasks outside of parent route context.
         $child_route_parameters = $child->getRouteParameters($route_match) + $route_parameters;
 
-        if ($this->accessManager->checkNamedRoute($child_route_name, $child_route_parameters)) {
+        if (strpos($child_route_name, 'config_translate') !== FALSE && $this->accessManager->checkNamedRoute($child_route_name, $child_route_parameters)) {
           $links[$child_route_name] = [
             'title' => $child->getTitle(),
             'url' => Url::fromRoute($child_route_name, $child_route_parameters),

@@ -35,7 +35,7 @@ class CoffeeCommandsTest extends KernelTestBase {
     // Create the node bundles required for testing.
     $node_type = NodeType::create([
       'type' => 'page',
-      'name' => 'Basic page'
+      'name' => 'Basic page',
     ]);
     $node_type->save();
 

@@ -19,15 +19,15 @@ use Drupal\views\Views;
  * Here's an example of how to add content to Coffee.
  */
 function hook_coffee_commands() {
-  $commands = array();
+  $commands = [];
 
   // Basic example, for 1 result.
-  $commands[] = array(
+  $commands[] = [
     'value' => Url::fromRoute('my.simple.route')->toString(),
     'label' => 'Simple',
     // Every result should include a command.
     'command' => ':simple',
-  );
+  ];
 
   // More advanced example to include view results.
   if ($view = Views::getView('frontpage')) {
@@ -37,13 +37,13 @@ function hook_coffee_commands() {
 
     foreach ($view->result as $row) {
       $entity = $row->_entity;
-      $commands[] = array(
+      $commands[] = [
         'value' => $entity->toUrl()->toString(),
         'label' => 'Pub: ' . $entity->label(),
         // You can also specify commands that if the user enters, this command
         // should show.
         'command' => ':x ' . $entity->label(),
-      );
+      ];
     }
   }
 
