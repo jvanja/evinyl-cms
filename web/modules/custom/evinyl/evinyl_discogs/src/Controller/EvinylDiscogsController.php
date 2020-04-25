@@ -177,11 +177,25 @@ class EvinylDiscogsController extends ControllerBase {
   protected function createSongsParagraphs($paragraphName, $tracksArray) {
     $paragraphs = [];
     foreach($tracksArray as $track) {
+      $credits = [];
+      $creditsString = '';
+      foreach ($track->extraartists as $extraArtist) {
+        $role = $extraArtist->role;
+        $artistName = $extraArtist->name;
+        if (array_key_exists($role, $credits)) {
+          $credits[$role] .= ', ' . $artistName;
+        } else {
+          $credits[$role] = $artistName;
+        }
+      }
+      foreach ($credits as $role => $name) {
+        $creditsString .= $role . ' - ' . $name . '<br>';
+      }
       $song_paragraph = Paragraph::create([
-        'type' => $paragraphName,
+        'type'                => $paragraphName,
         'field_song_duration' => $track->duration,
-        'field_song_name' => $track->title,
-        // 'field_song_writers'
+        'field_song_name'     => $track->title,
+        'field_song_credits'  => $creditsString
       ]);
       $paragraphs[] = $song_paragraph;
     }
