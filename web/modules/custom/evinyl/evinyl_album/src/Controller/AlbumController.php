@@ -94,6 +94,9 @@ class AlbumController {
   }
 
   public function buildNodesArray($nodes) {
+    global $base_url;
+    $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+
     $output = [];
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
@@ -102,10 +105,19 @@ class AlbumController {
     $likes_ids = [];
     foreach($nodes as $node) {
       $file = File::load($node->image_id);
-      $thumb = $thumb_style->buildUrl($file->uri->value);
-      $medium = $medium_style->buildUrl($file->uri->value);
-      $image_url = $file->uri;
-      $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $file->uri];
+      if($file) {
+        $thumb = $thumb_style->buildUrl($file->uri->value);
+        $medium = $medium_style->buildUrl($file->uri->value);
+        $image_url = $file->uri;
+      } else {
+        $thumb = $base_url . '/sites/default/files/default_images/cover_blank_lg_0_0.jpg';
+        $medium = $base_url . '/sites/default/files/default_images/cover_blank_lg_0_0.jpg';
+        $image_url = [
+                    'value' => 'public://default_images/cover_blank_lg_0_0.jpg',
+                    'url' => $root_path . 'sites/default/files/default_images/cover_blank_lg_0_0.jpg'
+                    ];
+      }
+      $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
         if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
