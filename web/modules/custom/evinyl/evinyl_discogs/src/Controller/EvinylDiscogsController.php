@@ -107,8 +107,7 @@ class EvinylDiscogsController extends ControllerBase {
     });
     $aSideSongs = $this->createSongsParagraphs('a_side_songs', $aSideTracks);
     $bSideSongs = $this->createSongsParagraphs('b_side_songs', $bSideTracks);
-    // var_dump($genreTerms);
-    // die;
+    $credits = $this->createAlbumsCredits($albumData->extraartists);
     $node = Node::create([
       'type'               => 'album',
       'status'             => 0,
@@ -120,6 +119,7 @@ class EvinylDiscogsController extends ControllerBase {
       'field_a_side_songs' => $aSideSongs,
       'field_b_side_songs' => $bSideSongs,
       'field_release_year' => $albumData->year,
+      'field_credits'      => $credits,
     ]);
     $node->save();
 
@@ -200,6 +200,31 @@ class EvinylDiscogsController extends ControllerBase {
       $paragraphs[] = $song_paragraph;
     }
     return $paragraphs;
+  }
+
+  protected function createAlbumsCredits($albumCredits) {
+    // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
+
+    if (count($albumCredits) > 0) {
+      $credits = [];
+      $creditsString = '';
+      foreach ($albumCredits as $extraArtist) {
+        $role = $extraArtist->role;
+        $tracks = empty($extraArtist->tracks) ? '' : ' (' . $extraArtist->tracks . ')';
+        $artistName = $extraArtist->name . $tracks;
+        if (array_key_exists($role, $credits)) {
+          $credits[$role] .= ', ' . $artistName;
+        } else {
+          $credits[$role] = $artistName;
+        }
+      }
+      foreach ($credits as $role => $name) {
+        $creditsString .= $role . ' - ' . $name . '<br>';
+      }
+      return $creditsString;
+    } else {
+      return '';
+    }
   }
 
   private function hhmmss_to_seconds($str_time = '0:0') {
