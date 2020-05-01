@@ -2,5 +2,5 @@ name: Evinyl Discogs API
 description: Adds an admin page to import albums from Discogs IDs
 package: evinyl
 type: module
-version: 1.0
+version: 1.1
 core: 8.x
