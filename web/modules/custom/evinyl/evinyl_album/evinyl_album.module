@@ -5,6 +5,7 @@ use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
+use Symfony\Component\HttpFoundation;
 
 
 /* ==========================================================================
@@ -53,6 +54,25 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
 // }
 
 
+function evinyl_album_preprocess_node(&$variables){
+  $node = Drupal::request()->attributes->get('node');
+  $type = $node->getType();
+  if($type == 'album'){
+    $current_path = \Drupal::service('path.current')->getPath();
+    $node_alias = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+    $host = \Drupal::request()->getHost();
+    if ($host == 'localhost') {
+      $redirect = 'http://localhost:3000' . $node_alias;
+    } else {
+      $redirect = 'https://v2.evinyl.net' . $node_alias;
+    }
+
+    $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
+    $response->send();
+    Drupal::entityManager()->getViewBuilder('node')->resetCache();
+    return;
+  }
+}
 
 /* ==========================================================================
   CUSTOM METHODS
