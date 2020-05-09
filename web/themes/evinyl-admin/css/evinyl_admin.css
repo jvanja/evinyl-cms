@@ -1,0 +1,11 @@
+.adminimal .block-page-title-block h1 {
+  /* color: #434343; */
+}
+.node-album-edit-form .layout-node-form  .layout-region {
+  float: none;
+  width: 100%;
+}
+
+.adminimal .filter-wrapper {
+ display: none;
+ }

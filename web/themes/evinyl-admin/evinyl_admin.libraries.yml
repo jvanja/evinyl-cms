@@ -1,0 +1,5 @@
+global-styling:
+  css:
+    base:
+      css/evinyl_admin.css: {}
+
