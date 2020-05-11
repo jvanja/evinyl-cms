@@ -1,11 +1,15 @@
+.node-album-form .layout-node-form  .layout-region,
 .node-album-edit-form .layout-node-form  .layout-region {
   float: none;
   width: 100%;
   padding: 0;
 }
 
+.media-library-item__attributes {
+  max-height: none;
+}
 .adminimal .filter-wrapper {
- display: none;
+   display: none;
  }
 
  @media screen and (min-width: 40em) {
