@@ -104,19 +104,12 @@ class AlbumController {
     $genres_ids = [];
     $likes_ids = [];
     foreach($nodes as $node) {
+      // set default image (fid=137) if one is not found.
+      $node->image_id = $node->image_id == null ? 137 : $node->image_id;
       $file = File::load($node->image_id);
-      if($file) {
-        $thumb = $thumb_style->buildUrl($file->uri->value);
-        $medium = $medium_style->buildUrl($file->uri->value);
-        $image_url = $file->uri;
-      } else {
-        $thumb = $base_url . '/sites/default/files/default_images/cover_blank_lg_0_0.jpg';
-        $medium = $base_url . '/sites/default/files/default_images/cover_blank_lg_0_0.jpg';
-        $image_url = [
-                    'value' => 'public://default_images/cover_blank_lg_0_0.jpg',
-                    'url' => $root_path . 'sites/default/files/default_images/cover_blank_lg_0_0.jpg'
-                    ];
-      }
+      $thumb = $thumb_style->buildUrl($file->uri->value);
+      $medium = $medium_style->buildUrl($file->uri->value);
+      $image_url = $file->uri;
       $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
