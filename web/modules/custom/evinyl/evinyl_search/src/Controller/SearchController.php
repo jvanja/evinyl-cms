@@ -52,6 +52,8 @@ class SearchController {
     $output = ['albums' => [], 'artists' => []];
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     foreach($nodes as $node) {
+      // set default image (fid=137) if one is not found.
+      $node->image_id = $node->image_id == null ? 137 : $node->image_id;
       $file = File::load($node->image_id);
       $thumb = $thumb_style->buildUrl($file->uri->value);
       if ($node->type == 'album') {
