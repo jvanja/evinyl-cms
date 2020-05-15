@@ -21,7 +21,7 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
     break;
    case 'a_side_songs':
    case 'b_side_songs':
-    calculate_song_duration($entity);
+    // calculate_song_duration($entity);
     break;
    case 'comment':
     sendNodeJsMessageToAll($entity);
