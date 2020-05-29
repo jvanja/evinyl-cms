@@ -86,7 +86,11 @@ Drupal.Nodejs.connect = function () {
   if (typeof io === 'undefined') {
      return false;
   }
-  Drupal.Nodejs.socket = io.connect(url, {'connect timeout': drupalSettings.nodejs.connectTimeout});
+  Drupal.Nodejs.socket = io.connect(url, {
+    timeout: drupalSettings.nodejs.connectTimeout,
+    transports: drupalSettings.nodejs.client.transports,
+    path: drupalSettings.nodejs.client.path,
+  });
   Drupal.Nodejs.socket.on('connect', function() {
     Drupal.Nodejs.sendAuthMessage();
     Drupal.Nodejs.runSetupHandlers('connect');

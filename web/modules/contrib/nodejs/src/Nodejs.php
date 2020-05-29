@@ -13,7 +13,7 @@ use GuzzleHttp\Exception\RequestException;
 
 class Nodejs {
 
-  const SAFE_NODE_SERVER_VERSION = '1.0.11';
+  const SAFE_NODE_SERVER_VERSION = '1.0.8';
 
   protected $queuedMessages = [];
 

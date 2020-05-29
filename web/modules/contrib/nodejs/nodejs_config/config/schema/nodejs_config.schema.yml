@@ -20,9 +20,6 @@ nodejs_config.settings:
     cert:
       type: string
       label: 'SSL certificate file'
-    resource:
-      type: string
-      label: 'Resource path'
     publish_url:
       type: string
       label: 'Publish URL'

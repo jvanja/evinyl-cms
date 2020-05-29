@@ -51,7 +51,7 @@ class BroadcastForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     nodejs_broadcast_message($form_state->getValue('broadcast_subject'), $form_state->getValue('broadcast_message'));
-    drupal_set_message(t("Message broadcast to all users"));
+    $this->messenger()->addStatus(t("Message broadcast to all users"));
   }
 
 }
