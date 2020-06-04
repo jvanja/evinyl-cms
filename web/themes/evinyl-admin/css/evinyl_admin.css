@@ -6,7 +6,7 @@
 }
 
 .media-library-item__attributes {
-  max-height: none;
+  max-height: none !important;
 }
 .adminimal .filter-wrapper {
    display: none;
