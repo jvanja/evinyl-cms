@@ -12,6 +12,10 @@
    display: none;
  }
 
+ .toolbar-icon-admin-toolbar-tools-help:before {
+  background-image: url(../logo.svg);
+}
+
  @media screen and (min-width: 40em) {
    .layout--twocol > .layout__region--first, .layout--twocol > .layout__region--second {
       flex: 0 1 48%;
