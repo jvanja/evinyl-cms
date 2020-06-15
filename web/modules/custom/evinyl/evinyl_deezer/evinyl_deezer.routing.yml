@@ -1,0 +1,9 @@
+deezer.settings:
+  path: '/admin/content/import-deezer'
+  defaults:
+    _form: '\Drupal\evinyl_deezer\Form\EvinylDeezerForm'
+    _title: 'Import from Deezer'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
