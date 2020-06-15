@@ -1,6 +1,13 @@
+system.admin_content_import:
+  route_name: system.admin_content_import
+  parent: system.admin_content
+  title: 'Import albums'
+  description: 'Import releases from different providers.'
+  weight: 10
+
 discogs.settings:
   title: 'Import Discogs Releases'
   description: 'Import albums from Discogs IDs'
-  parent: system.admin_content
+  parent: system.admin_content_import
   route_name: discogs.settings
   weight: 100
