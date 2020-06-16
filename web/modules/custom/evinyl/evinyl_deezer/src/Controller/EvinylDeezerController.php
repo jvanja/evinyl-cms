@@ -87,7 +87,11 @@ class EvinylDeezerController extends ControllerBase {
 
       // create albums
       $postObject = json_decode($posts);
-      $album = $this->createAlbums($postObject);
+      if ($postObject->error) {
+        return $build;
+      } else {
+        $album = $this->createAlbums($postObject);
+      }
     }
 
     return true;
