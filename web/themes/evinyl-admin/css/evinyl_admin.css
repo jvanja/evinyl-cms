@@ -1,3 +1,7 @@
+body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
+  display: none;
+}
+
 .node-album-form .layout-node-form  .layout-region,
 .node-album-edit-form .layout-node-form  .layout-region {
   float: none;
