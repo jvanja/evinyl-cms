@@ -17,6 +17,6 @@ function evinyl_user_preprocess_user(&$variables){
 
   $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
   $response->send();
-  Drupal::entityManager()->getViewBuilder('node')->resetCache();
+  Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
   return;
 }

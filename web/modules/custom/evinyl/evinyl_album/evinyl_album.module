@@ -69,7 +69,7 @@ function evinyl_album_preprocess_node(&$variables){
 
     $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
     $response->send();
-    Drupal::entityManager()->getViewBuilder('node')->resetCache();
+    Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
     return;
   }
 }
