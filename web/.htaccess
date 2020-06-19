@@ -180,3 +180,16 @@ AddEncoding gzip svgz
   # Disable Proxy header, since it's an attack vector.
   RequestHeader unset Proxy
 </IfModule>
+
+########
+## CUSTOM OVERWRITES
+########
+AddOutputFilterByType DEFLATE application/json
+AddOutputFilterByType DEFLATE "application/vnd.api+json"
+
+# Adding localhost bs
+<IfModule mod_headers.c>
+	SetEnvIf Host "^localhost$" is_localhost
+	Header unset Access-Control-Allow-Origin env=is_localhost
+	Header always set Access-Control-Allow-Origin http://localhost:3000 env=is_localhost
+</IfModule>
