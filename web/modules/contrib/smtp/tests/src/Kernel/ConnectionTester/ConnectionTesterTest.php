@@ -1,17 +1,24 @@
 <?php
 
-namespace Drupal\Tests\smtp\Unit\ConnectionTester;
+namespace Drupal\Tests\smtp\Kernel;
 
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\smtp\ConnectionTester\ConnectionTester;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
-use Drupal\Tests\UnitTestCase;
+use PHPMailer\PHPMailer\PHPMailer;
 
 /**
- * Validate requirements for ConnectionTester.
+ * Class DeleteEntityTest.
  *
- * @group SMTP
+ * @group acquia_contenthub
+ *
+ * @package Drupal\Tests\acquia_contenthub\Kernel
  */
-class ConnectionTesterTest extends UnitTestCase {
+class ConnectionTesterTest extends KernelTestBase {
+
+  public static $modules = [
+    'smtp',
+  ];
 
   /**
    * Test for hookRequirements().
@@ -31,48 +38,13 @@ class ConnectionTesterTest extends UnitTestCase {
    * @dataProvider providerHookRequirements
    */
   public function testHookRequirements(string $message, bool $smtp_on, bool $result, string $exception, array $expected) {
-    $object = $this->getMockBuilder(ConnectionTester::class)
-      // NULL = no methods are mocked; otherwise list the methods here.
-      ->setMethods([
-        'phpMailer',
-        'configGet',
-        't',
-      ])
-      ->getMock();
+    $smtp_settings = \Drupal::configFactory()
+      ->getEditable('smtp.settings');
+    $smtp_settings->set('smtp_on', $smtp_on);
+    $smtp_settings->save();
 
-    $object->method('phpMailer')
-      ->willReturn(new class($exception, $result) {
-
-        /**
-         * Class Constructor.
-         */
-        function __construct($exception, $result) {
-          $this->exception = $exception;
-          $this->result = $result;
-        }
-
-        /**
-         * Mock function for connection.
-         */
-        function smtpConnect() {
-          if ($this->exception) {
-            $class = $this->exception;
-            throw new $class('EXCEPTION MESSAGE');
-          }
-          return $this->result;
-        }
-
-      });
-    $object->method('configGet')
-      ->will($this->returnCallback(function ($param) use ($smtp_on) {
-        if ($param == 'smtp_on') {
-          return $smtp_on;
-        }
-      }));
-    $object->method('t')
-      ->will($this->returnCallback(function ($x, $y = []) {
-        return serialize([$x, $y]);
-      }));
+    $object = \Drupal::service('smtp.contection_tester');
+    $object->setMailer($this->getMockMailer($result, $exception));
 
     $object->testConnection();
     $output = $object->hookRequirements('runtime');
@@ -100,8 +72,8 @@ class ConnectionTesterTest extends UnitTestCase {
         'exception' => '',
         'expected' => [
           'smtp_connection' => [
-            'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled, turned on, and connection is valid.', []]),
+            'title' => 'SMTP connection',
+            'value' => 'SMTP module is enabled, turned on, and connection is valid.',
             'severity' => ConnectionTester::REQUIREMENT_OK,
           ],
         ],
@@ -113,8 +85,8 @@ class ConnectionTesterTest extends UnitTestCase {
         'exception' => '',
         'expected' => [
           'smtp_connection' => [
-            'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled, turned on, but SmtpConnect() threw an unexpected exception', []]),
+            'title' => 'SMTP connection',
+            'value' => 'SMTP module is enabled, turned on, but SmtpConnect() returned FALSE.',
             'severity' => ConnectionTester::REQUIREMENT_ERROR,
           ],
         ],
@@ -126,11 +98,8 @@ class ConnectionTesterTest extends UnitTestCase {
         'exception' => PHPMailerException::class,
         'expected' => [
           'smtp_connection' => [
-            'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled, turned on, but SmtpConnect() threw exception @e', [
-              '@e' => 'EXCEPTION MESSAGE',
-            ],
-            ]),
+            'title' => 'SMTP connection',
+            'value' => 'SMTP module is enabled, turned on, but SmtpConnect() threw exception EXCEPTION MESSAGE',
             'severity' => ConnectionTester::REQUIREMENT_ERROR,
           ],
         ],
@@ -142,8 +111,8 @@ class ConnectionTesterTest extends UnitTestCase {
         'exception' => \Exception::class,
         'expected' => [
           'smtp_connection' => [
-            'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled, turned on, but SmtpConnect() threw an unexpected exception', []]),
+            'title' => 'SMTP connection',
+            'value' => 'SMTP module is enabled, turned on, but SmtpConnect() threw an unexpected exception',
             'severity' => ConnectionTester::REQUIREMENT_ERROR,
           ],
         ],
@@ -155,13 +124,45 @@ class ConnectionTesterTest extends UnitTestCase {
         'exception' => '',
         'expected' => [
           'smtp_connection' => [
-            'title' => serialize(['SMTP connection', []]),
-            'value' => serialize(['SMTP module is enabled but turned off.', []]),
+            'title' => 'SMTP connection',
+            'value' => 'SMTP module is enabled but turned off.',
             'severity' => ConnectionTester::REQUIREMENT_OK,
           ],
         ],
       ],
     ];
+  }
+
+  /**
+   * Create a mock PHPMailer class for testing the exceptions.
+   *
+   * @param $result
+   *   Expected Result.
+   * @param $exception
+   *   Exception passed in.
+   *
+   * @return \PHPMailer\PHPMailer\PHPMailer|__anonymous@4029
+   */
+  private function getMockMailer($result, $exception) {
+    $class = new class($result, $exception) extends PHPMailer {
+
+      public function __construct($result, $exception) {
+        $this->result = $result;
+        $this->exception = $exception;
+      }
+
+      /**
+       * Mock function for connection.
+       */
+      public function smtpConnect($options = NULL) {
+        if ($this->exception) {
+          $class = $this->exception;
+          throw new $class('EXCEPTION MESSAGE');
+        }
+        return $this->result;
+      }
+    };
+    return $class;
   }
 
 }
