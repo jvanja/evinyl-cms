@@ -27,7 +27,7 @@
         "drupal/consumer_image_styles": "^3.0",
         "drupal/core": "^8.7.0",
         "drupal/decoupled_router": "^1.11",
-        "drupal/devel": "^2.1",
+        "drupal/devel": "^4.0",
         "drupal/features": "^3.8",
         "drupal/field_group": "^3.1",
         "drupal/jsonapi_extras": "^3.12",
