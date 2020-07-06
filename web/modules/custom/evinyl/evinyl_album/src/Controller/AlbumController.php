@@ -7,6 +7,7 @@ namespace Drupal\evinyl_album\Controller;
 // use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\file\Entity\File;
+use Drupal\paragraphs\Entity\Paragraph;
 
 class AlbumController {
   public function content() {
@@ -139,4 +140,23 @@ class AlbumController {
     return $output;
   }
 
+  public function update() {
+
+    $export = '';
+    $database = \Drupal::database();
+    $paras = $database->query("SELECT entity_id, field_image_target_id FROM {paragraph__field_image}");
+    $paras_res = $paras->fetchAll();
+    $targets = implode(',' ,array_column($paras_res, 'field_image_target_id'));
+
+    foreach ($paras_res as $para) {
+      $paragraph_id = $para->entity_id;
+      $paragraph = Paragraph::load($paragraph_id);
+      $paragraph->set('field_gallery_image',  $para->field_image_target_id);
+      $paragraph->save();
+    }
+    return array(
+      '#type' => 'markup',
+      '#markup' => t($export . 'All done'),
+    );
+  }
 }
