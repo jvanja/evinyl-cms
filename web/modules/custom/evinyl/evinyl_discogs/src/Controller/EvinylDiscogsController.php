@@ -105,8 +105,16 @@ class EvinylDiscogsController extends ControllerBase {
     $bSideTracks = array_filter($albumData->tracklist, function($track) {
       return ($track->position[0] == 'B');
     });
+    $cSideTracks = array_filter($albumData->tracklist, function($track) {
+      return ($track->position[0] == 'C');
+    });
+    $dSideTracks = array_filter($albumData->tracklist, function($track) {
+      return ($track->position[0] == 'D');
+    });
     $aSideSongs = $this->createSongsParagraphs('a_side_songs', $aSideTracks);
-    $bSideSongs = $this->createSongsParagraphs('b_side_songs', $bSideTracks);
+    $bSideSongs = $this->createSongsParagraphs('a_side_songs', $bSideTracks);
+    $cSideSongs = $this->createSongsParagraphs('a_side_songs', $cSideTracks);
+    $dSideSongs = $this->createSongsParagraphs('a_side_songs', $dSideTracks);
     $credits = $this->createAlbumsCredits($albumData->extraartists);
     $node = Node::create([
       'type'               => 'album',
@@ -118,6 +126,8 @@ class EvinylDiscogsController extends ControllerBase {
       'field_genre'        => $genreTerms,
       'field_a_side_songs' => $aSideSongs,
       'field_b_side_songs' => $bSideSongs,
+      'field_c_side_songs' => $cSideSongs,
+      'field_d_side_songs' => $dSideSongs,
       'field_release_year' => $albumData->year,
       'field_credits'      => $credits,
     ]);
@@ -164,7 +174,7 @@ class EvinylDiscogsController extends ControllerBase {
    * creates new field_a_side_songs paragraph and returns id
    *
    * @param string $paragraphName
-   *   'a_side_songs' or 'b_side_songs'
+   *   'a_side_songs'
    * @param array $tracksArray for the following fields
    *  field_song
    *  field_song_duration
