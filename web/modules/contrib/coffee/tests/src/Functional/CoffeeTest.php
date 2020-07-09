@@ -2,7 +2,10 @@
 
 namespace Drupal\Tests\coffee\Functional;
 
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\system\Entity\Menu;
 use Drupal\Tests\BrowserTestBase;
+use PHPUnit\Util\Json;
 
 /**
  * Tests Coffee module functionality.
@@ -16,7 +19,7 @@ class CoffeeTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['coffee'];
+  public static $modules = ['coffee', 'coffee_test', 'menu_link_content'];
 
   /**
    * The user for tests.
@@ -154,4 +157,39 @@ class CoffeeTest extends BrowserTestBase {
     $this->assertSession()->elementExists('xpath', $tab_xpath);
   }
 
+  /**
+   * Tests that CSRF tokens are correctly handled.
+   */
+  public function testCoffeeCsrf() {
+    $account = $this->drupalCreateUser(['access coffee', 'access administration pages']);
+    $this->drupalLogin($account);
+
+    // Set up a new menu with one link.
+    $menu = Menu::create([
+      'id' => 'coffee',
+      'label' => 'Coffee',
+      'description' => 'Menu for testing Coffee.',
+    ]);
+    $menu->save();
+
+    $menu_link = MenuLinkContent::create([
+      'title' => 'Coffee test',
+      'provider' => 'menu_link_content',
+      'menu_name' => 'coffee',
+      'link' => ['uri' => 'internal:/coffee-test-csrf'],
+    ]);
+    $menu_link->save();
+    $this->config('coffee.configuration')->set('coffee_menus', ['coffee'])->save();
+
+    // Get the link with CSRF token.
+    $result = $this->drupalGet('/admin/coffee/get-data');
+    $result = json_decode($result);
+
+    // For some reason, drupalGet('path?token=foo') does not work, and
+    // we have to explicitly set the token in the query options.
+    $token = substr($result[0]->value, strpos($result[0]->value, 'token=') + 6);
+
+    $this->drupalGet('/coffee-test-csrf', ['query' => ['token' => $token]]);
+    $this->assertResponse(200);
+  }
 }

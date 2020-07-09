@@ -85,14 +85,6 @@ class NodejsConfigSettingsForm extends ConfigFormBase {
       '#description' => $this->t('File system path to the certificate used for secure communication.'),
       '#default_value' => $config->get('cert'),
     );
-    $form['config']['nodejs_config_resource'] = array(
-      '#type' => 'textfield',
-      '#title' => $this->t('Resource path'),
-      '#required' => TRUE,
-      '#description' => $this->t('Path that the node.js server should respond to.
-                                  This value needs to match the Drupal node.js configuration.'),
-      '#default_value' => $config->get('resource'),
-    );
     $form['config']['nodejs_config_publish_url'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Publish URL'),
@@ -184,7 +176,6 @@ class NodejsConfigSettingsForm extends ConfigFormBase {
       'port' => (int) $form_state->getValue('nodejs_config_port'),
       'key' => $form_state->getValue('nodejs_config_key'),
       'cert' => $form_state->getValue('nodejs_config_cert'),
-      'resource' => $form_state->getValue('nodejs_config_resource'),
       'publishUrl' => $form_state->getValue('nodejs_config_publish_url'),
       'serviceKey' => $main_config->get('nodejs_service_key'),
       'backend' => array(
@@ -214,7 +205,6 @@ class NodejsConfigSettingsForm extends ConfigFormBase {
       ->set('scheme', $form_state->getValue('nodejs_server_scheme'))
       ->set('key', $form_state->getValue('nodejs_config_key'))
       ->set('cert', $form_state->getValue('nodejs_config_cert'))
-      ->set('resource', $form_state->getValue('nodejs_config_resource'))
       ->set('publish_url', $form_state->getValue('nodejs_config_publish_url'))
       ->set('backend_port', (int) $form_state->getValue('nodejs_config_backend_port'))
       ->set('backend_host', $form_state->getValue('nodejs_config_backend_host'))

@@ -4,7 +4,6 @@ port: 8080
 scheme: 'http'
 key: '/path/to/key/file'
 cert: '/path/to/cert/file'
-resource: '/socket.io'
 publish_url: 'publish'
 write_channels: false
 write_clients: false

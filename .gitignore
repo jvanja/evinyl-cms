@@ -24,3 +24,6 @@
 /.env
 
 web/album.json
+composer.lock
+
+sass

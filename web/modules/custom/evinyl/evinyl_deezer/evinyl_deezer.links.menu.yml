@@ -1,0 +1,6 @@
+deezer.settings:
+  title: 'Import Deezer Releases'
+  description: 'Import albums from Deezer IDs'
+  parent: system.admin_content_import
+  route_name: deezer.settings
+  weight: 100

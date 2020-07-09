@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Url;
 use Drupal\Core\Site\Settings;
@@ -260,7 +261,7 @@ function nodejs_send_role_message($role_name, $subject, $body) {
  */
 function nodejs_add_js_to_page_check() {
   $account = \Drupal::currentUser();
-  $path = \Drupal::service('path.alias_manager')->getAliasByPath(Url::fromRoute('<current>')->toString());
+  $path = \Drupal::service('path_alias.manager')->getAliasByPath(Url::fromRoute('<current>')->toString());
   $config_paths = \Drupal::config('nodejs.config')->get('pages');
   $valid_page = \Drupal::service('path.matcher')->matchPath($path, $config_paths) ;
 
@@ -280,7 +281,7 @@ function nodejs_get_socketio_js_config($nodejs_config) {
   $socket_io_config = \Drupal::config('nodejs.config')->get('socket_io');
   if (!$socket_io_config['path']) {
     $socket_io_config['path'] = $nodejs_config['client']['scheme'] . '://' . $nodejs_config['client']['host'] . ':'
-                              . $nodejs_config['client']['port'] . $nodejs_config['resource'] . '/socket.io.js';
+                              . $nodejs_config['client']['port'] . '/socket.io/socket.io.js';
   }
   return $socket_io_config;
 }
@@ -297,7 +298,7 @@ function nodejs_get_js_handlers() {
 /**
 * Implements hook_js_settings_alter().
 */
-function nodejs_js_settings_alter(array &$settings, \Drupal\Core\Asset\AttachedAssetsInterface $assets) {
+function nodejs_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
   if (nodejs_add_js_to_page_check()) {
     $nodejs_config = nodejs_get_config();
 
@@ -480,7 +481,7 @@ function nodejs_auth_check($message) {
   }
 
   $uid = $nodejs_auth_check_callback($message['authToken']);
-  $account = $uid > 0 ? user_load($uid) : new AnonymousUserSession();
+  $account = $uid > 0 ? \Drupal::service('entity_type.manager')->getStorage('user')->load($uid) : new AnonymousUserSession();
 
   $auth_user = new stdClass();
   $auth_user->uid = $account->id();
@@ -649,4 +650,3 @@ function nodejs_get_client_socket_id() {
   $client_socket_id = isset($_POST['nodejs_client_socket_id']) ? $_POST['nodejs_client_socket_id'] : '';
   return preg_match('/^[0-9a-z_-]+$/i', $client_socket_id) ? $client_socket_id : '';
 }
-

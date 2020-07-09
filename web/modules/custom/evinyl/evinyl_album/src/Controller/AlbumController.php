@@ -7,6 +7,7 @@ namespace Drupal\evinyl_album\Controller;
 // use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\file\Entity\File;
+use Drupal\paragraphs\Entity\Paragraph;
 
 class AlbumController {
   public function content() {
@@ -94,6 +95,9 @@ class AlbumController {
   }
 
   public function buildNodesArray($nodes) {
+    global $base_url;
+    $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+
     $output = [];
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
@@ -101,11 +105,13 @@ class AlbumController {
     $genres_ids = [];
     $likes_ids = [];
     foreach($nodes as $node) {
+      // set default image (fid=137) if one is not found.
+      $node->image_id = $node->image_id == null ? 137 : $node->image_id;
       $file = File::load($node->image_id);
       $thumb = $thumb_style->buildUrl($file->uri->value);
       $medium = $medium_style->buildUrl($file->uri->value);
       $image_url = $file->uri;
-      $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $file->uri];
+      $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
         if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
@@ -134,4 +140,23 @@ class AlbumController {
     return $output;
   }
 
+  public function update() {
+
+    $export = '';
+    $database = \Drupal::database();
+    $paras = $database->query("SELECT entity_id, field_image_target_id FROM {paragraph__field_image}");
+    $paras_res = $paras->fetchAll();
+    $targets = implode(',' ,array_column($paras_res, 'field_image_target_id'));
+
+    foreach ($paras_res as $para) {
+      $paragraph_id = $para->entity_id;
+      $paragraph = Paragraph::load($paragraph_id);
+      $paragraph->set('field_gallery_image',  $para->field_image_target_id);
+      $paragraph->save();
+    }
+    return array(
+      '#type' => 'markup',
+      '#markup' => t($export . 'All done'),
+    );
+  }
 }

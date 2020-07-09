@@ -58,7 +58,7 @@
 
 .coffee-form-wrapper.hide-form {
   position: absolute;
-  left: -100%;
+  top: -100%;
   opacity: 0;
 }
 
@@ -140,10 +140,11 @@
   border-radius: 0px;
 }
 
+#coffee-results .ui-widget-content .ui-state-active,
 #coffee-results a.ui-state-hover,
 #coffee-results a:focus,
 #coffee-results a:hover,
-#coffee-results .ui-state-focus {
+#coffee-results .ui-state-active {
   background: #d1d1d1;
   color: #000;
   margin: 0;
@@ -174,4 +175,8 @@
   background-position: right 10px center;
   background-repeat: no-repeat;
   background-size: 40px 40px;
+}
+
+[dir="rtl"] #coffee-q {
+  background-position: left 20px center;
 }

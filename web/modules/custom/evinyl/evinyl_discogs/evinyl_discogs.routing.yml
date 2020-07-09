@@ -1,0 +1,17 @@
+system.admin_content_import:
+  path: '/admin/content/import'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Import Releases'
+  requirements:
+    _permission: 'access administration pages'
+
+discogs.settings:
+  path: '/admin/content/import-discogs'
+  defaults:
+    _form: '\Drupal\evinyl_discogs\Form\EvinylDiscogsForm'
+    _title: 'Import from Discogs'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE

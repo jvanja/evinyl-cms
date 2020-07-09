@@ -58,10 +58,10 @@ class AddUserToChannelForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if (nodejs_add_user_to_channel($form_state->getValue('nodejs_uid'), $form_state->getValue('nodejs_channel'))) {
-      drupal_set_message($this->t("Added uid %uid to %channel.", array('%uid' => $form_state->getValue('nodejs_uid'), '%channel' => $form_state->getValue('nodejs_channel'))));
+      $this->messenger()->addStatus($this->t("Added uid %uid to %channel.", array('%uid' => $form_state->getValue('nodejs_uid'), '%channel' => $form_state->getValue('nodejs_channel'))));
     }
     else {
-      drupal_set_message($this->t("Failed to add uid %uid to %channel.", array('%uid' => $form_state->getValue('nodejs_uid'), '%channel' => $form_state->getValue('nodejs_channel'))), 'error');
+      $this->messenger()->addError($this->t("Failed to add uid %uid to %channel.", array('%uid' => $form_state->getValue('nodejs_uid'), '%channel' => $form_state->getValue('nodejs_channel'))));
     }
   }
 

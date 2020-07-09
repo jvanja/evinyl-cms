@@ -33,7 +33,7 @@
     "support": {
         "issues": "https://drupal.org/project/issues/coffee",
         "irc": "irc://irc.freenode.org/drupal-contribute",
-        "source": "https://cgit.drupalcode.org/coffee"
+        "source": "https://git.drupalcode.org/project/coffee"
     },
     "license": "GPL-2.0+",
     "minimum-stability": "dev",

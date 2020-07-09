@@ -73,8 +73,9 @@
 
         var autocomplete_data_element = 'ui-autocomplete';
 
+        var urlPath = drupalSettings.coffee.dataPath || 'admin/coffee/get-data';
         $.ajax({
-          url: Drupal.url('admin/coffee/get-data'),
+          url: Drupal.url(urlPath),
           dataType: 'json',
           success: function (data) {
             DrupalCoffee.dataset = data;
@@ -91,7 +92,7 @@
                 DrupalCoffee.isItemSelected = false;
               },
               select: function (event, ui) {
-                DrupalCoffee.redirect(ui.item.value, event.metaKey);
+                DrupalCoffee.redirect(ui.item.value, event.metaKey || event.ctrlKey);
                 event.preventDefault();
                 return false;
               },
@@ -124,7 +125,7 @@
               if (event.keyCode === 13) {
                 var openInNewWindow = false;
 
-                if (event.metaKey) {
+                if (event.metaKey || event.ctrlKey) {
                   openInNewWindow = true;
                 }
 

@@ -44,6 +44,5 @@ CONFIGURATION
 
 MAINTAINERS
 -----------
-
-8.x-5.x Developed and maintained by:
- * Manish Jain (https://www.drupal.org/user/2336646)
+8.x-1.x Developed and maintained by:
+ * Manish Jain (https://www.drupal.org/u/manish34jain)
