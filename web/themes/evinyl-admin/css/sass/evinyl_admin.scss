@@ -1,0 +1,10 @@
+body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
+  display: none;
+}
+
+.toolbar-icon-admin-toolbar-tools-help:before {
+  background-image: url(../logo.svg);
+}
+
+@import 'album-form';
+

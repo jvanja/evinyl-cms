@@ -1,0 +1,26 @@
+.node-album-form .layout-node-form  .layout-region,
+.node-album-edit-form .layout-node-form  .layout-region {
+  float: none;
+  width: 100%;
+  padding: 0;
+
+  .media-library-item__attributes {
+    max-height: none !important;
+  }
+
+  .adminimal .filter-wrapper {
+     display: none;
+   }
+}
+// @media screen and (min-width: 40em) {
+//   .layout--twocol > .layout__region--first, .layout--twocol > .layout__region--second {
+//     flex: 0 1 48%;
+//   }
+//   .layout--twocol > .layout__region--first {
+//     margin-right: 1%;
+//   }
+//
+//   .layout--twocol > .layout__region--second {
+//     margin-left: 1%;
+//   }
+// }
