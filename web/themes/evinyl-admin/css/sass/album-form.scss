@@ -8,19 +8,14 @@
     max-height: none !important;
   }
 
-  .adminimal .filter-wrapper {
+  .filter-wrapper {
      display: none;
    }
 }
-// @media screen and (min-width: 40em) {
-//   .layout--twocol > .layout__region--first, .layout--twocol > .layout__region--second {
-//     flex: 0 1 48%;
-//   }
-//   .layout--twocol > .layout__region--first {
-//     margin-right: 1%;
-//   }
-//
-//   .layout--twocol > .layout__region--second {
-//     margin-left: 1%;
-//   }
-// }
+
+// Authenticated user
+body.role_authenticated:not(.role_administrator) {
+  // TODO:  <09-07-20, vanja> //
+  // hide Album Review tab
+}
+
