@@ -9,8 +9,17 @@
   }
 
   .filter-wrapper {
-     display: none;
-   }
+    display: none;
+  }
+  .paragraph-type--a-side-songs {
+    .paragraph--view-mode--preview {
+      .layout__region--first {
+        font-weight: bold;
+        font-size: 1.1em;
+        flex: 0 1 15% !important;
+      }
+    }
+  }
 }
 
 // Authenticated user

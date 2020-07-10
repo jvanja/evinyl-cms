@@ -27,3 +27,8 @@ body.role_authenticated:not(.role_administrator) {
   .node-album-form .layout-node-form .layout-region .filter-wrapper,
   .node-album-edit-form .layout-node-form .layout-region .filter-wrapper {
     display: none; }
+  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first,
+  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first {
+    font-weight: bold;
+    font-size: 1.1em;
+    flex: 0 1 15% !important; }
