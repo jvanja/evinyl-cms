@@ -1,7 +1,26 @@
-body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
-  display: none;
+body.role_authenticated:not(.role_administrator) {
+  padding-top: 39px !important;
+  #toolbar-bar {
+    #admin-toolbar-search-tab {
+      display: none;
+    }
+    .home-toolbar-tab {
+      display: block;
+    }
+    .toolbar-icon-escape-admin {
+      text-indent: -9999px !important;
+      &:before {
+        background-image: url(../logo.svg);
+      }
+    }
+    .toolbar-tab:nth-child(3) {
+      display: none;
+    }
+    .toolbar-tab:nth-child(5) {
+      float: right;
+    }
+  }
 }
-
 .toolbar-icon-admin-toolbar-tools-help:before {
   background-image: url(../logo.svg);
 }
