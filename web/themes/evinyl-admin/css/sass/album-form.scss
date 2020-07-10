@@ -9,11 +9,24 @@
   }
 
   .paragraph-type--a-side-songs {
+    .paragraph-top {
+      .paragraph-type {
+        display: none;
+      }
+    }
     .paragraph--view-mode--preview {
+      padding-right: 100px;
+      margin-top: -30px;
+      .field__label {
+        color: #666;
+      }
       .layout__region--first {
         font-weight: bold;
         font-size: 1.1em;
         flex: 0 1 15% !important;
+      }
+      .layout__region--second {
+        color: #999;
       }
     }
   }

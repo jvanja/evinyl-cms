@@ -24,11 +24,24 @@ body.role_authenticated:not(.role_administrator) {
   .node-album-form .layout-node-form .layout-region .media-library-item__attributes,
   .node-album-edit-form .layout-node-form .layout-region .media-library-item__attributes {
     max-height: none !important; }
-  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first,
-  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first {
-    font-weight: bold;
-    font-size: 1.1em;
-    flex: 0 1 15% !important; }
+  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type,
+  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type {
+    display: none; }
+  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview,
+  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview {
+    padding-right: 100px;
+    margin-top: -30px; }
+    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label,
+    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label {
+      color: #666; }
+    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first,
+    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first {
+      font-weight: bold;
+      font-size: 1.1em;
+      flex: 0 1 15% !important; }
+    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second,
+    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second {
+      color: #999; }
 
 body.role_authenticated:not(.role_administrator) .filter-wrapper {
   display: none; }
