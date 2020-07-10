@@ -8,9 +8,6 @@
     max-height: none !important;
   }
 
-  // .filter-wrapper {
-  //   display: none;
-  // }
   .paragraph-type--a-side-songs {
     .paragraph--view-mode--preview {
       .layout__region--first {
@@ -26,5 +23,8 @@
 body.role_authenticated:not(.role_administrator) {
   // TODO:  <09-07-20, vanja> //
   // hide Album Review tab
+  .filter-wrapper {
+    display: none;
+  }
 }
 

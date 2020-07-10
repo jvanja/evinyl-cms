@@ -29,3 +29,6 @@ body.role_authenticated:not(.role_administrator) {
     font-weight: bold;
     font-size: 1.1em;
     flex: 0 1 15% !important; }
+
+body.role_authenticated:not(.role_administrator) .filter-wrapper {
+  display: none; }
