@@ -27,7 +27,20 @@ function evinyl_admin_preprocess_html(&$variables) {
   else {
     $variables['attributes']['class'][] = $roles_classes;
   }
-
-
-
 }
+
+/**
+ * Implements hook_preprocess_HOOK() for Page document templates.
+ */
+function evinyl_admin_preprocess_page(&$variables) {
+  // If on a node add or edit page, add a node-layout class.
+  $path_args = explode('/', \Drupal::request()->getPathInfo());
+  if ($suggestions = theme_get_suggestions($path_args, 'page', '-')) {
+    foreach ($suggestions as $suggestion) {
+      if ($suggestion === 'page--node-edit' || strpos($suggestion, 'page--node-add-album') !== FALSE) {
+        $variables['#attached']['library'][] = 'evinyl_admin/album-scripts';
+      }
+    }
+  }
+}
+

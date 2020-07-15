@@ -2,4 +2,9 @@ global-styling:
   css:
     base:
       css/evinyl_admin.css: {}
+album-scripts:
+  js:
+    js/evinyl_admin_album_alter.js: {}
+  dependencies:
+    - core/jquery
 

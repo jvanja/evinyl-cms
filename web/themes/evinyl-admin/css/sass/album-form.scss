@@ -30,12 +30,52 @@
       }
     }
   }
+
+}
+/* ==========================================================================
+  Album ADD page
+  ========================================================================== */
+.node-album-form .layout-node-form  .layout-region {
+  #tracks {
+  }
+}
+
+/* ==========================================================================
+  Album EDIT page
+  ========================================================================== */
+.node-album-edit-form .layout-node-form  .layout-region {
+  #tracks {
+    > .details-wrapper {
+      padding: 0;
+      > * {
+        margin-top: 20px;
+        padding: 20px;
+        border-bottom: 2px solid #e6e4df;
+      }
+      > *:first-child {
+        margin-top: 0;
+      }
+    }
+    details {
+      border: none;
+      border-radius: 0;
+      & > summary {
+        display: none;
+      }
+      .details-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+        background: white;
+      }
+    }
+    .tabledrag-toggle-weight-wrapper {
+      display: none;
+    }
+  }
 }
 
 // Authenticated user
 body.role_authenticated:not(.role_administrator) {
-  // TODO:  <09-07-20, vanja> //
-  // hide Album Review tab
   .filter-wrapper {
     display: none;
   }

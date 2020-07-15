@@ -43,5 +43,33 @@ body.role_authenticated:not(.role_administrator) {
     .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second {
       color: #999; }
 
+/* ==========================================================================
+  Album ADD page
+  ========================================================================== */
+/* ==========================================================================
+  Album EDIT page
+  ========================================================================== */
+.node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper {
+  padding: 0; }
+  .node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > * {
+    margin-top: 20px;
+    padding: 20px;
+    border-bottom: 2px solid #e6e4df; }
+  .node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > *:first-child {
+    margin-top: 0; }
+
+.node-album-edit-form .layout-node-form .layout-region #tracks details {
+  border: none;
+  border-radius: 0; }
+  .node-album-edit-form .layout-node-form .layout-region #tracks details > summary {
+    display: none; }
+  .node-album-edit-form .layout-node-form .layout-region #tracks details .details-wrapper {
+    padding-left: 0;
+    padding-right: 0;
+    background: white; }
+
+.node-album-edit-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper {
+  display: none; }
+
 body.role_authenticated:not(.role_administrator) .filter-wrapper {
   display: none; }
