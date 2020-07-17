@@ -27,7 +27,8 @@ a, .link {
   color: black !important; }
 
 .adminimal .toolbar .toolbar-menu a.is-active {
-  font-weight: bold; }
+  font-weight: bold;
+  background-color: #222 !important; }
 
 label,
 legend {
