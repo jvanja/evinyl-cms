@@ -5,9 +5,29 @@ ul.tips, div.description, .form-item .description {
 a, .link {
   color: #af8b3d !important; }
 
-.adminimal .toolbar .toolbar-menu a:hover, .adminimal .toolbar .toolbar-menu a:focus, .adminimal .toolbar .toolbar-menu a.is-active {
+.toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded {
+  position: relative;
+  background-image: none; }
+  .toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded:before {
+    color: #af8b3d;
+    border-style: solid;
+    border-width: 0.15em 0.15em 0 0;
+    content: '';
+    display: inline-block;
+    height: 0.35em;
+    width: 0.35em;
+    right: 0.7em;
+    position: absolute;
+    top: 50%;
+    transform: rotate(45deg) translateY(-50%);
+    vertical-align: top; }
+
+.adminimal .toolbar .toolbar-menu a:hover, .adminimal .toolbar .toolbar-menu a:focus {
   background-color: #af8b3d;
   color: black !important; }
+
+.adminimal .toolbar .toolbar-menu a.is-active {
+  font-weight: bold; }
 
 label,
 legend {

@@ -13,11 +13,33 @@ a, .link {
   color: $linkColor !important;
 }
 
+.toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded {
+  position: relative;
+  background-image: none;
+  &:before {
+    color: $linkColor;
+    border-style: solid;
+    border-width: 0.15em 0.15em 0 0;
+    content: '';
+    display: inline-block;
+    height: 0.35em;
+    width: 0.35em;
+    right: 0.7em;
+    position: absolute;
+    top: 50%;
+    transform: rotate(45deg) translateY(-50%);
+    vertical-align: top;
+  }
+}
+
 .adminimal .toolbar .toolbar-menu {
   a {
-    &:hover, &:focus, &.is-active {
+    &:hover, &:focus {
       background-color: $linkColor;
       color: black !important;
+    }
+    &.is-active {
+      font-weight: bold;
     }
   }
 }
