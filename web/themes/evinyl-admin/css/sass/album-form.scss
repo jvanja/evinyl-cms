@@ -8,6 +8,11 @@
     max-height: none !important;
   }
 
+  #tracks {
+    .tabledrag-toggle-weight-wrapper {
+      display: none;
+    }
+  }
   .paragraph-type--a-side-songs {
     .paragraph-top {
       .paragraph-type {
@@ -67,9 +72,6 @@
         padding-right: 0;
         background: white;
       }
-    }
-    .tabledrag-toggle-weight-wrapper {
-      display: none;
     }
   }
 }

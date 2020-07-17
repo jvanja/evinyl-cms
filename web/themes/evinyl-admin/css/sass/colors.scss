@@ -1,0 +1,59 @@
+$baseColor: #777;
+$labelColor: #333;
+$siteOrange: #bf9946;
+$linkColor: darken($siteOrange, 5%);
+$linkHover: lighten($linkColor, 10%);
+
+body,
+ul.tips, div.description, .form-item .description {
+  color: $baseColor !important;
+}
+
+a, .link {
+  color: $linkColor !important;
+}
+
+.adminimal .toolbar .toolbar-menu {
+  a {
+    &:hover, &:focus, &.is-active {
+      background-color: $linkColor;
+      color: black !important;
+    }
+  }
+}
+
+label,
+legend {
+  color: $labelColor;
+}
+
+.adminimal .button {
+  &:hover, &:focus {
+    border-color: $linkColor;
+  }
+}
+
+.adminimal .button--primary {
+  background: $linkColor;
+  border-color: $linkColor;
+  &:focus, &:hover {
+    background-color: $linkHover;
+    border-color: $linkHover;
+  }
+}
+
+.adminimal .action-links .button--primary {
+  border: 2px solid $linkColor;
+  color: $linkColor;
+  &:focus, &:hover {
+    background-color: $linkColor;
+  }
+}
+
+.seven-details__summary {
+  color: $linkColor !important;
+}
+
+input[type=checkbox]:checked, input[type=checkbox]:disabled:checked, input[type=checkbox].error:checked, input[type=checkbox].error:focus:checked, input[type=radio]:checked, input[type=radio]:disabled:checked, input[type=radio].error:checked, input[type=radio].error:focus:checked {
+  background: $linkColor;
+}
