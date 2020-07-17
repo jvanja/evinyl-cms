@@ -1,3 +1,40 @@
+body,
+ul.tips, div.description, .form-item .description {
+  color: #777 !important; }
+
+a, .link {
+  color: #af8b3d !important; }
+
+.adminimal .toolbar .toolbar-menu a:hover, .adminimal .toolbar .toolbar-menu a:focus, .adminimal .toolbar .toolbar-menu a.is-active {
+  background-color: #af8b3d;
+  color: black !important; }
+
+label,
+legend {
+  color: #333; }
+
+.adminimal .button:hover, .adminimal .button:focus {
+  border-color: #af8b3d; }
+
+.adminimal .button--primary {
+  background: #af8b3d;
+  border-color: #af8b3d; }
+  .adminimal .button--primary:focus, .adminimal .button--primary:hover {
+    background-color: #c6a359;
+    border-color: #c6a359; }
+
+.adminimal .action-links .button--primary {
+  border: 2px solid #af8b3d;
+  color: #af8b3d; }
+  .adminimal .action-links .button--primary:focus, .adminimal .action-links .button--primary:hover {
+    background-color: #af8b3d; }
+
+.seven-details__summary {
+  color: #af8b3d !important; }
+
+input[type=checkbox]:checked, input[type=checkbox]:disabled:checked, input[type=checkbox].error:checked, input[type=checkbox].error:focus:checked, input[type=radio]:checked, input[type=radio]:disabled:checked, input[type=radio].error:checked, input[type=radio].error:focus:checked {
+  background: #af8b3d; }
+
 body.role_authenticated:not(.role_administrator) {
   padding-top: 39px !important; }
   body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
@@ -24,6 +61,9 @@ body.role_authenticated:not(.role_administrator) {
   .node-album-form .layout-node-form .layout-region .media-library-item__attributes,
   .node-album-edit-form .layout-node-form .layout-region .media-library-item__attributes {
     max-height: none !important; }
+  .node-album-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper,
+  .node-album-edit-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper {
+    display: none; }
   .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type,
   .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type {
     display: none; }
@@ -67,9 +107,6 @@ body.role_authenticated:not(.role_administrator) {
     padding-left: 0;
     padding-right: 0;
     background: white; }
-
-.node-album-edit-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper {
-  display: none; }
 
 body.role_authenticated:not(.role_administrator) .filter-wrapper {
   display: none; }
