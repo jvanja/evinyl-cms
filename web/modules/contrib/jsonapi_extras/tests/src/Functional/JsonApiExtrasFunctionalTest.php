@@ -158,7 +158,7 @@ class JsonApiExtrasFunctionalTest extends JsonApiFunctionalTestBase {
 
     // 8. Test the field enhancers: SingleNestedEnhancer.
     $output = Json::decode($this->drupalGet('/api/articles/' . $this->nodes[3]->uuid()));
-    $this->assertInternalType('string', $output['data']['attributes']['body']);
+    $this->assertIsString($output['data']['attributes']['body']);
 
     // 9. Test the related endpoint.
     // This tests the overridden resource name, the overridden field names and
@@ -530,7 +530,7 @@ class JsonApiExtrasFunctionalTest extends JsonApiFunctionalTestBase {
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('/admin/config/services/jsonapi/resource_types');
-    // print_r($this->getSession()->getPage()->getContent());
+
     $this->assertSession()
       ->elementContains('css', '#jsonapi-enabled-resources-list', 'taxonomy_term--' . $vocabulary->id());
     $this->drupalGet('/admin/config/services/jsonapi/add/resource_types/taxonomy_term/' . $vocabulary->id());

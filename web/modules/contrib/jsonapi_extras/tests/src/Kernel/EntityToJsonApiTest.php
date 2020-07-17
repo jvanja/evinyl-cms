@@ -211,12 +211,12 @@ class EntityToJsonApiTest extends JsonapiKernelTestBase {
   ) {
     $output = $this->sut->serialize($entity, $include_fields);
 
-    static::assertInternalType('string', $output);
+    $this->assertTrue(is_string($output));
     $this->assertJsonApi(Json::decode($output));
 
     $output = $this->sut->normalize($entity, $include_fields);
 
-    static::assertInternalType('array', $output);
+    $this->assertTrue(is_array($output));
     $this->assertJsonApi($output);
 
     // Check the includes if they were passed.
@@ -235,10 +235,7 @@ class EntityToJsonApiTest extends JsonapiKernelTestBase {
     static::assertNotEmpty($structured['data']['type']);
     static::assertNotEmpty($structured['data']['id']);
     static::assertNotEmpty($structured['data']['attributes']);
-    static::assertInternalType(
-      'string',
-      $structured['data']['links']['self']['href']
-    );
+    $this->assertTrue(is_string($structured['data']['links']['self']['href']));
   }
 
   /**
