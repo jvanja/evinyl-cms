@@ -1,8 +1,84 @@
 @import 'colors';
 
+html {
+  font-size: 14px;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+body.adminimal {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
+  font-size: 1rem !important;
+}
+
+header {
+  padding: 0.4rem 0 !important;
+  .layout-container {
+    margin: 0 1rem !important;
+  }
+}
+
+nav#block-evinyl-admin-main-menu {
+  ul {
+    margin-left: 0;
+    font-size: 14px;
+    li {
+      display: inline-block;
+      &:first-child {
+        a {
+          position: relative;
+          display: block;
+          width: 25px;
+          height: 25px;
+          padding: 0;
+          text-indent: -9999px;
+          &:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 25px;
+            height: 100%;
+            content: "";
+            background-image: url(../images/nav-logo-white.png);
+            background-color: #0000;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-position: center center;
+            background-size: 100% auto;
+          }
+        }
+      }
+      a {
+        color: #fffc !important;
+        letter-spacing: .02em;
+        margin-right: 10px;
+        padding: 0 1rem;
+        line-height: 25px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+main.page-content {
+  h1.page-title {
+    color: inherit;
+    margin-top: 1rem;
+  }
+}
+
 body.role_authenticated:not(.role_administrator) {
-  padding-top: 39px !important;
+  padding-top: 0 !important;
+  margin-left: 0 !important;
+  &.adminimal.toolbar-fixed.toolbar-vertical {
+    padding-top: 0 !important;
+  }
   #toolbar-bar {
+    display: none;
     #admin-toolbar-search-tab {
       display: none;
     }
@@ -12,7 +88,8 @@ body.role_authenticated:not(.role_administrator) {
     .toolbar-icon-escape-admin {
       text-indent: -9999px !important;
       &:before {
-        background-image: url(../logo.svg);
+        background-image: url(../images/nav-logo-white.png);
+        width: 25px;
       }
     }
     .toolbar-tab:nth-child(3) {
@@ -22,9 +99,6 @@ body.role_authenticated:not(.role_administrator) {
       float: right;
     }
   }
-}
-.toolbar-icon-admin-toolbar-tools-help:before {
-  background-image: url(../logo.svg);
 }
 
 @import 'album-form';
