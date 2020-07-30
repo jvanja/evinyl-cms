@@ -24,8 +24,11 @@ header {
 }
 
 nav#block-evinyl-admin-main-menu {
+  display: flex;
+  justify-content: space-between;
   ul {
     margin-left: 0;
+    padding-left: 0;
     font-size: 14px;
     li {
       display: inline-block;
@@ -64,6 +67,13 @@ nav#block-evinyl-admin-main-menu {
         line-height: 25px;
         font-weight: 600;
       }
+    }
+  }
+  .user-menu {
+    align-self: center;
+    .toolbar-icon-user {
+      height: 20px;
+      line-height: 20px;
     }
   }
 }

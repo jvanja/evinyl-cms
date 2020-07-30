@@ -74,41 +74,50 @@ header {
   header .layout-container {
     margin: 0 1rem !important; }
 
-nav#block-evinyl-admin-main-menu ul {
-  margin-left: 0;
-  font-size: 14px; }
-  nav#block-evinyl-admin-main-menu ul li {
-    display: inline-block;
-    padding: 0; }
-    nav#block-evinyl-admin-main-menu ul li:first-child a {
-      position: relative;
-      display: block;
-      width: 25px;
-      height: 25px;
-      padding: 0;
-      text-indent: -9999px;
-      margin-right: 10px; }
-      nav#block-evinyl-admin-main-menu ul li:first-child a:before {
-        position: absolute;
-        top: 0;
-        left: 0;
+nav#block-evinyl-admin-main-menu {
+  display: flex;
+  justify-content: space-between; }
+  nav#block-evinyl-admin-main-menu ul {
+    margin-left: 0;
+    padding-left: 0;
+    font-size: 14px; }
+    nav#block-evinyl-admin-main-menu ul li {
+      display: inline-block;
+      padding: 0; }
+      nav#block-evinyl-admin-main-menu ul li:first-child a {
+        position: relative;
         display: block;
         width: 25px;
-        height: 100%;
-        content: "";
-        background-image: url(../images/nav-logo-white.png);
-        background-color: #0000;
-        background-repeat: no-repeat;
-        background-attachment: scroll;
-        background-position: center center;
-        background-size: 100% auto; }
-    nav#block-evinyl-admin-main-menu ul li a {
-      color: #fffc !important;
-      letter-spacing: .02em;
-      margin-right: 7px;
-      padding: 0 1rem;
-      line-height: 25px;
-      font-weight: 600; }
+        height: 25px;
+        padding: 0;
+        text-indent: -9999px;
+        margin-right: 10px; }
+        nav#block-evinyl-admin-main-menu ul li:first-child a:before {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: block;
+          width: 25px;
+          height: 100%;
+          content: "";
+          background-image: url(../images/nav-logo-white.png);
+          background-color: #0000;
+          background-repeat: no-repeat;
+          background-attachment: scroll;
+          background-position: center center;
+          background-size: 100% auto; }
+      nav#block-evinyl-admin-main-menu ul li a {
+        color: #fffc !important;
+        letter-spacing: .02em;
+        margin-right: 7px;
+        padding: 0 1rem;
+        line-height: 25px;
+        font-weight: 600; }
+  nav#block-evinyl-admin-main-menu .user-menu {
+    align-self: center; }
+    nav#block-evinyl-admin-main-menu .user-menu .toolbar-icon-user {
+      height: 20px;
+      line-height: 20px; }
 
 main.page-content h1.page-title {
   color: inherit;
