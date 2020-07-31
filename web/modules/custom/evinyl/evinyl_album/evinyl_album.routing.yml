@@ -6,13 +6,13 @@ evinyl_album.content:
   requirements:
     _permission: 'access content'
 
-evinyl_update_albums.content:
-  path: '/api/update_albums'
-  defaults:
-    _controller: '\Drupal\evinyl_album\Controller\AlbumController::update'
-    _title: 'Album Controller'
-  requirements:
-    _permission: 'access content'
+# evinyl_update_albums.content:
+#   path: '/api/update_albums'
+#   defaults:
+#     _controller: '\Drupal\evinyl_album\Controller\AlbumController::update'
+#     _title: 'Album Controller'
+#   requirements:
+#     _permission: 'access content'
 
 evinyl_cassettes.content:
   path: '/api/cassettes'
