@@ -46,6 +46,12 @@
     </ul>
   {% endif %}
 {% endmacro %}
+{% if user_edit_link %}
 <div class="user-menu toolbar toolbar-bar">
   <a class="toolbar-icon toolbar-icon-user" href="{{user_edit_link}}">Edit profile</a>
 </div>
+{% else %}
+<div class="user-menu toolbar toolbar-bar">
+  <a class="toolbar-icon toolbar-icon-user" href="{{user_login_link}}">Log in</a>
+</div>
+{% endif %}

@@ -50,9 +50,14 @@ function evinyl_admin_preprocess_page(&$variables) {
 function evinyl_admin_preprocess_menu(&$variables) {
 
   if ($variables['menu_name'] === 'main') {
-    $variables['user_edit_link'] = \Drupal::urlGenerator()->generateFromRoute('<front>',
-    [], ['absolute' => TRUE]) . 'user/' . \Drupal::currentUser()->id() .
-    '/edit';
+    if (\Drupal::currentUser()->id()) {
+      $variables['user_edit_link'] = \Drupal::urlGenerator()->generateFromRoute('<front>',
+      [], ['absolute' => TRUE]) . 'user/' . \Drupal::currentUser()->id() .
+      '/edit';
+    } else {
+      $variables['user_edit_link'] = NULL;
+      $variables['user_login_link'] = \Drupal::urlGenerator()->generateFromRoute('<front>', [], ['absolute' => TRUE]) . 'user/login';
+    }
   }
 }
 
