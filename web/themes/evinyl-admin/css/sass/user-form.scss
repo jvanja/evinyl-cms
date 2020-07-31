@@ -1,0 +1,14 @@
+#user-form {
+  .horizontal-tabs-panes {
+    table {
+      thead {
+        display: none;
+      }
+    }
+    .form-item {
+      &>.clearfix {
+        color: transparent;
+      }
+    }
+  }
+}

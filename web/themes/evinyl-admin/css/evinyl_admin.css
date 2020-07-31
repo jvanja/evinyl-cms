@@ -201,3 +201,9 @@ body.role_authenticated:not(.role_administrator) {
 
 body.role_authenticated:not(.role_administrator) .filter-wrapper {
   display: none; }
+
+#user-form .horizontal-tabs-panes table thead {
+  display: none; }
+
+#user-form .horizontal-tabs-panes .form-item > .clearfix {
+  color: transparent; }
