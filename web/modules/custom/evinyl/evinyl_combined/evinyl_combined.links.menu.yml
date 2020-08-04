@@ -1,0 +1,6 @@
+commbined.settings:
+  title: 'Import combined Releases'
+  description: 'Import albums from Discogs IDs'
+  parent: system.admin_content_import
+  route_name: combined.settings
+  weight: 100

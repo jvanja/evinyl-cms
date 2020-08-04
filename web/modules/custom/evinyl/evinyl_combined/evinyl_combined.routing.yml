@@ -1,0 +1,9 @@
+combined.settings:
+  path: '/admin/content/import-combined'
+  defaults:
+    _form: '\Drupal\evinyl_combined\Form\EvinylCombinedForm'
+    _title: 'Import from combined Discogs and Deezer IDs'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
