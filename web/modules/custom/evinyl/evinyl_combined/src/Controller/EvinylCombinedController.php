@@ -10,8 +10,10 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\paragraphs\Entity\Paragraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\ClientException;
+// use GuzzleHttp\Exception\ConnectException;
+// use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Class MyController.
@@ -31,26 +33,8 @@ class EvinylCombinedController extends ControllerBase {
    * {@inheritdoc}
    */
   public function __construct() {
-    // $this->httpClient = \Drupal::httpClient();
-
-    // $clientFactory = \Drupal::service('http_client_factory');
-    // $this->httpClient = $clientFactory->fromOptions(['base_uri' => 'https://api.discogs.com/']);
-
-    // $this->httpClient = new Client([
-    //   'base_uri' => 'https://api.discogs.com/releases/'
-    // ]);
     $this->httpClient = new Client();
-
   }
-
-  // /**
-  //  * {@inheritdoc}
-  //  */
-  // public static function create(ContainerInterface $container) {
-  //   return new static(
-  //     $container->get('http_client')
-  //   );
-  // }
 
   /**
    * Posts route callback.
@@ -70,59 +54,69 @@ class EvinylCombinedController extends ControllerBase {
     ];
 
 
-    // Wait for the requests to complete; throws a ConnectException
-    // if any of the requests fail
+    $requestUris ='https://api.deezer.com/album/' . $ids['deezerId'] . "\r\n" .'https://api.discogs.com/releases/' . $ids['discogsId'];
+
     try {
       $responses = Promise\unwrap($promises);
       // $responses = Promise\settle($promises)->wait();
-    } catch (ClientException $e) {
+
+    } catch (RequestException $e) {
+      $response = $e->getResponse();
+      $responseBody = json_decode($response->getBody()->getContents());
+      $requestUri = (string)$e->getRequest()->getUri();
       return [
-        'status' => false,
-        '#message' => $e
-      ];
-    } catch (ConnectException $e) {
-      return [
-        'status' => false,
-        '#message' => $e
+        'status' => 'error',
+        'uri' => $requestUri,
+        'message' => $responseBody->message
       ];
     }
 
-
-    if ($responses['discogs']->getStatusCode() != 200) {
-      return [
-      'status' => false,
-      '#theme' => 'evinyl_combined',
-      '#message' => 'Wrong Discogs ID'
-      ];
-    }
-    if ($responses['deezer']->getStatusCode() != 200) {
-      return [
-      'status' => false,
-      '#theme' => 'evinyl_combined',
-      '#message' => 'Wrong Deezer ID'
-      ];
-    }
-    // if ($responses['discogs']['state'] != 'fullfiled') {
-    //   return 'Discogs import failed';
+    // if ($responses['discogs']->getStatusCode() != 200) {
+    //   return [
+    //   'status' => false,
+    //   '#theme' => 'evinyl_combined',
+    //   '#message' => 'Wrong Discogs ID'
+    //   ];
     // }
-    //
-    // if ($responses['deezer']['state'] != 'fullfiled') {
-    //   return 'Deezer import failed';
-    // }
-
 
     $discogsData = $responses['discogs']->getBody()->getContents();
     $deezerData = $responses['deezer']->getBody()->getContents();
 
+    if ( json_decode($deezerData)->error ) {
+      return [
+      'status' => 'error',
+      'uri' => 'https://api.deezer.com/album/' . $ids['deezerId'],
+      'message' => 'Deezer API returned "Not found".' // json_decode($deezerData)
+      ];
+    }
+
     // create albums
     $discogsObject = json_decode($discogsData);
     $deezerObject = json_decode($deezerData);
-    $album = $this->createAlbums( $discogsObject, $deezerObject );
+
+    if (strtolower($discogsObject->title) != strtolower($deezerObject->title)) {
+      return [
+        'status' => 'error',
+        'uri' => $requestUris,
+        'message' => 'Discogs and Deezer release titles do not match.'
+      ];
+    }
+
+    $albumCreateResult = $this->createAlbums( $discogsObject, $deezerObject );
 
 
-    return [
-      'status' => true
-    ];
+    if ($albumCreateResult->status == 'success') {
+      return [
+        'status' => 'success'
+      ];
+    } else {
+      return [
+        'status' => 'warning',
+        'uri' => $requestUris,
+        'message' => 'Some song titles did not match between Discogs and Deezer'
+      ];
+
+    }
   }
 
 

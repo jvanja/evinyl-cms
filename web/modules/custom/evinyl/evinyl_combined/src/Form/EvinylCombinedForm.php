@@ -60,10 +60,10 @@ class EvinylCombinedForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     if (strlen($form_state->getValue('discogsId')) < 1) {
-      $form_state->setErrorByName('discogsId', $this->t('Need one ID.'));
+      $form_state->setErrorByName('discogsId', $this->t('Need exactly one Discogs ID.'));
     }
     if (strlen($form_state->getValue('deezerId')) < 1) {
-      $form_state->setErrorByName('deezerId', $this->t('Need one ID.'));
+      $form_state->setErrorByName('deezerId', $this->t('Need exactly one Deezer ID.'));
     }
   }
 
@@ -83,14 +83,21 @@ class EvinylCombinedForm extends FormBase {
       'deezerId' => $deezerId
     ));
 
-    // var_dump($releases);
+    // var_dump($releases['message']);
     // die;
 
-    if ($releases['status'] == TRUE) {
-      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <a href="'.$edit_unpublish_url.'">new content</a>. '));
+    if ($releases['status'] == 'success') {
+      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate your <a href="'.$edit_unpublish_url.'">new content</a>. '));
+    } elseif($releases['status'] == 'warning') {
+      $this->messenger()->addWarning($this->t('Your import is completed but with a WARNING. Please moderate your <a href="'.$edit_unpublish_url.'">new content</a>. <br> @message <br> @uri', [
+        '@message' => $releases['message'],
+        '@uri' => $releases['uri']
+      ]));
     } else {
-      $this->messenger()->addWarning($this->t('Your import FAILED. Please double check your IDs. @message', ['@message' => $releases['#,essage']]));
-    // $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
+      $this->messenger()->addError($this->t('Your import FAILED. <br> @message <br> @uri', [
+        '@message' => $releases['message'],
+        '@uri' => $releases['uri']
+      ]));
     }
   }
 
