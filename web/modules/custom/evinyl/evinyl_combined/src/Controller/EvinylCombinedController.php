@@ -30,10 +30,17 @@ class EvinylCombinedController extends ControllerBase {
   protected $httpClient;
 
   /**
+   * Stores import status
+   *
+   */
+  protected $importStatus;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct() {
     $this->httpClient = new Client();
+    $this->importStatus = 'success';
   }
 
   /**
@@ -102,12 +109,14 @@ class EvinylCombinedController extends ControllerBase {
       ];
     }
 
-    $albumCreateResult = $this->createAlbums( $discogsObject, $deezerObject );
+    $albumEditLink = $this->createAlbums( $discogsObject, $deezerObject );
 
-
-    if ($albumCreateResult->status == 'success') {
+    // var_dump($albumEditLink->toString());
+    // die;
+    if ($this->importStatus == 'success') {
       return [
-        'status' => 'success'
+        'status' => 'success',
+        'uri' => $albumEditLink->toString()
       ];
     } else {
       return [
@@ -126,7 +135,7 @@ class EvinylCombinedController extends ControllerBase {
     $labelTerms = $this->addTaxonomyTerm('labels', $albumData->labels);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres);
     $aSideTracks = array_filter($albumData->tracklist, function($track) {
-      return ($track->position[0] == 'A');
+      return ($track->position[0] == 'A' || is_numeric($track->position[0]));
     });
     $bSideTracks = array_filter($albumData->tracklist, function($track) {
       return ($track->position[0] == 'B');
@@ -143,7 +152,9 @@ class EvinylCombinedController extends ControllerBase {
     $bSideSongs = $this->createSongsParagraphs('a_side_songs', $bSideTracks, $deezerTracksData);
     $cSideSongs = $this->createSongsParagraphs('a_side_songs', $cSideTracks, $deezerTracksData);
     $dSideSongs = $this->createSongsParagraphs('a_side_songs', $dSideTracks, $deezerTracksData);
+
     $credits = $this->createAlbumsCredits($albumData->extraartists);
+
     $node = Node::create([
       'type'               => 'album',
       'status'             => 0,
@@ -165,7 +176,7 @@ class EvinylCombinedController extends ControllerBase {
     $url = $node->toUrl('edit-form');
     $link = Link::fromTextAndUrl($albumData->title, $url);
 
-    return $link->toString();
+    return $url; // $link->toString();
   }
 
   /**
@@ -231,11 +242,12 @@ class EvinylCombinedController extends ControllerBase {
         $creditsString .= $role . ' - ' . $name . '<br>';
       }
 
-      $deezerTitles = array_column($deezerTracksData, 'title');
-      $key = array_search($track->title, $deezerTitles);
+      $deezerTitles = array_map('strtolower', array_column($deezerTracksData, 'title'));
+      $key = array_search(strtolower($track->title), $deezerTitles);
       if(is_int($key)){
         $deezerPreview = $deezerTracksData[$key]->preview;
       } else {
+        $this->importStatus = 'warning';
         $deezerPreview = '';
       }
 
