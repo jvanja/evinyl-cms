@@ -53,6 +53,21 @@ class EntityToJsonApiTest extends JsonapiKernelTestBase {
   ];
 
   /**
+   * @var NodeType
+   */
+  private $nodeType;
+
+  /**
+   * @var Vocabulary
+   */
+  private $vocabulary;
+
+  /**
+   * @var Node
+   */
+  private $node;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -192,6 +207,21 @@ class EntityToJsonApiTest extends JsonapiKernelTestBase {
         $this->assertEntity($entity, $include_fields, $expected_includes);
       }
     );
+  }
+
+  /**
+   * Test if the request by jsonapi_extras.entity.to_jsonapi doesn't linger on
+   * the request stack.
+   *
+   * @see https://www.drupal.org/project/jsonapi_extras/issues/3135950
+   * @see https://www.drupal.org/project/jsonapi_extras/issues/3124805
+   */
+  public function testRequestStack() {
+    /** @var \Symfony\Component\HttpFoundation\RequestStack $request_stack */
+    $request_stack = $this->container->get('request_stack');
+    $this->sut->serialize($this->node);
+    $request = $request_stack->pop();
+    $this->assertNotEqual($request->getPathInfo(), '/jsonapi/node/' . $this->nodeType->id() .'/' . $this->node->uuid(), 'The request from jsonapi_extras.entity.to_jsonapi should not linger in the request stack.');
   }
 
   /**
