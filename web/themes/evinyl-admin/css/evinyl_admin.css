@@ -158,6 +158,10 @@ body.role_authenticated:not(.role_administrator) {
   .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type,
   .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type {
     display: none; }
+  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p, .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description,
+  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p,
+  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description {
+    display: none; }
   .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview,
   .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview {
     padding-right: 100px;

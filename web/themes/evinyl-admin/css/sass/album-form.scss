@@ -19,6 +19,15 @@
         display: none;
       }
     }
+    .field--name-field-song {
+      fieldset {
+        .fieldset-wrapper {
+          > p, .description {
+            display: none;
+          }
+        }
+      }
+    }
     .paragraph--view-mode--preview {
       padding-right: 100px;
       margin-top: -30px;
