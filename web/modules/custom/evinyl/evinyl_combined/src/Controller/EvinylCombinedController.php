@@ -34,6 +34,7 @@ class EvinylCombinedController extends ControllerBase {
    *
    */
   protected $importStatus;
+  protected $importMessage;
 
   /**
    * {@inheritdoc}
@@ -41,6 +42,7 @@ class EvinylCombinedController extends ControllerBase {
   public function __construct() {
     $this->httpClient = new Client();
     $this->importStatus = 'success';
+    $this->importMessage = '';
   }
 
   /**
@@ -101,31 +103,33 @@ class EvinylCombinedController extends ControllerBase {
     $discogsObject = json_decode($discogsData);
     $deezerObject = json_decode($deezerData);
 
-    if (strtolower($discogsObject->title) != strtolower($deezerObject->title)) {
-      return [
-        'status' => 'error',
-        'uri' => $requestUris,
-        'message' => 'Discogs and Deezer release titles do not match.'
-      ];
-    }
+    if (isset($discogsObject->title) && isset($deezerObject->title)) {
 
-    $albumEditLink = $this->createAlbums( $discogsObject, $deezerObject );
+      $albumEditLink = $this->createAlbums( $discogsObject, $deezerObject );
 
-    // var_dump($albumEditLink->toString());
-    // die;
-    if ($this->importStatus == 'success') {
-      return [
-        'status' => 'success',
-        'uri' => $albumEditLink->toString()
-      ];
+      // var_dump($albumEditLink->toString());
+      // die;
+      if ($this->importStatus == 'success') {
+        return [
+          'status' => 'success',
+          'uri' => $albumEditLink->toString()
+        ];
+      } else {
+        return [
+          'status' => 'warning',
+          'uri' => $requestUris,
+          'message' => $this->importMessage
+        ];
+      }
+
     } else {
-      return [
-        'status' => 'warning',
-        'uri' => $requestUris,
-        'message' => 'Some song titles did not match between Discogs and Deezer'
-      ];
-
+        return [
+          'status' => 'error',
+          'uri' => $requestUris,
+          'message' => 'Wrong Discogs or Deezer ID'
+        ];
     }
+
   }
 
 
@@ -154,6 +158,11 @@ class EvinylCombinedController extends ControllerBase {
     $dSideSongs = $this->createSongsParagraphs('a_side_songs', $dSideTracks, $deezerTracksData);
 
     $credits = $this->createAlbumsCredits($albumData->extraartists);
+
+    if (strtolower($albumData->title) != strtolower($deezerObject->title)) {
+      $this->importStatus = 'warning';
+      $this->importMessage = 'Discogs and Deezer release titles do not match.';
+    }
 
     $node = Node::create([
       'type'               => 'album',
@@ -215,7 +224,13 @@ class EvinylCombinedController extends ControllerBase {
    *
    * @param string $paragraphName
    *   'a_side_songs'
-   * @param array $tracksArray for the following fields
+   * @param array $discogsTracksArray for the following fields
+   *  field_song
+   *  field_song_duration
+   *  field_song_name // required
+   *  field_song_writers
+   *  field_track_plays
+   * @param array $deezerTracksArray for the following fields
    *  field_song
    *  field_song_duration
    *  field_song_name // required
@@ -224,9 +239,9 @@ class EvinylCombinedController extends ControllerBase {
    * @return array
    *   List of paragraphs
    */
-  protected function createSongsParagraphs($paragraphName, $tracksArray, $deezerTracksData) {
+  protected function createSongsParagraphs($paragraphName, $discogsTracksArray, $deezerTracksData) {
     $paragraphs = [];
-    foreach($tracksArray as $track) {
+    foreach($discogsTracksArray as $track) {
       $credits = [];
       $creditsString = '';
       foreach ($track->extraartists as $extraArtist) {
@@ -242,13 +257,14 @@ class EvinylCombinedController extends ControllerBase {
         $creditsString .= $role . ' - ' . $name . '<br>';
       }
 
-      $deezerTitles = array_map('strtolower', array_column($deezerTracksData, 'title'));
+      $deezerTitles = array_map('strtolower', array_column($deezerTracksData, 'title_short'));
       $key = array_search(strtolower($track->title), $deezerTitles);
       if(is_int($key)){
         $deezerPreview = $deezerTracksData[$key]->preview;
       } else {
         $this->importStatus = 'warning';
         $deezerPreview = '';
+        $this->importMessage = 'Some song titles did not match between Discogs and Deezer';
       }
 
       $song_paragraph = Paragraph::create([
