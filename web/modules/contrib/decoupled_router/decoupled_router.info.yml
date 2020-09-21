@@ -8,7 +8,7 @@ test_dependencies:
   - drupal:jsonapi
   - redirect:redirect
 
-# Information added by Drupal.org packaging script on 2020-08-11
-version: '8.x-1.12'
+# Information added by Drupal.org packaging script on 2020-09-20
+version: '2.0.1'
 project: 'decoupled_router'
-datestamp: 1597127267
+datestamp: 1600586100

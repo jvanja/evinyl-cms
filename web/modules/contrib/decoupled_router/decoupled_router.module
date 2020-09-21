@@ -8,30 +8,25 @@
 use Drupal\path_alias\PathAliasInterface;
 
 /**
- * Implements hook_ENTITY_TYPE_update().
- *
- * @param PathAliasInterface $path_alias
+ * Implements hook_path_update().
  */
-function decoupled_router_path_alias_update(PathAliasInterface $path_alias) {
+function decoupled_router_path_update($path) {
   \Drupal::service('decoupled_router.cache_invalidation')
-    ->invalidateByPath($path_alias->getPath());
+    ->invalidateByPath($path);
 }
 
 /**
  * Implements hook_ENTITY_TYPE_insert().
- *
- * @param PathAliasInterface $path_alias
  */
 function decoupled_router_path_alias_insert(PathAliasInterface $path_alias) {
-  \Drupal::service('decoupled_router.cache_invalidation')->invalidateByPath($path_alias->getAlias());
+  \Drupal::service('decoupled_router.cache_invalidation')
+    ->invalidateByPath(['source' => $path_alias->getAlias()]);
 }
 
 /**
- * Implements hook_ENTITY_TYPE_delete().
- *
- * @param PathAliasInterface $path_alias
+ * Implements hook_path_delete().
  */
-function decoupled_router_path_alias_delete(PathAliasInterface $path_alias) {
+function decoupled_router_path_delete($path) {
   \Drupal::service('decoupled_router.cache_invalidation')
-    ->invalidateByPath($path_alias->getPath());
+    ->invalidateByPath($path);
 }
