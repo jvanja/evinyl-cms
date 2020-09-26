@@ -57,7 +57,7 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
 function evinyl_album_preprocess_node(&$variables){
   $node = Drupal::request()->attributes->get('node');
   $type = $node->getType();
-  if($type == 'album'){
+  if($type == 'album' && $node->isPublished() == true){
     $current_path = \Drupal::service('path.current')->getPath();
     $node_alias = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
     $host = \Drupal::request()->getHost();
