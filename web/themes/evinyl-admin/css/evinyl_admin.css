@@ -149,6 +149,9 @@ body.role_authenticated:not(.role_administrator) {
   float: none;
   width: 100%;
   padding: 0; }
+  .node-album-form .layout-node-form .layout-region #edit-preview,
+  .node-album-edit-form .layout-node-form .layout-region #edit-preview {
+    display: none; }
   .node-album-form .layout-node-form .layout-region .media-library-item__attributes,
   .node-album-edit-form .layout-node-form .layout-region .media-library-item__attributes {
     max-height: none !important; }
