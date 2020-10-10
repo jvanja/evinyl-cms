@@ -12,11 +12,6 @@ use Drupal\simpletest\WebTestBase;
 class YoastSeoTest extends WebTestBase {
 
   /**
-   * Profile to use.
-   */
-  protected $profile = 'testing';
-
-  /**
    * Admin user.
    *
    * @var \Drupal\Core\Session\AccountInterface
@@ -52,12 +47,19 @@ class YoastSeoTest extends WebTestBase {
   ];
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityManager;
+
+  /**
    * Sets the test up.
    */
   protected function setUp() {
     parent::setUp();
     $this->adminUser = $this->drupalCreateUser($this->permissions);
-    $this->entityManager = \Drupal::entityManager();
+    $this->entityManager = \Drupal::service('entity_type.manager');
   }
 
   /**
@@ -66,7 +68,7 @@ class YoastSeoTest extends WebTestBase {
   protected function enableYoastSeo($entity_type, $bundle) {
     // Configure yoast seo for the given bundle.
     $this->drupalGet('admin/config/yoast_seo');
-    $edit = array($entity_type . '[' . $bundle . ']' => $bundle);
+    $edit = [$entity_type . '[' . $bundle . ']' => $bundle];
     json_decode($this->drupalPostForm(NULL, $edit, t('Save')));
     $this->assertFieldChecked('edit-node-page');
   }
@@ -77,7 +79,7 @@ class YoastSeoTest extends WebTestBase {
   protected function disableYoastSeo($entity_type, $bundle) {
     // Configure yoast seo for the given bundle.
     $this->drupalGet('admin/config/yoast_seo');
-    $edit = array($entity_type . '[' . $bundle . ']' => FALSE);
+    $edit = [$entity_type . '[' . $bundle . ']' => FALSE];
     json_decode($this->drupalPostForm(NULL, $edit, t('Save')));
     $this->assertNoFieldChecked('edit-node-page');
   }
@@ -96,10 +98,10 @@ class YoastSeoTest extends WebTestBase {
     // Given I am logged in as admin.
     $this->drupalLogin($this->adminUser);
     // Create a page node type.
-    $this->entityManager->getStorage('node_type')->create(array(
+    $this->entityManager->getStorage('node_type')->create([
       'type' => 'page',
       'name' => 'page',
-    ))->save();
+    ])->save();
 
     // When I am adding an Entity Test content.
     $this->drupalGet('node/add/page');
