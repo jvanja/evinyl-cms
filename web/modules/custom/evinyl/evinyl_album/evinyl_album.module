@@ -39,25 +39,12 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
     break;
   }
 }
-// /**
-//  * Implements hook_entity_presave().
-//  */
-// function evinyl_album_entity_presave($entity, $entity_type) {
-// 	// dsm($entity_type);
-// 	if ($entity_type == 'field_collection_item' && isset($entity->field_song['und'][0] )) {
-// 		// dsm($entity);
-// 		$file = file_load($entity->field_song['und'][0]['fid']);
-// 		$fileinfo = getid3_analyze_file($file);
-// 		$song_duration = round($fileinfo['playtime_seconds']);
-// 		$entity->field_song_duration['und'][0]['value'] =  theme_getid3_duration(array( 'duration' => $song_duration));
-// 	}
-// }
-
 
 function evinyl_album_preprocess_node(&$variables){
   $node = Drupal::request()->attributes->get('node');
   $type = $node->getType();
-  if($type == 'album' && $node->isPublished() == true){
+  // if($type == 'album' && $node->isPublished() == true){
+  if($type == 'album'){
     $current_path = \Drupal::service('path.current')->getPath();
     $node_alias = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
     $host = \Drupal::request()->getHost();
