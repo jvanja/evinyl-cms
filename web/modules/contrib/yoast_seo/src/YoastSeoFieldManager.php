@@ -316,6 +316,7 @@ class YoastSeoFieldManager {
     $this->formSet($form, 'field_yoast_seo.widget.0.yoast_seo.snippet_analysis', [
       '#weight' => $body_weight + 1,
       '#markup' => $output,
+      '#parents' => [],
     ]);
 
     return $form;

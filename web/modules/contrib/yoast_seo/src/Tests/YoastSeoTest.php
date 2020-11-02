@@ -2,14 +2,14 @@
 
 namespace Drupal\yoast_seo\Tests;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Ensures that the Yoast Seo works correctly.
  *
  * @group YoastSeo
  */
-class YoastSeoTest extends WebTestBase {
+class YoastSeoTest extends BrowserTestBase {
 
   /**
    * Admin user.
@@ -70,7 +70,7 @@ class YoastSeoTest extends WebTestBase {
     $this->drupalGet('admin/config/yoast_seo');
     $edit = [$entity_type . '[' . $bundle . ']' => $bundle];
     json_decode($this->drupalPostForm(NULL, $edit, t('Save')));
-    $this->assertFieldChecked('edit-node-page');
+    $this->assertSession()->checkboxChecked('edit-node-page');
   }
 
   /**
@@ -81,7 +81,7 @@ class YoastSeoTest extends WebTestBase {
     $this->drupalGet('admin/config/yoast_seo');
     $edit = [$entity_type . '[' . $bundle . ']' => FALSE];
     json_decode($this->drupalPostForm(NULL, $edit, t('Save')));
-    $this->assertNoFieldChecked('edit-node-page');
+    $this->assertSession()->checkboxNotChecked('edit-node-page');
   }
 
   /**
@@ -106,21 +106,21 @@ class YoastSeoTest extends WebTestBase {
     // When I am adding an Entity Test content.
     $this->drupalGet('node/add/page');
     // Then I should not see the Yoast SEO section active.
-    $this->assertNoText('Yoast SEO for drupal');
+    $this->assertSession()->pageTextNotContains('Yoast SEO for drupal');
 
     // When I enable Yoast SEO for the page bundle.
     $this->enableYoastSeo('node', 'page');
     // And I am adding an Entity Test content.
     $this->drupalGet('node/add/page');
     // Then I should see the Yoast SEO section active.
-    $this->assertText('Real-time SEO for drupal');
+    $this->assertSession()->pageTextContains('Real-time SEO for drupal');
 
     // When I disable Yoast SEO for the page bundle.
     $this->disableYoastSeo('node', 'page');
     // And I am adding an Entity Test content.
     $this->drupalGet('node/add/page');
     // Then I should not see the Yoast SEO section active.
-    $this->assertNoText('Real-time SEO for drupal');
+    $this->assertSession()->pageTextNotContains('Real-time SEO for drupal');
   }
 
 }
