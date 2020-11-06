@@ -63,7 +63,7 @@ class SearchController {
           'id' => $node->nid,
           'type' => $node->type,
           'thumb' => $thumb,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
         ));
       } else {
         $path_base = '/taxonomy/term/';
@@ -72,7 +72,7 @@ class SearchController {
           'id' => $node->nid,
           'type' => $node->type,
           'thumb' => $thumb,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath($path_base . $node->nid),
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
         ));
       }
     }

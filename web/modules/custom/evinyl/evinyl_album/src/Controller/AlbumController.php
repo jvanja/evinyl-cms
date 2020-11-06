@@ -87,7 +87,7 @@ class AlbumController {
           'id' => $term->uuid,
           'tid' => $term->tid,
           'name' => $term->name,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/taxonomy/term/'.$term->tid),
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/'.$term->tid),
         ));
       }
     }
@@ -133,7 +133,7 @@ class AlbumController {
           'artists_ids' => [(int)$node->artist_id],
           'genres_ids' => [(int)$node->genre_id],
           'cover' => $cover,
-          'path' => \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid),
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/node/'.$node->nid),
         ));
       }
     }

@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation;
   ========================================================================== */
 function evinyl_user_preprocess_user(&$variables){
   $current_path = \Drupal::service('path.current')->getPath();
-  $node_alias = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+  $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
   $host = \Drupal::request()->getHost();
   if ($host == 'localhost') {
     $redirect = 'http://localhost:3000' . $node_alias;
