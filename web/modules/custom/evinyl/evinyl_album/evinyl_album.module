@@ -54,9 +54,9 @@ function evinyl_album_preprocess_node(&$variables){
       $redirect = 'https://v2.evinyl.net' . $node_alias;
     }
 
-    $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-    $response->send();
-    Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
+    // $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
+    // $response->send();
+    // Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
     return;
   }
 }
@@ -74,7 +74,8 @@ function sendNodeJsMessageToAll($entity) {
   $subject = $entity->subject->getValue();
   $body = $entity->comment_body->getValue()[0]['value'];
   $user = User::load($uid);
-  $userPhoto = File::load($user->field_user_photo->getValue()[0]['target_id']);
+  // ksm($user);
+  $userPhoto = File::load($user->user_picture->getValue()[0]['target_id']);
   $userPhotoUri = $userPhoto->getFileUri();
   $style = ImageStyle::load('thumbnail');
   $userPhotoUrl = $style->buildUrl($userPhotoUri);
