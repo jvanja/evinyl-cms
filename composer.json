@@ -109,5 +109,8 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "require-dev": {
+        "mglaman/drupal-check": "^1.1"
     }
 }
