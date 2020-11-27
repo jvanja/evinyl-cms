@@ -16,14 +16,14 @@
     ],
     "require": {
         "composer/installers": "^1.2",
-        "drupal/core-composer-scaffold": "^8.8",
-        "drupal/core-project-message": "^8.8",
-        "drupal/core-recommended": "^8.8",
         "drupal/admin_toolbar": "^2.0",
         "drupal/adminimal_theme": "^1.5",
         "drupal/coffee": "^1.0@beta",
         "drupal/consumer_image_styles": "^3.0",
         "drupal/core": "^8.7.0",
+        "drupal/core-composer-scaffold": "^8.8",
+        "drupal/core-project-message": "^8.8",
+        "drupal/core-recommended": "^8.8",
         "drupal/decoupled_router": "^2.0",
         "drupal/devel": "^4.0",
         "drupal/dropzonejs": "^2.3",
@@ -32,7 +32,9 @@
         "drupal/field_group": "^3.1",
         "drupal/field_permissions": "^1.0",
         "drupal/jsonapi_extras": "^3.12",
+        "drupal/mass_contact": "^1.0@beta",
         "drupal/metatag": "^1.10",
+        "drupal/mimemail": "^1.0@alpha",
         "drupal/module_filter": "^3.1",
         "drupal/nodejs": "^1.2",
         "drupal/paragraphs": "^1.10",
@@ -60,7 +62,13 @@
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
+            },
+            "file-mapping": {
+                "[web-root]/.htaccess": {
+                    "append": "assets/htaccess-append.txt"
+                }
             }
+
         },
         "installer-paths": {
             "web/core": [
