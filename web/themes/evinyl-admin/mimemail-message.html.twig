@@ -49,7 +49,7 @@
       }
 
       body {
-        background-color: #f6f6f6;
+        background-color: #cc964c;
         font-family: sans-serif;
         -webkit-font-smoothing: antialiased;
         font-size: 14px;
@@ -76,7 +76,7 @@
       ------------------------------------- */
 
       .body {
-        background-color: #f6f6f6;
+        background-color: #cc964c;
         width: 100%;
       }
 
@@ -123,6 +123,21 @@
         clear: both;
         text-align: left;
         width: 100%;
+        color: white !important;
+      }
+      .header .wrapper {
+        padding: 10px 20px;
+      }
+      .header .logo {
+        float: left;
+        margin-right: 10px;
+      }
+      .header .sitename {
+        margin: 0;
+        font-weight: bold;
+        color: white;
+        font-size: 1.5em;
+        letter-spacing: 0.04rem;
       }
       .footer {
         clear: both;
@@ -134,7 +149,7 @@
         .footer p,
         .footer span,
         .footer a {
-          color: #999999;
+          color: #000 !important;
           font-size: 12px;
           text-align: center;
       }
@@ -178,7 +193,7 @@
       }
 
       a {
-        color: #3498db;
+        color: #cc964c !important;
         text-decoration: underline;
       }
 
@@ -200,10 +215,10 @@
       }
         .btn a {
           background-color: #ffffff;
-          border: solid 1px #3498db;
+          border: solid 1px #cc964c;
           border-radius: 5px;
           box-sizing: border-box;
-          color: #3498db;
+          color: #cc964c;
           cursor: pointer;
           display: inline-block;
           font-size: 14px;
@@ -215,12 +230,12 @@
       }
 
       .btn-primary table td {
-        background-color: #3498db;
+        background-color: #cc964c;
       }
 
       .btn-primary a {
-        background-color: #3498db;
-        border-color: #3498db;
+        background-color: #cc964c;
+        border-color: #cc964c;
         color: #ffffff;
       }
 
@@ -375,23 +390,21 @@
       <tr>
         <td class="container">
           <div class="content">
-
-            <td class="wrapper">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td>
-                    <img width="25" height="25" src="https://lab.evinyl.net/themes/evinyl-admin/images/nav-logo-white.png" alt="">
-                  </td>
-                </tr>
-              </table>
-            </td>
-
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td class="wrapper">
+                  <img width="25" height="25"
+                  src="https://lab.evinyl.net/themes/evinyl-admin/images/nav-logo-white.png"
+                  class="logo">
+                  <h3 class="sitename">eVinyl</h3>
+                </td>
+              </tr>
+            </table>
           </div>
         </td>
-
       </tr>
-    <!-- END HEADER CONTAINER -->
     </table>
+    <!-- END HEADER CONTAINER -->
 
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
       <tr>
@@ -415,16 +428,15 @@
                 </td>
               </tr>
 
-            <!-- END MAIN CONTENT AREA -->
             </table>
-            <!-- END CENTERED WHITE CONTAINER -->
+            <!-- END MAIN CONTENT AREA -->
 
             <!-- START FOOTER -->
             <div class="footer">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
                   <td class="content-block">
-                    <span class="apple-link">&copy; <em>eVinyl</em> - Your online record store.</span>
+                    <span class="apple-link">&copy; <a href="https://evinyl.net">eVinyl.net</a> - Your online record store.</span>
                     <!-- <br> Don't like these emails? <a href="http://i.imgur.com/CScmqnj.gif">Unsubscribe</a>. -->
                   </td>
                 </tr>
@@ -434,6 +446,8 @@
 
           </div>
         </td>
+        <!-- END CENTERED WHITE CONTAINER -->
+
         <td>&nbsp;</td>
       </tr>
     </table>
