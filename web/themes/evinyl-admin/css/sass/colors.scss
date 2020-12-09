@@ -56,11 +56,13 @@ legend {
 }
 
 .adminimal .button--primary {
-  background: $linkColor;
+  background: white;
   border-color: $linkColor;
+  color: $linkColor;
   &:focus, &:hover {
     background-color: $linkHover;
     border-color: $linkHover;
+    color: white !important;
   }
 }
 

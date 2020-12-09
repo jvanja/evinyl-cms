@@ -37,11 +37,13 @@ legend {
   border-color: #af8b3d; }
 
 .adminimal .button--primary {
-  background: #af8b3d;
-  border-color: #af8b3d; }
+  background: white;
+  border-color: #af8b3d;
+  color: #af8b3d; }
   .adminimal .button--primary:focus, .adminimal .button--primary:hover {
     background-color: #c6a359;
-    border-color: #c6a359; }
+    border-color: #c6a359;
+    color: white !important; }
 
 .adminimal .action-links .button--primary {
   border: 2px solid #af8b3d;
