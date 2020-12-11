@@ -71,7 +71,7 @@ class EvinylDeezerForm extends FormBase {
     $releases = $importController->posts($ids);
 
     if ($releases) {
-      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <a href="'.$edit_unpublish_url.'">new content</a>. '));
+      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <b><a href="'.$edit_unpublish_url.'">new content</a></b>. '));
     } else {
       $this->messenger()->addWarning($this->t('Your import FAILED. Probably you put a wrong Deezer release ID'));
     }

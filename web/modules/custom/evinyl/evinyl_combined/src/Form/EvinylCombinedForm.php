@@ -90,11 +90,11 @@ class EvinylCombinedForm extends FormBase {
       // $this->messenger()->addStatus(
       //   $this->t('Your import is completed. Please moderate @link. '), ['@link' => $releases['uri']]
       // );
-      $this->messenger()->addStatus($this->t('Your import is completed. <br> Please moderate your <a href="@uri">new album</a>.', [
+      $this->messenger()->addStatus($this->t('Your import is completed. <br> Please moderate your <b><a href="@uri">new album</a></b>.', [
         '@uri' => $releases['uri']
       ]));
     } elseif($releases['status'] == 'warning') {
-      $this->messenger()->addWarning($this->t('Your import is completed but with a WARNING. Please moderate your <a href="'.$edit_unpublish_url.'">new content</a>. <br> @message <br> @uri', [
+      $this->messenger()->addWarning($this->t('Your import is completed but with a WARNING. Please moderate your <b><a href="'.$edit_unpublish_url.'">new content</a></b>. <br> @message <br> @uri', [
         '@message' => $releases['message'],
         '@uri' => $releases['uri']
       ]));
