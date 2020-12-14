@@ -99,6 +99,7 @@ class AlbumController {
     $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
     $output = [];
+    $FEATURED_GENRE_ID = 62;
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
     $artists_ids = [];
@@ -114,6 +115,7 @@ class AlbumController {
       $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
+        $output[$key]['featured'] = in_array($FEATURED_GENRE_ID, $output[$key]['genres_ids']) ? '1' : '0';
         if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
           array_push($output[$key]['genres_ids'], (int)$node->genre_id);
         }
@@ -128,7 +130,8 @@ class AlbumController {
           'name' => $node->title,
           'id' => $node->nid,
           'uuid' => $node->uuid,
-          'featured' => $node->featured,
+          // 'featured' => $node->featured,
+          'featured' => in_array($FEATURED_GENRE_ID, $output[$key]['genres_ids']) ? '1' : '0',
           'likes_ids' => array_unique($likes_ids),
           'artists_ids' => [(int)$node->artist_id],
           'genres_ids' => [(int)$node->genre_id],
