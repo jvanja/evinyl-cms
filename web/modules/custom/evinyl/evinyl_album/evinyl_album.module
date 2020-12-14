@@ -41,10 +41,34 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
 }
 
 function evinyl_album_preprocess_node(&$variables){
-  $node = Drupal::request()->attributes->get('node');
-  $type = $node->getType();
-  // if($type == 'album' && $node->isPublished() == true){
-  if($type == 'album'){
+  // $node = Drupal::request()->attributes->get('node');
+  // $node = \Drupal::routeMatch()->getParameter('node');
+  $parameters = \Drupal::routeMatch()->getParameters()->all();
+
+  if (isset($parameters['node'])) {
+    // $type = $node->getType();
+    $type = $parameters['node']->getType();
+    // if($type == 'album' && $node->isPublished() == true){
+    if($type == 'album'){
+      $current_path = \Drupal::service('path.current')->getPath();
+      $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+      $host = \Drupal::request()->getHost();
+      if ($host == 'localhost') {
+        $redirect = 'http://localhost:3000' . $node_alias;
+      } else {
+        $redirect = 'https://v2.evinyl.net' . $node_alias;
+      }
+
+      $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
+      $response->send();
+      Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
+      return;
+    }
+  } else if(isset($parameters['taxonomy_term'])) {
+    $term = $parameters['taxonomy_term'];
+
+    // dpm($term->getVocabularyId()); // this returns 'artist' or 'genre'
+
     $current_path = \Drupal::service('path.current')->getPath();
     $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
     $host = \Drupal::request()->getHost();
