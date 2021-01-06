@@ -116,10 +116,11 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
           else {
             // CHECK the temp password.
             $uid = $account->id();
-            $service = \Drupal::service('tempstore.shared');
+            $service = \Drupal::service('tempstore.private');
             $collection = 'rest_password';
             $tempstore = $service->get($collection, $uid);
-            $temp_pass_from_storage = $tempstore->getIfOwner('temp_pass');
+
+            $temp_pass_from_storage = $tempstore->get('temp_pass_' . $uid);
             if (!empty($temp_pass_from_storage)) {
               // Trying to be a a bit good. Issue #3036405.
               if (hash_equals($temp_pass_from_storage,$temp_pass) === TRUE) {
@@ -129,7 +130,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
                 $code = 200;
                 $response = ['message' => $this->t('Your New Password has been saved please log in.')];
                 // Delete temp password.
-                $tempstore->deleteIfOwner('temp_pass');
+                $tempstore->delete('temp_pass');
               }
               else {
                 $response = ['message' => $this->t('The recovery password is not valid.')];
