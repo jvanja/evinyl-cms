@@ -6,6 +6,7 @@
 namespace Drupal\evinyl_search\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
+use Drupal\media\Entity\Media;
 use Drupal\file\Entity\File;
 
 class SearchController {
@@ -54,8 +55,15 @@ class SearchController {
     foreach($nodes as $node) {
       // set default image (fid=137) if one is not found.
       $node->image_id = $node->image_id == null ? 137 : $node->image_id;
-      $file = File::load($node->image_id);
+      // $file = File::load($node->image_id);
+
+      $media = Media::load($node->image_id);
+      $fid = $media->field_media_image->target_id;
+      $file = File::load($fid);
+      $url = $file->url();
       $thumb = $thumb_style->buildUrl($file->uri->value);
+
+      // $thumb = $thumb_style->buildUrl($file->uri->value);
       if ($node->type == 'album') {
         $path_base = '/node/';
         array_push($output['albums'], array(
