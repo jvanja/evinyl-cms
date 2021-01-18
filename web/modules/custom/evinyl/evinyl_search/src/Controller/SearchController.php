@@ -58,12 +58,16 @@ class SearchController {
       // $file = File::load($node->image_id);
 
       $media = Media::load($node->image_id);
-      $fid = $media->field_media_image->target_id;
-      $file = File::load($fid);
-      $url = $file->url();
+      if ($media) {
+        $fid = $media->field_media_image->target_id;
+        $file = File::load($fid);
+        $url = $file->url();
+      } else {
+        $file = File::load($node->image_id);
+      }
+
       $thumb = $thumb_style->buildUrl($file->uri->value);
 
-      // $thumb = $thumb_style->buildUrl($file->uri->value);
       if ($node->type == 'album') {
         $path_base = '/node/';
         array_push($output['albums'], array(
