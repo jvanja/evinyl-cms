@@ -124,6 +124,7 @@
         }
     },
     "require-dev": {
+        "league/csv": "^9.0",
         "mglaman/drupal-check": "^1.1"
     }
 }
