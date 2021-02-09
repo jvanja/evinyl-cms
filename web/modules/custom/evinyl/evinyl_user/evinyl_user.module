@@ -12,7 +12,7 @@ function evinyl_user_preprocess_user(&$variables){
   if ($host == 'localhost') {
     $redirect = 'http://localhost:3000' . $node_alias;
   } else {
-    $redirect = 'https://v2.evinyl.net' . $node_alias;
+    $redirect = 'https://evinyl.net' . $node_alias;
   }
 
   $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
