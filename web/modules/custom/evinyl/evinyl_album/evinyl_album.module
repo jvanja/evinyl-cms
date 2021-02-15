@@ -15,17 +15,35 @@ use Symfony\Component\HttpFoundation;
  * Implements hook_entity_presave().
  */
 function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  // die;
   switch($entity->bundle()) {
-   case 'album':
-    // update_json_output();
-    break;
-   case 'a_side_songs':
-   case 'b_side_songs':
-    // calculate_song_duration($entity);
-    break;
-   case 'comment':
-    sendNodeJsMessageToAll($entity);
-    break;
+    case 'album':
+      // update_json_output();
+      break;
+    case 'a_side_songs':
+    case 'b_side_songs':
+      // calculate_song_duration($entity);
+      break;
+    case 'comment':
+      sendNodeJsMessageToAll($entity);
+      break;
+    case 'article':
+      // dpm($entity);
+      $nid = $entity->id();
+      $current_path = \Drupal::service('path.current')->getPath();
+      $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $nid);
+      // dpm($node_alias);
+      $host = \Drupal::request()->getHost();
+      if ($host == 'localhost') {
+        $redirect = 'http://localhost:3000' . $node_alias;
+      } else {
+        $redirect = 'https://evinyl.net' . $node_alias;
+      }
+
+      $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
+      $response->send();
+
+      break;
   }
 }
 
@@ -41,6 +59,7 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
 }
 
 function evinyl_album_preprocess_node(&$variables){
+  // dpm($variables);
   // $node = Drupal::request()->attributes->get('node');
   // $node = \Drupal::routeMatch()->getParameter('node');
   $parameters = \Drupal::routeMatch()->getParameters()->all();
