@@ -32,7 +32,7 @@
         "drupal/field_group": "^3.1",
         "drupal/field_permissions": "^1.0",
         "drupal/jsonapi_extras": "^3.12",
-        "drupal/mass_contact": "^1.0@beta",
+        "drupal/mass_contact": "1.x-dev@dev",
         "drupal/metatag": "^1.10",
         "drupal/migrate_plus": "^5.1",
         "drupal/migrate_source_csv": "^3.4",

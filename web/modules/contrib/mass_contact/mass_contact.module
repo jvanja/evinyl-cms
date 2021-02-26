@@ -59,10 +59,10 @@ function mass_contact_help($route_name, RouteMatchInterface $route_match) {
       }
       $output .= '<p>' . t('If you are also using other mail related modules on your Drupal installation (i.e.: @htmlmail module, @mimemail module, @phpmailer module, @smtp module, etc.), be sure to check the issue queues for those modules for solutions, as well.',
         [
-          '@htmlmail' => \Drupal::l(t('HTML Mail'), Url::fromUri('http://drupal.org/project/htmlmail')),
-          '@mimemail' => \Drupal::l(t('Mime Mail'), Url::fromUri('http://drupal.org/project/mimemail')),
-          '@phpmailer' => \Drupal::l(t('PHPMailer'), Url::fromUri('http://drupal.org/project/phpmailer')),
-          '@smtp' => \Drupal::l(t('SMTP Authentication Support'), Url::fromUri('http://drupal.org/project/smtp')),
+          '@htmlmail' => Link::fromTextAndUrl(t('HTML Mail'), Url::fromUri('http://drupal.org/project/htmlmail')),
+          '@mimemail' => Link::fromTextAndUrl(t('Mime Mail'), Url::fromUri('http://drupal.org/project/mimemail')),
+          '@phpmailer' => Link::fromTextAndUrl(t('PHPMailer'), Url::fromUri('http://drupal.org/project/phpmailer')),
+          '@smtp' => Link::fromTextAndUrl(t('SMTP Authentication Support'), Url::fromUri('http://drupal.org/project/smtp')),
         ]
       ) . '</p>';
       break;

@@ -282,14 +282,14 @@ class MassContactMessageConfirmForm extends ConfirmFormBase {
       $this->massContactMessage->save();
 
       if ($this->massContactMessage->id()) {
-        drupal_set_message($this->t('Mass Contact message sent successfully. A copy has been archived <a href="@url">here</a>.', [
+        $this->messenger()->addStatus($this->t('Mass Contact message sent successfully. A copy has been archived <a href="@url">here</a>.', [
           '@url' => $this->massContactMessage->toUrl()
             ->toString(),
         ]));
       }
     }
     else {
-      drupal_set_message($this->t('Mass Contact message sent successfully.'));
+      $this->messenger()->addStatus($this->t('Mass Contact message sent successfully.'));
     }
 
     // Delete the entry from the user's tempstore.

@@ -40,7 +40,7 @@ class CategoryFormTest extends MassContactTestBase {
 
     // Create a category via the UI.
     $edit = [
-      'id' => Unicode::strtolower($this->randomMachineName()),
+      'id' => mb_strtolower($this->randomMachineName()),
       'label' => $this->randomString(),
       'selected' => TRUE,
       'recipients[role][categories][' . $this->roles[3]->id() . ']' => TRUE,
@@ -91,7 +91,7 @@ class CategoryFormTest extends MassContactTestBase {
     $this->drupalGet('/admin/config/mass-contact/category/add');
     // Create a category via the UI.
     $edit = [
-      'id' => Unicode::strtolower($this->randomMachineName()),
+      'id' => mb_strtolower($this->randomMachineName()),
       'label' => $this->randomString(),
     ];
     $this->drupalPostForm(NULL, $edit, t('Save'));

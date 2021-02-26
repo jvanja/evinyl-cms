@@ -125,17 +125,19 @@ class CategoryForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label category.', [
+        $this->messenger()->addStatus($this->t('Created the %label category.', [
           '%label' => $mass_contact_category->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label category.', [
+        $this->messenger()->addStatus($this->t('Saved the %label category.', [
           '%label' => $mass_contact_category->label(),
         ]));
     }
-    $form_state->setRedirectUrl($mass_contact_category->urlInfo('collection'));
+    // TODO: Drupal Rector Notice: Please delete the following comment after you've made any necessary changes.
+    // Please confirm that `$mass_contact_category` is an instance of `Drupal\Core\Entity\EntityInterface`. Only the method name and not the class name was checked for this replacement, so this may be a false positive.
+    $form_state->setRedirectUrl($mass_contact_category->toUrl('collection'));
   }
 
 }

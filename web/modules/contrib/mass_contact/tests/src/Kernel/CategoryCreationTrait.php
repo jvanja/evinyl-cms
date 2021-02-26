@@ -18,7 +18,7 @@ trait CategoryCreationTrait {
    */
   public function createCategory(array $settings = []) {
     $settings += [
-      'id' => Unicode::strtolower($this->randomMachineName()),
+      'id' => mb_strtolower($this->randomMachineName()),
       'label' => $this->randomString(),
       'recipients' => [],
       'selected' => FALSE,

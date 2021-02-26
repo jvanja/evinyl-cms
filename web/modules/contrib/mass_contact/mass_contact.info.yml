@@ -1,16 +1,11 @@
 name: 'Mass Contact'
-description: "Send email messages to multiple users.\n               (This module will take advantage of the Token module, if it is installed and enabled, but does not require it.\n               If you want to be able to send HTML email messages, you will need to install and enable the Mime Mail module.)"
-# core: 8.x
+description: "Send email messages to multiple users. (This module will take advantage of the Token module, if it is installed and enabled, but does not require it. If you want to be able to send HTML email messages, you will need to install and enable the Mime Mail module.)"
+core: 8.x
 package: Mail
+configure: mass_contact.settings
 dependencies:
   - drupal:options
   - drupal:user
 test_dependencies:
   - swiftmailer:swiftmailer
 type: module
-
-# Information added by Drupal.org packaging script on 2017-06-21
-version: '8.x-1.0-beta2'
-core: '8.x'
-project: 'mass_contact'
-datestamp: 1498061047

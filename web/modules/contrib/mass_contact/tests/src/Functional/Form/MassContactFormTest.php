@@ -288,6 +288,8 @@ class MassContactFormTest extends MassContactTestBase {
     // Test sending a message to category 2 and also a copy to yourself with
     // BCC option as false.
     $config->set('use_bcc', FALSE);
+    // Use the checkboxes to display the categories.
+    $config->set('category_display', 'checkboxes');
     $config->save();
     // Get form again.
     $this->drupalGet(Url::fromRoute('entity.mass_contact_message.add_form'));
@@ -296,7 +298,8 @@ class MassContactFormTest extends MassContactTestBase {
     $edit = [
       'subject' => $this->randomString(),
       'body[value]' => $this->randomString(),
-      'categories[]' => [$this->categories[2]->id()],
+      'categories[' . $this->categories[2]->id() . ']' => TRUE,
+      'categories[' . $this->categories[3]->id() . ']' => FALSE,
       'copy' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Send email'));
@@ -320,6 +323,10 @@ class MassContactFormTest extends MassContactTestBase {
     // No messages should be sent if the cancel button is pressed on the
     // confirmation form.
     \Drupal::state()->set('system.test_mail_collector', []);
+    $config->set('category_display', 'select');
+    $config->save();
+    // Get form again.
+    $this->drupalGet(Url::fromRoute('entity.mass_contact_message.add_form'));
     $edit = [
       'subject' => $this->randomString(),
       'body[value]' => $this->randomString(),

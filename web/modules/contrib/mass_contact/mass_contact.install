@@ -12,7 +12,7 @@ use Drupal\mass_contact\MassContactInterface;
  */
 function mass_contact_install() {
   // Add the `mass_contact_opt_out` field to the user form.
-  $display = entity_get_form_display('user', 'user', 'default');
+  $display = \Drupal::service('entity_display.repository')->getFormDisplay('user', 'user', 'default');
   if (!$display->getComponent(MassContactInterface::OPT_OUT_FIELD_ID)) {
     $settings = [
       'type' => 'options_buttons',
@@ -21,4 +21,13 @@ function mass_contact_install() {
     $display->setComponent(MassContactInterface::OPT_OUT_FIELD_ID, $settings);
     $display->save();
   }
+}
+ 
+/**
+ * Implements hook_unistall().
+ */
+function mass_contact_uninstall() {
+  //Removing mass_contact_opt_out field.
+  Drupal::configFactory()->getEditable('field.field.user.user.mass_contact_opt_out')->delete();
+  Drupal::configFactory()->getEditable('field.storage.user.mass_contact_opt_out')->delete();
 }
