@@ -118,7 +118,11 @@ function sendNodeJsMessageToAll($entity) {
   $body = $entity->comment_body->getValue()[0]['value'];
   $user = User::load($uid);
   $userPhoto = File::load($user->user_picture->getValue()[0]['target_id']);
-  $userPhotoUri = $userPhoto->getFileUri();
+  if ($userPhoto) {
+    $userPhotoUri = $userPhoto->getFileUri();
+  } else {
+    $userPhotoUri = '';
+  }
   $style = ImageStyle::load('thumbnail');
   $userPhotoUrl = $style->buildUrl($userPhotoUri);
 
