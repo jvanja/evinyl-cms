@@ -48,6 +48,7 @@
         "drupal/rest_absolute_urls": "^1.0@beta",
         "drupal/rest_password": "^1.6",
         "drupal/restui": "^1.17",
+        "drupal/rules": "^3.0@alpha",
         "drupal/simple_sitemap": "^3.8",
         "drupal/smtp": "^1.0@beta",
         "drupal/userswitch": "^1.5",
