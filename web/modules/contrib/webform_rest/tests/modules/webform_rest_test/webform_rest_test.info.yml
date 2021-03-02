@@ -10,7 +10,7 @@ dependencies:
   - 'webform:webform'
   - 'webform_rest:webform_rest'
 
-# Information added by Drupal.org packaging script on 2020-09-20
-version: '4.0.0-beta2'
+# Information added by Drupal.org packaging script on 2021-03-01
+version: '4.0.0'
 project: 'webform_rest'
-datestamp: 1600634519
+datestamp: 1614618514

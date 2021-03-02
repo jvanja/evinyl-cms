@@ -1,4 +1,15 @@
-Webform REST 2.x
+CONTENTS OF THIS FILE
+---------------------
+
+ * Introduction
+ * Requirements
+ * Installation
+ * Configuration
+ * Maintainers
+
+
+INTRODUCTION
+------------
 
 Retrieve and submit webforms via REST.
 
@@ -10,30 +21,43 @@ Retrieve and submit webforms via REST.
 
 Note: This module does not provide UI to enable
 REST resources. Use restui: https://www.drupal.org/project/restui
-module, for example, to enable resource "Webform Submit", 
+module, for example, to enable resource "Webform Submit",
 "Webform Elements", etc.
 
-Retrieve Webform Elements
--------------------------
+
+REQUIREMENTS
+------------
+
+This module requires:
+- webform
+- restui
+
+
+INSTALLATION
+------------
+
+ * Install as you would normally install a contributed Drupal module. Visit
+   https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+   for further information.
+
+
+CONFIGURATION
+-------------
+
+- Retrieve Webform Elements
 
 Returns all form elements including render array.
-
 GET /webform_rest/{webform_id}/elements?_format=json
 
-Retrieve Webform Fields
------------------------
+- Retrieve Webform Fields
 
 Returns form fields.
-
 GET /webform_rest/{webform_id}/fields?_format=json
 
-Submit Webform
---------------
+- Submit Webform
 
 POST /webform_rest/submit
-
 Example POST data:
-
 {
   "webform_id": "my_webform",
   "checkboxes_field": [
@@ -45,13 +69,10 @@ Example POST data:
    "email": "myemail@mydomain.com.au"
 }
 
-Update Webform Submission
--------------------------
+- Update Webform Submission
 
 PATCH /webform_rest/{webform_id}/submission/{uuid}?_format=json
-
 Example PATCH data:
-
 {
   "checkboxes_field": [
     "Option 3",
@@ -62,7 +83,24 @@ Example PATCH data:
    "email": "myemail@mydomain.com.au"
 }
 
-Retrieve Webform Submission
----------------------------
+- Retrieve Webform Submission
 
 GET /webform_rest/{webform_id}/submission/{uuid}?_format=json
+
+
+MAINTAINERS
+-----------
+
+Current maintainers:
+ * Debora Antunes (dgaspara) - https://www.drupal.org/u/dgaspara
+ * Nuno Ramos (-nrzr-) - https://www.drupal.org/u/nrzr
+ * João Marques (joaomarques736) - https://www.drupal.org/u/joaomarques736
+ * Ricardo Tenreiro (ricardotenreiro) - https://www.drupal.org/u/ricardotenreiro
+
+This project has been sponsored by:
+ * everis
+    Multinational consulting firm providing business and strategy solutions,
+    application development, maintenance, and outsourcing services. Being part
+    of the NTT Data group enables everis to offer a wider range of solutions and
+    services through increased capacity as well as technological, geographical,
+    and financial resources.
