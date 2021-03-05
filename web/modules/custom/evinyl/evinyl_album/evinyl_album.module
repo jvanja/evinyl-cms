@@ -125,7 +125,7 @@ function sendNodeJsMessageToAll($entity) {
     $userPhotoUri = $userPhoto->getFileUri();
     $userPhotoUrl = $style->buildUrl($userPhotoUri);
   } else {
-    $userPhotoUri = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
+    $userPhotoUrl = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
   }
 
   $message = (object) array(
