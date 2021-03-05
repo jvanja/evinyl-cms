@@ -118,13 +118,15 @@ function sendNodeJsMessageToAll($entity) {
   $body = $entity->comment_body->getValue()[0]['value'];
   $user = User::load($uid);
   $userPhoto = File::load($user->user_picture->getValue()[0]['target_id']);
+  $style = ImageStyle::load('thumbnail');
+  $userPhotoUrl = '';
+
   if ($userPhoto) {
     $userPhotoUri = $userPhoto->getFileUri();
+    $userPhotoUrl = $style->buildUrl($userPhotoUri);
   } else {
-    $userPhotoUri = '';
+    $userPhotoUri = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
   }
-  $style = ImageStyle::load('thumbnail');
-  $userPhotoUrl = $style->buildUrl($userPhotoUri);
 
   $message = (object) array(
     'data' => (object) array(
