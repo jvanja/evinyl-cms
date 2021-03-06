@@ -1,6 +1,6 @@
 name: Evinyl Deezer API
 description: Adds an admin page to import albums from Deezer IDs
-package: evinyl
+package: Evinyl
 type: module
 version: 1.1
 core: 8.x

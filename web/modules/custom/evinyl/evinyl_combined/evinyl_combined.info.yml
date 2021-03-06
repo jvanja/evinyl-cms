@@ -1,6 +1,6 @@
 name: Evinyl Import Combined
 description: Adds an admin page to import albums from Discogs and Deezer IDs
-package: evinyl
+package: Evinyl
 type: module
 version: 1.1
 core: 8.x
