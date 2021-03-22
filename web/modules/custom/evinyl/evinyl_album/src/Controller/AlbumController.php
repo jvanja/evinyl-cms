@@ -130,7 +130,7 @@ class AlbumController {
           'name' => $node->title,
           'id' => $node->nid,
           'uuid' => $node->uuid,
-          'featured' => in_array($FEATURED_GENRE_ID, $node->genre_id) ? '1' : '0',
+          'featured' => in_array($FEATURED_GENRE_ID, [(int)$node->genre_id]) ? '1' : '0',
           'likes_ids' => array_unique($likes_ids),
           'artists_ids' => [(int)$node->artist_id],
           'genres_ids' => [(int)$node->genre_id],
