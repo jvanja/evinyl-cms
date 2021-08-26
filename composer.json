@@ -16,7 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.2",
-        "drupal/admin_toolbar": "^2.0",
+        "drupal/admin_toolbar": "^3.0",
         "drupal/adminimal_theme": "^1.5",
         "drupal/captcha": "^1.1",
         "drupal/coffee": "^1.0@beta",
