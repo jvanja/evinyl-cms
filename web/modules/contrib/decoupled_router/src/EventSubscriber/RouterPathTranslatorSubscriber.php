@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Symfony\Component\Routing\Route;
+use Drupal\Core\Entity\ContentEntityType;
 
 /**
  * Event subscriber that processes a path translation with the router info.
@@ -144,15 +145,17 @@ class RouterPathTranslatorSubscriber implements EventSubscriberInterface {
       return;
     }
     $response->addCacheableDependency($entity);
-    $can_view = $entity->access('view', NULL, TRUE);
-    if (!$can_view->isAllowed()) {
-      $response->setData([
-        'message' => 'Access denied for entity.',
-        'details' => 'This user does not have access to view the resolved entity. Please authenticate and try again.',
-      ]);
-      $response->setStatusCode(403);
-      $response->addCacheableDependency($can_view);
-      return;
+    if ($entity->getEntityType() instanceof ContentEntityType) {
+      $can_view = $entity->access('view', NULL, TRUE);
+      if (!$can_view->isAllowed()) {
+        $response->setData([
+          'message' => 'Access denied for entity.',
+          'details' => 'This user does not have access to view the resolved entity. Please authenticate and try again.',
+        ]);
+        $response->setStatusCode(403);
+        $response->addCacheableDependency($can_view);
+        return;
+      }
     }
 
     $entity_type_id = $entity->getEntityTypeId();
@@ -196,6 +199,11 @@ class RouterPathTranslatorSubscriber implements EventSubscriberInterface {
     if ($label_accessible->isAllowed()) {
       $output['label'] = $entity->label();
     }
+    // Allow to alter basic router info.
+    $this->moduleHandler->invokeAll('decoupled_router_info_alter', [
+      &$output, ['entity' => $entity],
+    ]);
+
     // If the route is JSON API, it means that JSON API is installed and its
     // services can be used.
     if ($this->moduleHandler->moduleExists('jsonapi')) {
