@@ -49,7 +49,7 @@ class MassContactFormTest extends MassContactTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->massContactUser = $this->createUser(['mass contact send messages', 'mass contact view archived messages']);
@@ -144,7 +144,7 @@ class MassContactFormTest extends MassContactTestBase {
       'body[value]' => $this->randomString(),
       'categories[]' => [$this->categories[2]->id()],
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
 
     $message_configs['optout'] = FALSE;
     $message_configs['copy'] = FALSE;
@@ -181,7 +181,7 @@ class MassContactFormTest extends MassContactTestBase {
       'body[value]' => $this->randomString(),
       'categories[]' => [$this->categories[2]->id()],
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
 
     $message_configs['optout'] = FALSE;
     $message_configs['copy'] = FALSE;
@@ -227,7 +227,7 @@ class MassContactFormTest extends MassContactTestBase {
       'categories[]' => [$this->categories[2]->id()],
     ];
 
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
 
     $message_configs['optout'] = TRUE;
     $message_configs['copy'] = FALSE;
@@ -258,7 +258,7 @@ class MassContactFormTest extends MassContactTestBase {
       'subject' => $this->randomString(),
       'body[value]' => $this->randomString(),
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
     $this->assertSession()->pageTextContains('There are no recipients chosen for this mass contact message.');
 
     // Test Sending a message without any categories with
@@ -269,7 +269,7 @@ class MassContactFormTest extends MassContactTestBase {
       'body[value]' => $this->randomString(),
       'copy' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
 
     $message_configs['optout'] = TRUE;
     $message_configs['copy'] = TRUE;
@@ -302,7 +302,7 @@ class MassContactFormTest extends MassContactTestBase {
       'categories[' . $this->categories[3]->id() . ']' => FALSE,
       'copy' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
 
     $message_configs['optout'] = TRUE;
     $message_configs['copy'] = TRUE;
@@ -333,7 +333,7 @@ class MassContactFormTest extends MassContactTestBase {
       'categories[]' => [$this->categories[2]->id()],
       'copy' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Send email'));
+    $this->submitForm($edit, t('Send email'));
     $message_configs['optout'] = TRUE;
     $message_configs['copy'] = TRUE;
     $message_configs['bcc'] = FALSE;
@@ -454,7 +454,7 @@ class MassContactFormTest extends MassContactTestBase {
       }
     }
     if (empty($message_configs['cancel'])) {
-      $this->drupalPostForm(NULL, [], t('Confirm'));
+      $this->submitForm([], t('Confirm'));
       $this->assertSession()
         ->pageTextContains('Mass Contact message sent successfully.');
     }

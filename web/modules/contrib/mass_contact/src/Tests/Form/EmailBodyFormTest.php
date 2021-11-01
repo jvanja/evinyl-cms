@@ -2,29 +2,33 @@
 
 namespace Drupal\mass_contact\Tests\Form;
 
+use Drupal\KernelTests\ConfigFormTestBase;
 use Drupal\mass_contact\Form\EmailBodyForm;
-use Drupal\system\Tests\System\SystemConfigFormTestBase;
 
 /**
  * Admin settings form test.
  *
  * @group mass_contact
  */
-class EmailBodyFormTest extends SystemConfigFormTestBase {
+class EmailBodyFormTest extends ConfigFormTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
+    'filter',
     'mass_contact',
+    'user',
   ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
+    $this->installConfig(['filter']);
+    $this->installEntitySchema('user');
     $this->form = EmailBodyForm::create($this->container);
     $values = [
       // @todo

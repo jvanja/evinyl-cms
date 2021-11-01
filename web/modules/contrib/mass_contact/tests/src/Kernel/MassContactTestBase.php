@@ -12,12 +12,12 @@ abstract class MassContactTestBase extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['filter', 'mass_contact', 'user', 'system'];
+  protected static $modules = ['filter', 'mass_contact', 'user', 'system'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->installEntitySchema('mass_contact_category');

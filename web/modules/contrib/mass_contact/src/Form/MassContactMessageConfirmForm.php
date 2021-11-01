@@ -4,13 +4,13 @@ namespace Drupal\mass_contact\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\mass_contact\MassContactInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\mass_contact\Entity\MassContactMessageInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Form\ConfirmFormBase;
-use Drupal\user\PrivateTempStoreFactory;
 
 /**
  * Form object for the Mass Contact Confirm form.
@@ -55,7 +55,7 @@ class MassContactMessageConfirmForm extends ConfirmFormBase {
   /**
    * The tempstore factory.
    *
-   * @var \Drupal\user\PrivateTempStoreFactory
+   * @var \Drupal\Core\TempStore\PrivateTempStoreFactory
    */
   protected $tempStoreFactory;
 
@@ -68,7 +68,7 @@ class MassContactMessageConfirmForm extends ConfirmFormBase {
    *   The entity type manager service.
    * @param \Drupal\mass_contact\MassContactInterface $mass_contact
    *   The mass contact service.
-   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
    *   The factory for the temp store object.
    */
   public function __construct(RouteMatchInterface $route_match, EntityTypeManagerInterface $entity_type_manager, MassContactInterface $mass_contact, PrivateTempStoreFactory $temp_store_factory) {
@@ -88,7 +88,7 @@ class MassContactMessageConfirmForm extends ConfirmFormBase {
       $container->get('current_route_match'),
       $container->get('entity_type.manager'),
       $container->get('mass_contact'),
-      $container->get('user.private_tempstore')
+      $container->get('tempstore.private')
     );
   }
 

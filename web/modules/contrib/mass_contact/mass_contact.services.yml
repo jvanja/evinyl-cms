@@ -15,6 +15,6 @@ services:
       - Drupal\mass_contact\Annotation\GroupingMethod
   mass_contact_confirm_info:
     class: Drupal\mass_contact\ParamConverter\MassContactConfirmConverter
-    arguments: ['@user.private_tempstore']
+    arguments: ['@tempstore.private']
     tags:
       - { name: paramconverter }

@@ -50,6 +50,7 @@ class OptOut implements OptOutInterface {
     }
 
     $query = $this->entityManager->getStorage('user')->getQuery();
+    $query->accessCheck(TRUE);
     $query->condition('status', 1);
 
     if ($config->get('optout_enabled') === MassContactInterface::OPT_OUT_GLOBAL) {

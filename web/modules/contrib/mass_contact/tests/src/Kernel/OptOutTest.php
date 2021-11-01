@@ -3,7 +3,7 @@
 namespace Drupal\Tests\mass_contact\Kernel;
 
 use Drupal\mass_contact\MassContactInterface;
-use Drupal\simpletest\UserCreationTrait;
+use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Kernel tests for the opt-out service.
@@ -20,7 +20,7 @@ class OptOutTest extends MassContactTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['field', 'options'];
+  protected static $modules = ['field', 'options'];
 
   /**
    * Mass contact categories.
@@ -60,7 +60,7 @@ class OptOutTest extends MassContactTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->installSchema('system', ['sequences']);

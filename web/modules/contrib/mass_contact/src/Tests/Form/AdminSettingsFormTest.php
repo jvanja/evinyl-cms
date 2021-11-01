@@ -2,28 +2,28 @@
 
 namespace Drupal\mass_contact\Tests\Form;
 
+use Drupal\KernelTests\ConfigFormTestBase;
 use Drupal\mass_contact\Form\AdminSettingsForm;
 use Drupal\mass_contact\MassContactInterface;
-use Drupal\system\Tests\System\SystemConfigFormTestBase;
 
 /**
  * Admin settings form test.
  *
  * @group mass_contact
  */
-class AdminSettingsFormTest extends SystemConfigFormTestBase {
+class AdminSettingsFormTest extends ConfigFormTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'mass_contact',
   ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->form = AdminSettingsForm::create($this->container);

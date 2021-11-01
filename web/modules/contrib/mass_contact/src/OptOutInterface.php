@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\mass_Contact;
+namespace Drupal\mass_contact;
 
 /**
  * A service for managing user opt-outs of mass contact emails.

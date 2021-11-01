@@ -4,8 +4,3 @@ description: 'A module testing embedding the Rules UI.'
 package: Testing
 dependencies:
   - rules:rules
-
-# Information added by Drupal.org packaging script on 2021-06-15
-version: '8.x-3.x-dev'
-project: 'rules'
-datestamp: 1623740129

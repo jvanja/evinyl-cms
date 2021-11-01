@@ -2,7 +2,8 @@
 
 namespace Drupal\Tests\mass_contact\Kernel;
 
-use Drupal\simpletest\UserCreationTrait;
+
+use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
  * Access control handler tests.
@@ -19,7 +20,7 @@ class CategoryAccessControlHandlerTest extends MassContactTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->installEntitySchema('user');

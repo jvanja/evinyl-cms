@@ -2,28 +2,27 @@
 
 namespace Drupal\mass_contact\Tests\Form;
 
-use Drupal\Component\Utility\Unicode;
+use Drupal\KernelTests\ConfigFormTestBase;
 use Drupal\mass_contact\Form\EmailHeaderForm;
-use Drupal\system\Tests\System\SystemConfigFormTestBase;
 
 /**
  * Admin settings form test.
  *
  * @group mass_contact
  */
-class EmailHeaderFormTest extends SystemConfigFormTestBase {
+class EmailHeaderFormTest extends ConfigFormTestBase {
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'mass_contact',
   ];
 
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  protected function setUp():void {
     parent::setUp();
 
     $this->form = EmailHeaderForm::create($this->container);

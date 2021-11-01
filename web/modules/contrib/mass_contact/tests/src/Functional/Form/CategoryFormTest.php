@@ -47,7 +47,7 @@ class CategoryFormTest extends MassContactTestBase {
       'recipients[role][categories][' . $this->roles[5]->id() . ']' => TRUE,
       'recipients[role][conjunction]' => 'AND',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, t('Save'));
 
     /** @var \Drupal\mass_contact\Entity\MassContactCategoryInterface $category */
     $category = MassContactCategory::load($edit['id']);
@@ -68,7 +68,7 @@ class CategoryFormTest extends MassContactTestBase {
     $edit['label'] = $this->randomString();
     $edit['recipients[role][categories][' . $this->roles[4]->id() . ']'] = TRUE;
     $edit['recipients[role][conjunction]'] = 'OR';
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, t('Save'));
 
     \Drupal::entityTypeManager()
       ->getStorage('mass_contact_category')
@@ -94,7 +94,7 @@ class CategoryFormTest extends MassContactTestBase {
       'id' => mb_strtolower($this->randomMachineName()),
       'label' => $this->randomString(),
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->submitForm($edit, t('Save'));
     $this->assertSession()
       ->pageTextContains('At least one recipient is required.');
   }

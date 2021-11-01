@@ -5,13 +5,12 @@ namespace Drupal\mass_contact\Form;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\user\PrivateTempStoreFactory;
 use Drupal\mass_contact\MassContactInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -51,28 +50,24 @@ class MassContactForm extends ContentEntityForm {
   /**
    * Constructs the Mass Contact form.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface          $entityRepository
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface|null $entity_type_bundle_info
    *   The entity type bundle service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
+   * @param \Drupal\Component\Datetime\TimeInterface|null          $time
    *   The time service.
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface          $module_handler
    *   The module handler service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface         $entity_type_manager
    *   The entity type manager service.
-   * @param \Drupal\mass_contact\MassContactInterface $mass_contact
+   * @param \Drupal\mass_contact\MassContactInterface              $mass_contact
    *   The mass contact service.
-   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
-   *   The factory for the temp store object.
    */
-  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, MassContactInterface $mass_contact, PrivateTempStoreFactory $temp_store_factory) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
+  public function __construct(EntityRepositoryInterface $entityRepository, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, ModuleHandlerInterface $module_handler, EntityTypeManagerInterface $entity_type_manager, MassContactInterface $mass_contact) {
+    parent::__construct($entityRepository, $entity_type_bundle_info, $time);
     $this->config = $this->configFactory()->get('mass_contact.settings');
     $this->entityTypeManager = $entity_type_manager;
     $this->moduleHandler = $module_handler;
     $this->massContact = $mass_contact;
-    $this->tempStoreFactory = $temp_store_factory;
   }
 
   /**
@@ -80,13 +75,12 @@ class MassContactForm extends ContentEntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity.repository'),
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
       $container->get('module_handler'),
       $container->get('entity_type.manager'),
-      $container->get('mass_contact'),
-      $container->get('user.private_tempstore')
+      $container->get('mass_contact')
     );
   }
 
@@ -433,7 +427,7 @@ class MassContactForm extends ContentEntityForm {
 
     // Store data needed for the confirmation form in the user's private temp
     // storage.
-    $store = \Drupal::service("user.private_tempstore")->get('mass_contact_confirm_info');
+    $store = \Drupal::service("tempstore.private")->get('mass_contact_confirm_info');
     $store->set($message->uuid(),
       [
         'mass_contact_message' => $message,

@@ -93,6 +93,7 @@ class Role extends GroupingBase implements ContainerFactoryPluginInterface {
   public function getRecipients(array $categories) {
     if ($this->configuration['conjunction'] === 'OR') {
       $query = $this->entityTypeManager->getStorage('user')->getQuery();
+      $query->accessCheck(TRUE);
       $query->condition('status', 1);
 
       // If the authenticated role is not included, add the appropriate filters.
@@ -109,6 +110,7 @@ class Role extends GroupingBase implements ContainerFactoryPluginInterface {
       $results = [];
       foreach ($categories as $id) {
         $query = $this->entityTypeManager->getStorage('user')->getQuery();
+        $query->accessCheck(TRUE);
         $query->condition('status', 1);
 
         if ($id !== RoleInterface::AUTHENTICATED_ID) {
