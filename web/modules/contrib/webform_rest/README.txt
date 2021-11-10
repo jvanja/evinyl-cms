@@ -92,15 +92,6 @@ MAINTAINERS
 -----------
 
 Current maintainers:
+* Ian McLean (imclean) - https://www.drupal.org/u/imclean
  * Debora Antunes (dgaspara) - https://www.drupal.org/u/dgaspara
- * Nuno Ramos (-nrzr-) - https://www.drupal.org/u/nrzr
  * João Marques (joaomarques736) - https://www.drupal.org/u/joaomarques736
- * Ricardo Tenreiro (ricardotenreiro) - https://www.drupal.org/u/ricardotenreiro
-
-This project has been sponsored by:
- * everis
-    Multinational consulting firm providing business and strategy solutions,
-    application development, maintenance, and outsourcing services. Being part
-    of the NTT Data group enables everis to offer a wider range of solutions and
-    services through increased capacity as well as technological, geographical,
-    and financial resources.

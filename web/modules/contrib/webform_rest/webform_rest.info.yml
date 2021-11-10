@@ -8,7 +8,7 @@ dependencies:
   - drupal:rest
   - restui:restui
 
-# Information added by Drupal.org packaging script on 2021-03-01
-version: '4.0.0'
+# Information added by Drupal.org packaging script on 2021-11-05
+version: '4.0.1'
 project: 'webform_rest'
-datestamp: 1614618514
+datestamp: 1636116587
