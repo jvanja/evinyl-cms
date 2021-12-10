@@ -17,7 +17,7 @@ use Drupal\user\UserStorageInterface;
  *   label = @Translation("Lost password"),
  *   uri_paths = {
  *     "canonical" = "/user/lost-password",
- *     "https://www.drupal.org/link-relations/create" = "/user/lost-password"
+ *     "create" = "/user/lost-password"
  *   }
  * )
  */
@@ -78,7 +78,7 @@ class GetPasswordRestResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest_password'),
       $container->get('current_user'),
-      $container->get('entity.manager')->getStorage('user')
+      $container->get('entity_type.manager')->getStorage('user')
     );
   }
 

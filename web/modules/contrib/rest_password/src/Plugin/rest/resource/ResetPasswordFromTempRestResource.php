@@ -17,7 +17,7 @@ use Drupal\user\UserStorageInterface;
  *   label = @Translation("Reset Lost password Via Temp password"),
  *   uri_paths = {
  *     "canonical" = "/user/lost-password-reset",
- *     "https://www.drupal.org/link-relations/create" = "/user/lost-password-reset"
+ *     "create" = "/user/lost-password-reset"
  *   }
  * )
  */
@@ -78,7 +78,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest_password'),
       $container->get('current_user'),
-      $container->get('entity.manager')->getStorage('user')
+      $container->get('entity_type.manager')->getStorage('user')
     );
   }
 
@@ -116,7 +116,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
           else {
             // CHECK the temp password.
             $uid = $account->id();
-            $service = \Drupal::service('tempstore.private');
+            $service = \Drupal::service('tempstore.shared');
             $collection = 'rest_password';
             $tempstore = $service->get($collection, $uid);
 
@@ -129,8 +129,9 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
                 $account->save();
                 $code = 200;
                 $response = ['message' => $this->t('Your New Password has been saved please log in.')];
-                // Delete temp password.
-                $tempstore->delete('temp_pass');
+                // Delete temp password because next time it will be not valid.
+                $tempstore->delete('temp_pass_' . $uid);
+
               }
               else {
                 $response = ['message' => $this->t('The recovery password is not valid.')];

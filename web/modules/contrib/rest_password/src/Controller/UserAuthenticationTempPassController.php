@@ -217,7 +217,7 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
       if (is_array($user) && count($user) == 1) {
         $user = reset($user);
         $uid = $user->id();
-        $service = \Drupal::service('tempstore.private');
+        $service = \Drupal::service('tempstore.shared');
         $collection = 'rest_password';
         $tempstore = $service->get($collection, $uid);
         $temp_pass = $tempstore->get('temp_pass_' . $uid);
