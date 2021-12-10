@@ -56,7 +56,7 @@
         "drupal/userswitch": "^1.5",
         "drupal/webform_rest": "^4.0@beta",
         "drupal/yoast_seo": "^1.5",
-        "drush/drush": "^9.0.0",
+        "drush/drush": "10",
         "james-heinrich/getid3": "^1.9"
     },
     "conflict": {
