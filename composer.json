@@ -52,6 +52,7 @@
         "drupal/rules": "^3.0@alpha",
         "drupal/simple_sitemap": "^3.8",
         "drupal/smtp": "^1.0@beta",
+        "drupal/upgrade_status": "^3.12",
         "drupal/userswitch": "^1.5",
         "drupal/webform_rest": "^4.0@beta",
         "drupal/yoast_seo": "^1.5",
@@ -127,7 +128,6 @@
         }
     },
     "require-dev": {
-        "league/csv": "^9.0",
-        "mglaman/drupal-check": "^1.1"
+        "league/csv": "^9.0"
     }
 }
