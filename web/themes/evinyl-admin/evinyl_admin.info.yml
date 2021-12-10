@@ -2,6 +2,7 @@ name: Evinyl Admin
 type: theme
 description: This is an eVinyl sub theme of Adminimal
 core: 8.x
+core_version_requirement: ^8 || ^9
 # Defines the base theme
 base theme: adminimal_theme
 

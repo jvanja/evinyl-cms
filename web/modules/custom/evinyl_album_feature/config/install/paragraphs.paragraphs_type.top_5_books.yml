@@ -1,8 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: top_5_books
-label: 'Top 5 books'
-icon_uuid: null
-description: 'Migrated from field_collection field_top_5_books'
-behavior_plugins: {  }

@@ -1,8 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: top_5_songs
-label: 'Top 5 songs'
-icon_uuid: null
-description: 'Migrated from field_collection field_top_5_songs'
-behavior_plugins: {  }

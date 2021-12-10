@@ -1,8 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: album_gallery_photos
-label: 'Album gallery photos'
-icon_uuid: null
-description: 'Migrated from field_collection field_album_gallery_photos'
-behavior_plugins: {  }

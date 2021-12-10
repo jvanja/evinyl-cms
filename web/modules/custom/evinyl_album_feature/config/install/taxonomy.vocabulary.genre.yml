@@ -1,7 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-name: Genre
-vid: genre
-description: 'Music genre for this album'
-weight: 0

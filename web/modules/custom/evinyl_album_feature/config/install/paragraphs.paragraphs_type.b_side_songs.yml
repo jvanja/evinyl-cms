@@ -1,8 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: b_side_songs
-label: 'B side songs'
-icon_uuid: null
-description: 'Migrated from field_collection field_b_side_songs'
-behavior_plugins: {  }
