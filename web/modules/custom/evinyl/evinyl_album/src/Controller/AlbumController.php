@@ -95,10 +95,12 @@ class AlbumController {
   }
 
   public function buildNodesArray($nodes) {
-    global $base_url;
-    $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
+    // global $base_url;
+    // $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
     $output = [];
+    // TODO:  <20-12-21, vanja> //
+    // remove FEATURED from genre stuff and change 'ff' field to 'featured'
     $FEATURED_GENRE_ID = 62;
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
@@ -115,6 +117,7 @@ class AlbumController {
       $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
       $key = array_search($node->nid, array_column($output, 'id'));
       if ($key !== false) {
+        $output[$key]['ff'] = $node->featured;
         $output[$key]['featured'] = in_array($FEATURED_GENRE_ID, $output[$key]['genres_ids']) ? '1' : '0';
         if ($node->genre_id && !in_array($node->genre_id, $output[$key]['genres_ids'])) {
           array_push($output[$key]['genres_ids'], (int)$node->genre_id);
@@ -131,6 +134,7 @@ class AlbumController {
           'id' => $node->nid,
           'uuid' => $node->uuid,
           'featured' => in_array($FEATURED_GENRE_ID, [(int)$node->genre_id]) ? '1' : '0',
+          'ff' => $node->featured,
           'likes_ids' => array_unique($likes_ids),
           'artists_ids' => [(int)$node->artist_id],
           'genres_ids' => [(int)$node->genre_id],
