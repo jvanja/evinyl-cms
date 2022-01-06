@@ -2,28 +2,27 @@
  * @file
  * Attaches simple_sitemap behaviors to the entity form.
  */
-(function($) {
+(function ($, Drupal) {
 
   "use strict";
 
-  Drupal.behaviors.simple_sitemapFieldsetSummaries = {
-    attach: function(context, settings) {
-      $(context).find('#edit-simple-sitemap').drupalSetSummary(function(context) {
+  Drupal.behaviors.simpleSitemapFieldsetSummaries = {
+    attach: function (context) {
+      $(context).find('.simple-sitemap-fieldset').drupalSetSummary(function (context) {
         var enabledVariants = [];
-        $('input:radio.enabled-for-variant').each(function() {
-          if ($(this).is(':checked') && $(this).val() == 1) {
-            enabledVariants.push($(this).attr('class').split(' ')[1])
-          }
+
+        $(context).find('input:radio:checked[data-simple-sitemap-label][value="1"]').each(function () {
+          enabledVariants.push(this.dataset.simpleSitemapLabel);
         });
 
         if (enabledVariants.length > 0) {
-          return Drupal.t('Included in sitemap variants: ') + enabledVariants.join(', ');
+          return Drupal.t('Included in sitemaps: ') + enabledVariants.join(', ');
         }
         else {
-          return Drupal.t('Excluded from all sitemap variants');
+          return Drupal.t('Excluded from all sitemaps');
         }
-
       });
     }
   };
-})(jQuery);
+
+})(jQuery, Drupal);
