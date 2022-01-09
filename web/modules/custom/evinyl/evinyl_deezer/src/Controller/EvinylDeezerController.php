@@ -99,7 +99,9 @@ class EvinylDeezerController extends ControllerBase {
 
 
   protected function createAlbums($albumData) {
-    $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/', TRUE);
+    $path_parts = pathinfo($albumData->cover_xl);
+    $rename_filename = \Drupal::service('pathauto.alias_cleaner')->cleanString($albumData->title) . '.' . $path_parts['extension'];
+    $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
     $artistTerms = $this->addTaxonomyTerm('artists', [$albumData->artist]);
     $labelTerms = $this->addTaxonomyTerm('labels', [$albumData->label]);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres->data);
