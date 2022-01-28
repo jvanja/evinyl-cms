@@ -9,6 +9,8 @@ function evinyl_user_preprocess_user(&$variables){
   $host = \Drupal::request()->getHost();
   if ($host == 'localhost') {
     $redirect = 'http://localhost:3000' . $node_alias;
+  } elseif ($host == 'cms.evinyl.net') {
+    $redirect = 'http://dev.evinyl.net' . $node_alias;
   } else {
     $redirect = 'https://evinyl.net' . $node_alias;
   }
