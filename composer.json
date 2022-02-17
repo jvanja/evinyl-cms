@@ -32,6 +32,7 @@
         "drupal/features": "^3.8",
         "drupal/field_group": "^3.1",
         "drupal/field_permissions": "^1.0",
+        "drupal/jsonapi_boost": "^2.0",
         "drupal/jsonapi_extras": "^3.12",
         "drupal/mass_contact": "1.x-dev@dev",
         "drupal/metatag": "^1.10",
@@ -43,6 +44,7 @@
         "drupal/paragraphs": "^1.10",
         "drupal/pathauto": "^1.6",
         "drupal/profile": "^1.0",
+        "drupal/queue_ui": "^2.2",
         "drupal/recaptcha": "^3.0",
         "drupal/redirect": "^1.5",
         "drupal/rest_absolute_urls": "^1.0@beta",
@@ -68,7 +70,8 @@
         "allow-plugins": {
             "composer/installers": true,
             "drupal/core-composer-scaffold": true,
-            "drupal/core-project-message": true
+            "drupal/core-project-message": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
