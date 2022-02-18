@@ -1,8 +1,0 @@
-bypass advanced varnish cache:
-  title: 'Bypass Varnish cache.'
-  description: 'Varnish will not be used for user roles with this permission set. This might affect on performance for
-  the user as Varnish cache will be ignored for such users.'
-administer advanced varnish configuration:
-  title: 'Configure Advanced Varnish settings'
-  description: 'This permission allow access to Advanced Varnish cache configuration pages.'
-  restrict access: TRUE

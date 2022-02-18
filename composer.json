@@ -18,7 +18,6 @@
         "composer/installers": "^1.2",
         "drupal/admin_toolbar": "^3.0",
         "drupal/adminimal_theme": "^1.5",
-        "drupal/adv_varnish": "^4.0",
         "drupal/captcha": "^1.1",
         "drupal/coffee": "^1.0@beta",
         "drupal/consumer_image_styles": "^4.0",
