@@ -1,0 +1,7 @@
+adv_varnish_user_data:
+  version: 3.x
+  js:
+    js/adv_varnish_user_data.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

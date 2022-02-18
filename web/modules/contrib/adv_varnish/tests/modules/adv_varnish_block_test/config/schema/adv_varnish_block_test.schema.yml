@@ -1,0 +1,20 @@
+block.settings.simple_block:
+  type: block_settings
+  label: 'Simple block'
+  mapping:
+    cache:
+      type: block.settings.simple_block.cache
+
+block.settings.simple_block.cache:
+  type: config_object
+  label: 'Test block HTML settings'
+  mapping:
+    esi:
+      type: integer
+      label: 'ESI'
+    ttl:
+      type: string
+      label: 'TTL'
+    cachemode:
+      type: string
+      label: 'Cachemode'

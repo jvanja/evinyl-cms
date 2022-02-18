@@ -1,0 +1,38 @@
+parameters:
+  channel: adv_varnish
+
+services:
+  adv_varnish.event_subscriber:
+    class: Drupal\adv_varnish\EventSubscriber\CacheableResponseSubscriber
+    arguments: ['@language_manager', '@config.factory', '@page_cache_request_policy', '@page_cache_response_policy', '@cache_contexts_manager', '@adv_varnish.request_handler', '@adv_vanish.cache_manager', '@current_user', '%http.response.debug_cacheability_headers%']
+    tags:
+      - {name: event_subscriber}
+
+  adv_varnish.request_handler:
+    class: Drupal\adv_varnish\RequestHandler
+    arguments: ['@request_stack', '@config.factory', '@adv_varnish.cookie_manager', '@adv_vanish.cache_manager', '@adv_varnish.logger', '@state']
+
+  adv_varnish.cookie_manager:
+    class: Drupal\adv_varnish\CookieManager
+    arguments: ['@state', '@request_stack', '@current_user', '@datetime.time', '@config.factory', '@adv_varnish.logger', '@file_system']
+
+  adv_varnish.logger:
+    class: Drupal\Core\Logger\LoggerChannel
+    factory: logger.factory:get
+    arguments: ['%channel%']
+
+  adv_varnish.route_subscriber:
+    class: Drupal\adv_varnish\EventSubscriber\RouteSubscriber
+    arguments: ['@config.factory']
+    tags:
+      - { name: 'event_subscriber' }
+
+  plugin.manager.user_blocks:
+    class: Drupal\adv_varnish\UserBlocksManager
+    arguments: ['@container.namespaces', '@cache.default', '@module_handler']
+
+  adv_vanish.cache_manager:
+    class: Drupal\adv_varnish\CacheManager
+    arguments: ['@http_client', '@config.factory', '@request_stack', '@current_route_match', '@current_user',  '@path.current', '@path.matcher', '@router.admin_context', '@adv_varnish.logger', '@state', '@page_cache_kill_switch']
+    tags:
+      - { name: cache_tags_invalidator}

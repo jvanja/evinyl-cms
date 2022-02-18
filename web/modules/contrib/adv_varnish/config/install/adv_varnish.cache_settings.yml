@@ -1,0 +1,2 @@
+cache_control:
+  anonymous: '/user/logout|must-revalidate, no-cache, private'

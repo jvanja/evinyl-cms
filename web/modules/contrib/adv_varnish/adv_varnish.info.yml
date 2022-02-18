@@ -1,0 +1,11 @@
+name: Advanced Varnish cache
+type: module
+description: Provides integration with Varnish service for Drupal
+package: Performance
+configure: 'adv_varnish.config_form'
+core_version_requirement: ^9
+
+# Information added by Drupal.org packaging script on 2021-05-01
+version: '4.0.3'
+project: 'adv_varnish'
+datestamp: 1619859453

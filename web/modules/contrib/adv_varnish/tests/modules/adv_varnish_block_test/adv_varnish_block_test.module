@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Module hooks.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function adv_varnish_block_test_theme() {
+  return [
+    'adv_varnish_esi_block' => [
+      'variables' => [
+        '_html' => [],
+      ],
+    ],
+  ];
+}
