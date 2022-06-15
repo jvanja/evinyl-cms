@@ -456,7 +456,9 @@ class MassContactForm extends ContentEntityForm {
       $tasks[] = Link::createFromRoute($this->t('List current categories'), 'entity.mass_contact_category.collection')->toRenderable();
       $tasks[] = Link::createFromRoute($this->t('Add new category'), 'entity.mass_contact_category.add_form')->toRenderable();
       $tasks[] = Link::createFromRoute($this->t('Configure Mass Contact settings'), 'mass_contact.settings')->toRenderable();
-      $tasks[] = Link::createFromRoute($this->t('Help'), 'help.page', ['name' => 'mass_contact'])->toRenderable();
+      if ($this->moduleHandler->moduleExists('help')) {
+        $tasks[] = Link::createFromRoute($this->t('Help'), 'help.page', ['name' => 'mass_contact'])->toRenderable();
+      }
 
       $form['tasklist'] = [
         '#type' => 'details',

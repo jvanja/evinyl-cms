@@ -3,13 +3,15 @@
 namespace Drupal\consumer_image_styles\Plugin\jsonapi\FieldEnhancer;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\consumer_image_styles\ImageStylesProvider;
+use Drupal\consumer_image_styles\ImageStylesProviderInterface;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
 use Drupal\jsonapi_extras\Plugin\ResourceFieldEnhancerBase;
+use Drupal\serialization\Normalizer\CacheableNormalizerInterface;
 use Shaper\Util\Context;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -26,7 +28,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ImageStyles extends ResourceFieldEnhancerBase implements ContainerFactoryPluginInterface {
 
   /**
-   * @var \Drupal\consumer_image_styles\ImageStylesProvider
+   * @var \Drupal\consumer_image_styles\ImageStylesProviderInterface
    */
   protected $imageStylesProvider;
 
@@ -42,7 +44,7 @@ class ImageStyles extends ResourceFieldEnhancerBase implements ContainerFactoryP
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    ImageStylesProvider $image_styles_provider,
+    ImageStylesProviderInterface $image_styles_provider,
     EntityTypeManagerInterface $entity_type_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -90,32 +92,39 @@ class ImageStyles extends ResourceFieldEnhancerBase implements ContainerFactoryP
     catch (InvalidPluginDefinitionException $e) {
       $image_styles = [];
     }
-    /** @var \Drupal\Core\Entity\Entity $entity */
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $uuid_key = $this->entityTypeManager->getDefinition('file')->getKey('uuid');
     $entities = $this->entityTypeManager
       ->getStorage('file')
       ->loadByProperties([$uuid_key => $data['id']]);
+    /** @var \Drupal\file\FileInterface $entity */
     $entity = reset($entities);
     // If the entity cannot be loaded or it's not an image, do not enhance it.
     if (!$entity || !$this->imageStylesProvider->entityIsImage($entity)) {
       return $data;
     }
+    /** @var \Drupal\Core\Cache\CacheableMetadata $cacheableMetadata */
+    $cacheableMetadata = $context->offsetGet(CacheableNormalizerInterface::SERIALIZATION_CONTEXT_CACHEABILITY)
+      ->merge(CacheableMetadata::createFromObject($entity));
     /** @var \Drupal\file\Entity\File $entity */
     // If the entity is not viewable.
     $access = $entity->access('view', NULL, TRUE);
     if (!$access->isAllowed()) {
       return $data;
     }
-    // @TODO: When enhanced transformations carry cacheable meta, add the access info.
     $uri = $entity->getFileUri();
     $links = array_map(
-      function (ImageStyleInterface $image_style) use ($uri) {
-        return $this->imageStylesProvider->buildDerivativeLink($uri, $image_style);
+      function (ImageStyleInterface $image_style) use ($uri, $cacheableMetadata) {
+        return $this->imageStylesProvider->buildDerivativeLink($uri, $image_style, $cacheableMetadata);
       },
       $image_styles
     );
-    // @TODO: When enhanced transformations carry cacheable meta, add the image styles entities.
     $meta = ['imageDerivatives' => ['links' => $links]];
+    // Must explicitly re-set because CacheableMetadata::merge() clones.
+    $context->offsetSet(
+      CacheableNormalizerInterface::SERIALIZATION_CONTEXT_CACHEABILITY,
+      $cacheableMetadata
+    );
     return array_merge_recursive($data, ['meta' => $meta]);
   }
 
@@ -157,38 +166,60 @@ class ImageStyles extends ResourceFieldEnhancerBase implements ContainerFactoryP
     return [
       'type' => 'object',
       'properties' => [
-        'type' => ['type' => 'string'],
-        'id' => ['type' => 'string'],
-        'meta' => [
+        'data' => [
           'type' => 'object',
           'properties' => [
-            'height' => ['type' => 'integer'],
-            'width' => ['type' => 'integer'],
-            'alt' => [
-              'anyOf' => [
-                ['type' => 'string'],
-                ['type' => 'null'],
-              ],
-            ],
-            'title' => [
-              'anyOf' => [
-                ['type' => 'string'],
-                ['type' => 'null'],
-              ],
-            ],
-            'links' => [
+            'type' => ['type' => 'string'],
+            'id' => ['type' => 'string'],
+            'meta' => [
               'type' => 'object',
-              'patternProperties' => [
-                '.*' => [
+              'properties' => [
+                'height' => [
+                  'anyOf' => [
+                    ['type' => 'integer'],
+                    ['type' => 'null'],
+                    ['type' => 'string'],
+                  ],
+                ],
+                'width' => [
+                  'anyOf' => [
+                    ['type' => 'integer'],
+                    ['type' => 'null'],
+                    ['type' => 'string'],
+                  ],
+                ],
+                'alt' => [
+                  'anyOf' => [
+                    ['type' => 'string'],
+                    ['type' => 'null'],
+                  ],
+                ],
+                'title' => [
+                  'anyOf' => [
+                    ['type' => 'string'],
+                    ['type' => 'null'],
+                  ],
+                ],
+                'imageDerivatives' => [
                   'type' => 'object',
                   'properties' => [
-                    'href' => ['type' => 'string', 'format' => 'uri'],
-                    'meta' => [
+                    'links' => [
                       'type' => 'object',
-                      'properties' => [
-                        'rel' => [
-                          'type' => 'array',
-                          'items' => ['type' => 'string', 'format' => 'uri'],
+                      'patternProperties' => [
+                        '.*' => [
+                          'type' => 'object',
+                          'properties' => [
+                            'href' => ['type' => 'string', 'format' => 'uri'],
+                            'rel' => [
+                              'type' => 'string',
+                            ],
+                            'title' => [
+                              'type' => 'string',
+                            ],
+                            'type' => [
+                              'type' => 'string',
+                            ],
+                          ],
                         ],
                       ],
                     ],

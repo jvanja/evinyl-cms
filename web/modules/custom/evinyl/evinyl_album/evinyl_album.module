@@ -36,8 +36,10 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
       $host = \Drupal::request()->getHost();
       if ($host == 'localhost') {
         $redirect = 'http://localhost:3000' . $node_alias;
+      } elseif ($host == 'cms.evinyl.net') {
+        $redirect = 'http://evinyl.net' . $node_alias;
       } else {
-        $redirect = 'https://evinyl.net' . $node_alias;
+        $redirect = 'https://dev.evinyl.net' . $node_alias;
       }
 
       $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
@@ -74,8 +76,10 @@ function evinyl_album_preprocess_node(&$variables){
       $host = \Drupal::request()->getHost();
       if ($host == 'localhost') {
         $redirect = 'http://localhost:3000' . $node_alias;
+      } elseif ($host == 'cms.evinyl.net') {
+        $redirect = 'http://evinyl.net' . $node_alias;
       } else {
-        $redirect = 'https://evinyl.net' . $node_alias;
+        $redirect = 'https://dev.evinyl.net' . $node_alias;
       }
 
       $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
@@ -93,8 +97,10 @@ function evinyl_album_preprocess_node(&$variables){
     $host = \Drupal::request()->getHost();
     if ($host == 'localhost') {
       $redirect = 'http://localhost:3000' . $node_alias;
+    } elseif ($host == 'cms.evinyl.net') {
+      $redirect = 'http://evinyl.net' . $node_alias;
     } else {
-      $redirect = 'https://evinyl.net' . $node_alias;
+      $redirect = 'https://dev.evinyl.net' . $node_alias;
     }
 
     $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
