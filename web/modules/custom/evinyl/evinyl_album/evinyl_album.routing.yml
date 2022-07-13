@@ -6,6 +6,13 @@ evinyl_album.content:
   requirements:
     _permission: 'access content'
 
+evinyl_artists.content:
+  path: '/api/artists'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\ArtistsController::content'
+    _title: 'Get Artists Controller'
+  requirements:
+    _permission: 'access content'
 # evinyl_update_albums.content:
 #   path: '/api/update_albums'
 #   defaults:
