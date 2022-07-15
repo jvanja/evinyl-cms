@@ -1,7 +1,0 @@
-name: Evinyl Rules Module
-description: Custom actions for the Rules module
-package: Evinyl
-type: module
-version: 1.0
-core: 8.x
-core_version_requirement: ^8 || ^9
