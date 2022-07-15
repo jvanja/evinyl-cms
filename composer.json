@@ -44,7 +44,7 @@
         "drupal/paragraphs": "^1.10",
         "drupal/pathauto": "^1.6",
         "drupal/profile": "^1.0",
-        "drupal/queue_ui": "^2.2",
+        "drupal/queue_ui": "^3.1",
         "drupal/recaptcha": "^3.0",
         "drupal/redirect": "^1.5",
         "drupal/rest_absolute_urls": "^1.0@beta",
