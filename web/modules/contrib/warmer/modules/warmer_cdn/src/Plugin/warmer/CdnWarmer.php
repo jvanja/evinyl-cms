@@ -8,6 +8,7 @@ use Drupal\Core\Form\SubformStateInterface;
 use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\warmer\Plugin\WarmerPluginBase;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Promise\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -66,7 +67,7 @@ final class CdnWarmer extends WarmerPluginBase {
     $promises = [];
     $success = 0;
 
-    foreach ($items as $key => $url) {
+    foreach ($items as $url) {
       // Fire async request.
       $promises[] = $this->httpClient
         ->requestAsync('GET', $url, ['headers' => $headers, 'verify' => $verify])
@@ -77,12 +78,17 @@ final class CdnWarmer extends WarmerPluginBase {
         }, function (\Exception $e) {
           $this->getLogger('warmer')->warning($e->getMessage());
         });
+
       // Wait for all fired requests if max number is reached.
-      $item_keys = array_keys($items);
-      if ($key % $max_concurrent_requests == 0 || $key == end($item_keys)) {
-        \GuzzleHttp\Promise\all($promises)->wait();
+      if (count($promises) >= $max_concurrent_requests) {
+        Utils::all($promises)->wait();
         $promises = [];
       }
+    }
+
+    // Wait for remaining requests to complete, if any.
+    if (!empty($promises)) {
+      Utils::all($promises)->wait();
     }
 
     return $success;
