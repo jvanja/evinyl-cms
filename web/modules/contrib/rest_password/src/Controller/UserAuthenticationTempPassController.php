@@ -262,6 +262,7 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
     }
     // Always register an IP-based failed login event.
     $this->flood->register('user.failed_login_ip', $flood_config->get('ip_window'));
+    $this->logger->notice('Unrecognized username or password for %name.', ['%name' => $credentials['name']]);
     throw new BadRequestHttpException('Sorry, unrecognized username or password.');
   }
 

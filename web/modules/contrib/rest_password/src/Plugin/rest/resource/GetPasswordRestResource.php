@@ -4,7 +4,7 @@ namespace Drupal\rest_password\Plugin\rest\resource;
 
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\Plugin\ResourceBase;
-use Drupal\rest\ResourceResponse;
+use Drupal\rest\ModifiedResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Drupal\user\UserStorageInterface;
@@ -100,19 +100,23 @@ class GetPasswordRestResource extends ResourceBase {
 
       // Try to load by email.
       $users = $this->userStorage->loadByProperties(['mail' => $email]);
+      // Prevent to identify email addresses with valid accounts. Always give
+      // the same response regardless off the status of the account.
+      $message_ok = $this->t('Further instructions have been sent to your email address.');
       if (!empty($users)) {
         $account = reset($users);
         if ($account && $account->id()) {
           // Blocked accounts cannot request a new password.
           if (!$account->isActive()) {
-            $response = t('This account is blocked or has not been activated yet.');
+            $response = ['message' => $message_ok];
+            $code = 200;
           }
           else {
             // Mail a temp password.
             $mail = _rest_password_user_mail_notify('password_reset_rest', $account, $lang);
             if (!empty($mail)) {
               $this->logger->notice('Password temp password instructions mailed to %email.', ['%email' => $account->getEmail()]);
-              $response = ['message' => $this->t('Further instructions have been sent to your email address.')];
+              $response = ['message' => $message_ok];
               $code = 200;
             }
             else {
@@ -123,11 +127,12 @@ class GetPasswordRestResource extends ResourceBase {
         }
       }
       else {
-        $response = ['message' => $this->t('This User was not found or invalid')];
+        $response = ['message' => $message_ok];
+        $code = 200;
       }
     }
 
-    return new ResourceResponse($response, $code);
+    return new ModifiedResourceResponse($response, $code);
   }
 
 }
