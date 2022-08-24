@@ -8,7 +8,7 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Mail\MailInterface;
-use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -45,7 +45,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
   /**
    * Messenger.
    *
-   * @var \Drupal\Core\Messenger\MessengerInterface
+   * @var \Drupal\Core\Messenger\Messenger
    */
   protected $messenger;
 
@@ -85,13 +85,6 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
   protected $mimeTypeGuesser;
 
   /**
-   * The SMTP object, stored between calls when keep alive is enabled.
-   *
-   * @var PHPMailer\PHPMailer\SMTP
-   */
-  protected $persistentSmtp;
-
-  /**
    * Constructs a SMPTMailSystem object.
    *
    * @param array $configuration
@@ -102,16 +95,12 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
    *   The plug-in definition.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger
    *   The logger object.
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   * @param \Drupal\Core\Messenger\Messenger $messenger
    *   The messenger object.
    * @param \Drupal\Component\Utility\EmailValidatorInterface $emailValidator
    *   The messenger object.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory object.
-   * @param \Drupal\Core\Session\AccountProxyInterface $account
-   *   The current user service.
-   * @param \Drupal\Core\File\FileSystemInterface $file_system
-   *   The file system service.
    * @param \Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser
    *   The file mime type guesser service.
    */
@@ -119,7 +108,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
                               $plugin_id,
                               $plugin_definition,
                               LoggerChannelFactoryInterface $logger,
-                              MessengerInterface $messenger,
+                              Messenger $messenger,
                               EmailValidatorInterface $emailValidator,
                               ConfigFactoryInterface $config_factory,
                               AccountProxyInterface $account,
@@ -212,13 +201,11 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
 
     $to = $message['to'];
     $body = $message['body'];
-    $headers = array_change_key_case($message['headers']);
+    $headers = $message['headers'];
     $subject = $message['subject'];
 
-    // Optionally reroute all emails to a single address.
-    list($to, $headers) = $this->applyRerouting($to, $headers);
-
-    $mailer = $this->getMailer();
+    // Create a new PHPMailer object - autoloaded from registry.
+    $mailer = new PHPMailer(TRUE);
     // Use email.validator due to different validation standard by PHPMailer.
     $mailer::$validator = [$this->emailValidator, 'isValid'];
 
@@ -254,27 +241,16 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
       // If value is not defined in settings, use site_name.
       $from_name = $this->configFactory->get('system.site')->get('name');
     }
-
+    
     // Set from email.
     if (!empty($message['params']['from_mail'])) {
       $from = $message['params']['from_mail'];
     }
 
-    // Alternative way to set from with email
-    elseif (!empty($message['from'])) {
-      $from = $message['from'];
-    }
-
-    // Set SMTP module email from if its not overridden.
-    elseif (!empty($this->smtpConfig->get('smtp_from')) && $this->emailValidator->isValid($this->smtpConfig->get('smtp_from'))) {
+    // Set SMTP module email from.
+    elseif ($this->emailValidator->isValid($this->smtpConfig->get('smtp_from'))) {
       $from = $this->smtpConfig->get('smtp_from');
     }
-
-    // Set SMTP from the default site mail as a fallback.
-    else {
-      $from = $this->configFactory->get('system.site')->get('mail');
-    }
-
     if (empty($from)) {
       $from = $message['from'];
       // The $from address might contain the "name" part. If it does, split it,
@@ -285,10 +261,9 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
       }
     }
 
-    // Updates $headers fields.
-    $headers['sender'] = $from;
-    $headers['return-path'] = $from;
-    $headers['reply-to'] = $from;
+    $headers['Sender'] = $from;
+    $headers['Return-Path'] = $from;
+    $headers['Reply-To'] = $from;
 
     // Defines the From value to what we expect.
     $mailer->From = $from;
@@ -308,9 +283,6 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
     // Create the list of 'To:' recipients.
     $torecipients = explode(',', $to);
     foreach ($torecipients as $torecipient) {
-      if (empty($torecipient)) {
-        continue;
-      }
       $to_comp = $this->getComponents($torecipient);
       $mailer->AddAddress($to_comp['email'], $to_comp['name']);
     }
@@ -318,13 +290,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
     // Parse the headers of the message and set the PHPMailer object's settings
     // accordingly.
     foreach ($headers as $key => $value) {
-      if ($value == NULL || $value == '') {
-        // $value should always be set. If not, remove the header field and
-        // skip to the next header field.
-        unset($headers[$key]);
-        continue;
-      }
-      switch ($key) {
+      switch (strtolower($key)) {
         case 'from':
           if ($from == NULL or $from == '') {
             // If a from value was already given, then set based on header.
@@ -414,17 +380,9 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
 
         case 'reply-to':
           // Only add a "reply-to" if it's not the same as "return-path".
-          if ($value != $headers['return-path']) {
+          if ($value != $headers['Return-Path']) {
             $reply_to_comp = $this->getComponents($value);
             $mailer->AddReplyTo($reply_to_comp['email'], $reply_to_comp['name']);
-          }
-          break;
-
-        case 'sender':
-          // Only add a "reply-to" if it's not the same as "return-path".
-          if ($value != $headers['return-path']) {
-            $reply_to_comp = $this->getComponents($value);
-            $mailer->Sender = $value;
           }
           break;
 
@@ -601,7 +559,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
             $file_type     = $this->getSubstring($body_part, 'Content-Type', ' ', ';');
 
             if (file_exists($file_path)) {
-              if (!$mailer->addStringAttachment(file_get_contents($file_path), $file_name, $file_encoding, $file_type)) {
+              if (!$mailer->AddAttachment($file_path, $file_name, $file_encoding, $file_type)) {
                 $this->messenger->addMessage($this->t('Attachment could not be found or accessed.'));
               }
             }
@@ -623,7 +581,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
               $file_path = file_save_data($attachment, $attachment_new_filename, FileSystemInterface::EXISTS_REPLACE);
               $real_path = $this->fileSystem->realpath($file_path->uri);
 
-              if (!$mailer->addStringAttachment(file_get_contents($real_path), $file_name)) {
+              if (!$mailer->AddAttachment($real_path, $file_name)) {
                 $this->messenger->addMessage($this->t('Attachment could not be found or accessed.'));
               }
             }
@@ -636,19 +594,16 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
         break;
     }
 
-    // Process attachments that are passed as params. Both the Mime Mail and
-    // Webform modules do this.
+    // Process mimemail attachments, which are prepared in mimemail_mail().
     if (!empty($message['params']['attachments'])) {
       foreach ($message['params']['attachments'] as $attachment) {
-        // Support either the attachment being specified as a filepath
-        // OR loaded into memory.
+        if (isset($attachment['filecontent'])) {
+          $mailer->AddStringAttachment($attachment['filecontent'], $attachment['filename'], 'base64', $attachment['filemime']);
+        }
         if (isset($attachment['filepath'])) {
           $filename = isset($attachment['filename']) ? $attachment['filename'] : basename($attachment['filepath']);
           $filemime = isset($attachment['filemime']) ? $attachment['filemime'] : $this->mimeTypeGuesser->guess($attachment['filepath']);
-          $mailer->addStringAttachment(file_get_contents($attachment['filepath']), $filename, 'base64', $filemime);
-        }
-        elseif (isset($attachment['filecontent'])) {
-          $mailer->AddStringAttachment($attachment['filecontent'], $attachment['filename'], 'base64', $attachment['filemime']);
+          $mailer->AddAttachment($attachment['filepath'], $filename, 'base64', $filemime);
         }
       }
     }
@@ -691,7 +646,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
       'from' => $from,
     ];
     if ($this->smtpConfig->get('smtp_queue')) {
-      $logger->info($this->t('Queue sending mail to: @to (subject: %subject)', ['@to' => $to, '%subject' => $subject]));
+      $logger->info($this->t('Queue sending mail to: @to', ['@to' => $to]));
       smtp_send_queue($mailerArr);
     }
     else {
@@ -860,60 +815,12 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
    *   Variables to send email.
    *
    * @return bool
-   *   TRUE if email was sent. FALSE otherwise.
+   *   True if email was sent. False otherwise.
    *
-   * @see _smtp_mailer_send()
+   * @see _smtp_mailer_send;
    */
-  public function smtpMailerSend(array $mailerArr) {
+  function smtpMailerSend($mailerArr) {
     return _smtp_mailer_send($mailerArr);
-  }
-
-  /**
-   * Applies rerouting, if an address is set for that purpose.
-   *
-   * @param string $to
-   *   Original $to address.
-   * @param array $headers
-   *   Original headers for the message.
-   *
-   * @return array
-   *   Keyed array, with new values for $to and $headers, after potentially
-   *   applying rerouting.
-   */
-  protected function applyRerouting($to, array $headers) {
-    $new_to = $to;
-    $new_headers = $headers;
-
-    $reroute_address = $this->smtpConfig->get('smtp_reroute_address');
-    if (!empty($reroute_address)) {
-      $new_to = $reroute_address;
-      // Remove any CC and BCC headers that might have been set.
-      unset($new_headers['cc']);
-      unset($new_headers['bcc']);
-    }
-
-    return [$new_to, $new_headers];
-  }
-
-  /**
-   * Get (and, if applicable, build) the PHPMailer object.
-   *
-   * @return \PHPMailer\PHPMailer\PHPMailer
-   */
-  protected function getMailer() {
-    if ($this->smtpConfig->get('smtp_keepalive')) {
-      $mailer = new PHPMailer(TRUE);
-      if ($this->persistentSmtp) {
-        $mailer->setSMTPInstance($this->persistentSmtp);
-      }
-      else {
-        $this->persistentSmtp = $mailer->getSMTPInstance();
-      }
-      return $mailer;
-    }
-    else {
-      return new PHPMailer(TRUE);
-    }
   }
 
 }

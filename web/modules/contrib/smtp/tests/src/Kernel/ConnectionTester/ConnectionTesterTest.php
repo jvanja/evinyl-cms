@@ -8,9 +8,11 @@ use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 
 /**
- * Tests SMTP connections.
+ * Class DeleteEntityTest.
  *
- * @group SMTP
+ * @group acquia_contenthub
+ *
+ * @package Drupal\Tests\acquia_contenthub\Kernel
  */
 class ConnectionTesterTest extends KernelTestBase {
 
