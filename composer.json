@@ -53,7 +53,7 @@
         "drupal/restui": "^1.17",
         "drupal/rules": "3.x-dev@dev",
         "drupal/simple_sitemap": "^4.0",
-        "drupal/smtp": "^1.0@beta",
+        "drupal/smtp": "1.0",
         "drupal/social_auth": "^3.1",
         "drupal/social_auth_facebook": "^3.0",
         "drupal/social_auth_google": "^3.0",
