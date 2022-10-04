@@ -3,10 +3,10 @@
 namespace Drupal\warmer_entity\Plugin\warmer;
 
 use Drupal\Component\Plugin\Exception\PluginException;
-use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
 use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\warmer\Plugin\WarmerPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -37,6 +37,13 @@ final class EntityWarmer extends WarmerPluginBase {
   private $entityMemoryCache;
 
   /**
+   * Entity type bundle info service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $bundleInfo;
+
+  /**
    * The list of all item IDs for all entities in the system.
    *
    * Consists of <entity-type-id>:<entity-id>.
@@ -53,7 +60,18 @@ final class EntityWarmer extends WarmerPluginBase {
     assert($instance instanceof EntityWarmer);
     $instance->setEntityTypeManager($container->get('entity_type.manager'));
     $instance->setEntityMemoryCache($container->get('entity.memory_cache'));
+    $instance->setEntityTypeBundleInfoManager($container->get('entity_type.bundle.info'));
     return $instance;
+  }
+
+  /**
+   * Injects the entity type bundle info service.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info
+   *   The entity type bundle info service.
+   */
+  public function setEntityTypeBundleInfoManager(EntityTypeBundleInfoInterface $bundle_info) {
+    $this->bundleInfo = $bundle_info;
   }
 
   /**
@@ -81,7 +99,7 @@ final class EntityWarmer extends WarmerPluginBase {
    */
   public function loadMultiple(array $ids = []) {
     $ids_per_type = array_reduce($ids, function ($carry, $id) {
-      list($entity_type_id, $entity_id) = explode(':', $id);
+      [$entity_type_id, $entity_id] = explode(':', $id);
       if (empty($carry[$entity_type_id])) {
         $carry[$entity_type_id] = [];
       }
@@ -94,7 +112,6 @@ final class EntityWarmer extends WarmerPluginBase {
         $output += $this->entityTypeManager
           ->getStorage($entity_type_id)
           ->loadMultiple($entity_ids);
-
         // \Drupal\Core\Entity\EntityStorageBase::buildCacheId() is protected,
         // so we blindly reset the whole static cache instead of specific IDs.
         $this->entityMemoryCache->deleteAll();
@@ -119,7 +136,8 @@ final class EntityWarmer extends WarmerPluginBase {
 
   /**
    * {@inheritdoc}
-   * TODO: This is a naive implementation.
+   *
+   * @todo This is a naive implementation.
    */
   public function buildIdsBatch($cursor) {
     $configuration = $this->getConfiguration();
@@ -127,13 +145,14 @@ final class EntityWarmer extends WarmerPluginBase {
       $entity_bundle_pairs = array_filter(array_values($configuration['entity_types']));
       sort($entity_bundle_pairs);
       $this->iids = array_reduce($entity_bundle_pairs, function ($iids, $entity_bundle_pair) {
-        list($entity_type_id, $bundle) = explode(':', $entity_bundle_pair);
+        [$entity_type_id, $bundle] = explode(':', $entity_bundle_pair);
         $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
         $bundle_key = $entity_type->getKey('bundle');
         $id_key = $entity_type->getKey('id');
         $query = $this->entityTypeManager
           ->getStorage($entity_type_id)
-          ->getQuery();
+          ->getQuery()
+          ->accessCheck(TRUE);
         if (!empty($id_key)) {
           $query->sort($id_key);
         }
@@ -163,7 +182,7 @@ final class EntityWarmer extends WarmerPluginBase {
    */
   public function addMoreConfigurationFormElements(array $form, SubformStateInterface $form_state) {
     /** @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info */
-    $bundle_info = \Drupal::service('entity_type.bundle.info');
+    $bundle_info = $this->bundleInfo;
     $options = [];
     foreach ($this->entityTypeManager->getDefinitions() as $entity_type) {
       $bundles = $bundle_info->getBundleInfo($entity_type->id());
@@ -182,7 +201,7 @@ final class EntityWarmer extends WarmerPluginBase {
       '#options' => $options,
       '#default_value' => empty($configuration['entity_types']) ? [] : $configuration['entity_types'],
       '#multiple' => TRUE,
-      '#attributes' => ['style' => 'min-height: 60em;']
+      '#attributes' => ['style' => 'min-height: 60em;'],
     ];
 
     return $form;

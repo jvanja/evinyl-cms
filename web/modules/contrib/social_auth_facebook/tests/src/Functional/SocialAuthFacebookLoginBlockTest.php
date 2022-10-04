@@ -12,18 +12,17 @@ use Drupal\Tests\social_auth\Functional\SocialAuthTestBase;
  * @ingroup social_auth_facebook
  */
 class SocialAuthFacebookLoginBlockTest extends SocialAuthTestBase {
-
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['block', 'social_auth_facebook'];
+  protected static $modules = ['block', 'social_auth_facebook'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->provider = 'facebook';

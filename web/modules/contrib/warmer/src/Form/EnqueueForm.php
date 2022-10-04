@@ -9,6 +9,7 @@ use Drupal\Core\Url;
 use Drupal\warmer\HookImplementations;
 use Drupal\warmer\Plugin\WarmerPluginBase;
 use Drupal\warmer\Plugin\WarmerPluginManager;
+use Drupal\warmer\QueueManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -68,7 +69,7 @@ final class EnqueueForm extends FormBase {
    * @param \Drupal\warmer\QueueManager $queue_manager
    *   The queue manager.
    */
-  public function setQueueManager($queue_manager) {
+  public function setQueueManager(QueueManager $queue_manager) {
     $this->queueManager = $queue_manager;
   }
 
@@ -129,7 +130,8 @@ final class EnqueueForm extends FormBase {
         '#url' => Url::fromRoute('queue_ui.overview_form'),
       ];
     }
-    catch (RouteNotFoundException $e) {}
+    catch (RouteNotFoundException $e) {
+    }
 
     return $form;
   }

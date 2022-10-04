@@ -105,7 +105,7 @@ final class CdnWarmer extends WarmerPluginBase {
     $header_lines = $configuration['headers'];
     // Parse headers.
     return array_reduce($header_lines, function ($carry, $header_line) {
-      list($name, $value_line) = array_map('trim', explode(':', $header_line));
+      [$name, $value_line] = array_map('trim', explode(':', $header_line));
       $values = array_map('trim', explode(';', $value_line));
       $values = array_filter($values);
       $values = count($values) === 1 ? reset($values) : $values;
@@ -157,7 +157,7 @@ final class CdnWarmer extends WarmerPluginBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable SSL verification'),
       '#description' => $this->t('Enable SSL verification. Recommended to keep it checked for security reasons.'),
-      '#default_value' => isset($configuration['verify']) ? $configuration['verify'] : TRUE,
+      '#default_value' => $configuration['verify'] ?? TRUE,
     ];
     $form['maxConcurrentRequests'] = [
       '#type' => 'number',

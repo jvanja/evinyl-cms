@@ -122,7 +122,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
 
             $temp_pass_from_storage = $tempstore->get('temp_pass_' . $uid);
             if (!empty($temp_pass_from_storage)) {
-              // Trying to be a a bit good. Issue #3036405.
+              // Trying to be a bit good. Issue #3036405.
               if (hash_equals($temp_pass_from_storage,$temp_pass) === TRUE) {
                 // Cool.... lets change this password.
                 $account->setPassword($new_pass);

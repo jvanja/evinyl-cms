@@ -86,7 +86,7 @@ class WarmerCommands extends DrushCommands {
    *
    * @throws \Exception
    */
-  public function enqueue(array $warmer_ids, $options = ['run-queue' => FALSE]) {
+  public function enqueue(array $warmer_ids, array $options = ['run-queue' => FALSE]) {
     $warmer_ids = array_unique(StringUtils::csvToArray($warmer_ids));
     $warmers = $this->warmerManager->getWarmers($warmer_ids);
     $batch_count = 0;
@@ -112,13 +112,14 @@ class WarmerCommands extends DrushCommands {
     }
     $this->logger()->success(dt('Warming caches in @count batches from the "warmer" queue.', ['@count' => $batch_count]));
     $this->queueCommands->run('warmer', ['time-limit' => static::VERY_HIGH_NUMBER]);
-    return;
   }
 
   /**
    * List of all available warmer plugins.
    *
-   * @param array $options An associative array of options whose values come from cli, aliases, config, etc.
+   * @param array $options
+   *   Associative array of options whose values come from cli, aliases, config,
+   *   etc.
    *
    * @field-labels
    *   id: ID
@@ -132,8 +133,9 @@ class WarmerCommands extends DrushCommands {
    * @aliases warmer-list
    *
    * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
+   *   Object containing row of fields to return.
    */
-  public function list($options = ['format' => 'table']) {
+  public function list(array $options = ['format' => 'table']) {
     $rows = array_map(function (WarmerPluginBase $warmer) {
       $definition = $warmer->getPluginDefinition();
       return [
@@ -150,14 +152,19 @@ class WarmerCommands extends DrushCommands {
   /**
    * Validate that queue permission exists.
    *
-   * Annotation value should be the name of the argument/option containing the name.
+   * Annotation value should be the name of the argument/option containing the
+   * name.
+   *
+   * @param \Consolidation\AnnotatedCommand\CommandData $commandData
+   *   CommandData object for command execution.
+   *
+   * @return \Consolidation\AnnotatedCommand\CommandError|null
+   *   Command Error, or null if no error.
    *
    * @hook validate @validate-warmer
-   * @param \Consolidation\AnnotatedCommand\CommandData $commandData
-   * @return \Consolidation\AnnotatedCommand\CommandError|NULL
    */
   public function validateWarmerNames(CommandData $commandData) {
-    $arg_name = $commandData->annotationData()->get('validate-warmer', null);
+    $arg_name = $commandData->annotationData()->get('validate-warmer', NULL);
     $warmer_ids = $commandData->input()->getArgument($arg_name);
     $warmer_ids = StringUtils::csvToArray($warmer_ids);
     $definitions = $this->warmerManager->getDefinitions();

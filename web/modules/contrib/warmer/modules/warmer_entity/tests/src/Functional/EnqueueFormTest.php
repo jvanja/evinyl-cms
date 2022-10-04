@@ -33,16 +33,21 @@ class EnqueueFormTest extends BrowserTestBase {
    */
   private $adminUser;
 
-  protected function setUp() {
+  /**
+   * {@inheritDoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
-    $this->adminUser = $this->createUser(['administer site configuration']);
+    $this->adminUser = $this->createUser([
+      'administer site configuration',
+    ]);
     NodeType::create([
       'type' => 'article',
     ])->save();
   }
 
   /**
-   * Asserts the enqueue form functionality.
+   * Asserts enqueue form functionality & execution of queued batches via cron.
    */
   public function testEnqueueForm() {
     $this->createTestContent();
@@ -55,9 +60,11 @@ class EnqueueFormTest extends BrowserTestBase {
         'entity_types' => ['node:article' => 'node:article'],
       ],
     ])->save();
+
     $this->drupalLogin($this->adminUser);
     $this->drupalGet(Url::fromRoute('warmer.enqueue'));
-    $this->submitForm(['warmers[entity]' => true], 'Warm Caches');
+
+    $this->submitForm(['warmers[entity]' => TRUE], 'Warm Caches');
     // Check the number of items being reported as enqueued.
     $elements = $this->cssSelect('div.messages');
     $element = reset($elements);
@@ -66,6 +73,17 @@ class EnqueueFormTest extends BrowserTestBase {
     $queue = \Drupal::service('queue')->get('warmer');
     assert($queue instanceof QueueInterface);
     $this->assertSame(1, $queue->numberOfItems(), 'Correct number of batches in the queue.');
+    // Execute cron to clear queued items
+    $this->drupalGet(URL::fromRoute('system.cron_settings'));
+    $this->submitForm([], 'edit-run', 'system-cron-settings');
+    // Check that cron ran successfully
+    $elements = $this->cssSelect('div.messages');
+    $element = reset($elements);
+    $this->assertEquals($element->getText(), 'Status message Cron ran successfully.');
+    // Ensure there are no batches in the queue
+    $queue = \Drupal::service('queue')->get('warmer');
+    assert($queue instanceof QueueInterface);
+    $this->assertSame(0, $queue->numberOfItems(), 'Correct number of batches in the queue.');
   }
 
   /**
@@ -87,6 +105,7 @@ class EnqueueFormTest extends BrowserTestBase {
 
   /**
    * Creates test content for richer testing.
+   *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
   private function createTestContent() {
@@ -94,6 +113,8 @@ class EnqueueFormTest extends BrowserTestBase {
       'type' => 'article',
       'title' => 'Test Article 1',
       'status' => NodeInterface::PUBLISHED,
+      'uid' => $this->adminUser->id(),
     ])->save();
   }
+
 }

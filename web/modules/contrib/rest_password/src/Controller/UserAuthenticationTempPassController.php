@@ -212,7 +212,7 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
     }
     else {
       // Custom stuff here...
-      // Lets Try the temp pass.
+      // Let's try the temp pass.
       $user = $this->userStorage->loadByProperties(['name' => $credentials['name']]);
       if (is_array($user) && count($user) == 1) {
         $user = reset($user);

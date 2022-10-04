@@ -22,6 +22,7 @@ use vipnytt\SitemapParser;
  */
 final class SitemapWarmer extends WarmerPluginBase {
 
+  use CdnDependencyTrait;
   use UserInputParserTrait;
 
   /**
@@ -30,20 +31,6 @@ final class SitemapWarmer extends WarmerPluginBase {
    * @var \vipnytt\SitemapParser
    */
   private $sitemapParser;
-
-  /**
-   * The CDN warmer.
-   *
-   * @var \Drupal\warmer_cdn\Plugin\warmer\CdnWarmer
-   */
-  private $warmer;
-
-  /**
-   * The warmer manager.
-   *
-   * @var \Drupal\warmer\Plugin\WarmerPluginManager
-   */
-  private $warmerManager;
 
   /**
    * The URL collection.
@@ -77,20 +64,6 @@ final class SitemapWarmer extends WarmerPluginBase {
     assert($warmer_manager instanceof WarmerPluginManager);
     $instance->setWarmerManager($warmer_manager);
     return $instance;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function loadMultiple(array $ids = []) {
-    return $this->cdnWarmer()->loadMultiple($ids);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function warmMultiple(array $items = []) {
-    return $this->cdnWarmer()->warmMultiple($items);
   }
 
   /**
@@ -181,16 +154,6 @@ final class SitemapWarmer extends WarmerPluginBase {
   }
 
   /**
-   * Set the warmer manager.
-   *
-   * @param \Drupal\warmer\Plugin\WarmerPluginManager $warmer_manager
-   *   The warmer manager.
-   */
-  public function setWarmerManager(WarmerPluginManager $warmer_manager) {
-    $this->warmerManager = $warmer_manager;
-  }
-
-  /**
    * Parse and cache the configured sitemaps.
    *
    * @return string[]
@@ -235,39 +198,6 @@ final class SitemapWarmer extends WarmerPluginBase {
       );
       $this->messenger()->addError($message);
     }
-  }
-
-  /**
-   * Lazily get the CDN warmer.
-   *
-   * @return \Drupal\warmer_cdn\Plugin\warmer\CdnWarmer
-   *   The CDN warmer.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\PluginException
-   */
-  private function cdnWarmer() {
-    if ($this->warmer instanceof CdnWarmer) {
-      return $this->warmer;
-    }
-    $configuration = $this->getConfiguration();
-    $warmer = $this->warmerManager->createInstance('cdn', [
-      'headers' => $configuration['headers'],
-      'verify' => $configuration['verify'],
-      'maxConcurrentRequests' => $configuration['maxConcurrentRequests'],
-    ]);
-    assert($warmer instanceof CdnWarmer);
-    $this->warmer = $warmer;
-    return $warmer;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultConfiguration() {
-    return [
-      'verify' => TRUE,
-      'maxConcurrentRequests' => 10,
-    ] + parent::defaultConfiguration();
   }
 
 }

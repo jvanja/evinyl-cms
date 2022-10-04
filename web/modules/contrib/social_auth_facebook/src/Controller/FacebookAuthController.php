@@ -71,7 +71,7 @@ class FacebookAuthController extends OAuth2ControllerBase {
   public function callback() {
 
     // Checks if there was an authentication error.
-    $redirect = $this->checkAuthError();
+    $redirect = $this->checkAuthError('error_code');
     if ($redirect) {
       return $redirect;
     }

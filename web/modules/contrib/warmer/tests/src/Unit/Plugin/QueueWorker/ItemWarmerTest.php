@@ -13,17 +13,23 @@ use Drupal\warmer\QueueData;
 class ItemWarmerTest extends UnitTestCase {
 
   /**
+   * Processes the items queued for warming.
+   *
    * @var \Drupal\warmer\Plugin\QueueWorker\ItemWarmer
    */
   protected $sut;
 
-  protected function setUp() {
+  /**
+   * {@inheritDoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
     $this->sut = new ItemWarmer([], 'warmer', []);
   }
 
   /**
-   * The data is processed when appropriate
+   * The data is processed when appropriate.
+   *
    * @covers ::processItem
    */
   public function testProcessItem() {

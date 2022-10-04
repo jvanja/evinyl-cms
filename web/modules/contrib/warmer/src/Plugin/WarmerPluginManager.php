@@ -57,5 +57,4 @@ class WarmerPluginManager extends DefaultPluginManager {
     });
   }
 
-
 }
