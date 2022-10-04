@@ -109,7 +109,7 @@ final class SettingsForm extends ConfigFormBase {
     $message = $this->t('Settings saved for plugin(s): %names', [
       '%names' => implode(', ', array_map(function (WarmerPluginBase $warmer) {
         return $warmer->getPluginDefinition()['label'];
-      }, $warmers))
+      }, $warmers)),
     ]);
     $this->messenger()->addStatus($message);
   }

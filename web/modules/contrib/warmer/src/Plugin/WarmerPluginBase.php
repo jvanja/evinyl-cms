@@ -70,8 +70,8 @@ abstract class WarmerPluginBase extends PluginBase implements ContainerFactoryPl
    */
   public function getConfiguration() {
     return [
-        'id' => $this->getPluginId(),
-      ] + $this->configuration + $this->defaultConfiguration();
+      'id' => $this->getPluginId(),
+    ] + $this->configuration + $this->defaultConfiguration();
   }
 
   /**

@@ -3,8 +3,6 @@
 namespace Drupal\Tests\warmer_cdn\Functional;
 
 use Drupal\Core\File\FileSystem;
-use Drupal\Core\Queue\QueueInterface;
-use Drupal\Core\Url;
 use Drupal\file\Entity\File;
 use Drupal\node\NodeInterface;
 use Drupal\path_alias\PathAliasStorage;
@@ -49,7 +47,10 @@ final class SitemapWarmerTest extends BrowserTestBase {
    */
   private $adminUser;
 
-  protected function setUp() {
+  /**
+   * {@inheritDoc}
+   */
+  protected function setUp(): void {
     parent::setUp();
     $this->adminUser = $this->drupalCreateUser(['administer site configuration']);
     $this->drupalLogin($this->adminUser);
@@ -96,7 +97,7 @@ final class SitemapWarmerTest extends BrowserTestBase {
     // Use the plugin instance to build the IDs.
     $manager = \Drupal::service('plugin.manager.warmer');
     assert($manager instanceof WarmerPluginManager);
-    list($warmer) = $manager->getWarmers(['sitemap']);
+    [$warmer] = $manager->getWarmers(['sitemap']);
     $urls = [];
     $ids = [NULL];
     while ($ids = $warmer->buildIdsBatch(end($ids))) {
@@ -140,7 +141,7 @@ final class SitemapWarmerTest extends BrowserTestBase {
     $urlset->setAttribute('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
     $urlset->setAttribute('xmlns:xhtml', 'http://www.w3.org/1999/xhtml');
     $index = 1;
-    foreach ($nodes as $alias => $node) {
+    foreach ($nodes as $node) {
       assert($node instanceof NodeInterface);
       $url = $xml->createElement('url');
       if ($index !== 4) {

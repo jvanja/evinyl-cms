@@ -35,7 +35,7 @@ class QueueData {
    *   The callback to call on dequeue.
    * @param array $ids
    *   The item IDs to process.
-   * @param $warmer_id
+   * @param string $warmer_id
    *   The warmer ID.
    */
   public function __construct(callable $callback, array $ids, $warmer_id) {
@@ -43,7 +43,6 @@ class QueueData {
     $this->ids = $ids;
     $this->warmerId = $warmer_id;
   }
-
 
   /**
    * Function to execute after claiming the item.

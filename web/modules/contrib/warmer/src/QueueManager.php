@@ -22,7 +22,7 @@ class QueueManager {
   /**
    * Sets the queue to use to execute the cache warming operations.
    *
-   * @param \Drupal\Core\Queue\QueueFactory
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
    *   The queue factory.
    * @param bool $is_reliable
    *   Indicates if the queue should be reliable.

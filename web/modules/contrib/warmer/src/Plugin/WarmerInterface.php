@@ -4,6 +4,9 @@ namespace Drupal\warmer\Plugin;
 
 use Drupal\Core\Form\SubformStateInterface;
 
+/**
+ * Warmer Interface.
+ */
 interface WarmerInterface {
 
   /**
@@ -25,7 +28,7 @@ interface WarmerInterface {
   /**
    * Loads multiple items based on their IDs.
    *
-   * @param array
+   * @param array $ids
    *   The item IDs.
    *
    * @return array

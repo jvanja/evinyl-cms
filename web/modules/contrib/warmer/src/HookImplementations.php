@@ -57,8 +57,8 @@ class HookImplementations {
   /**
    * Warms one batch of items based on their IDs.
    *
-   * @param mixed $ids
-   *   The ID.
+   * @param array $ids
+   *   An array of IDs.
    * @param string $warmer_id
    *   The warmer plugin ID.
    *

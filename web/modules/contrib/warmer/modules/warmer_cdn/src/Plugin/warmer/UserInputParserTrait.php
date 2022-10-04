@@ -15,7 +15,7 @@ trait UserInputParserTrait {
    *
    * @param array $values
    *   The collection of values.
-   * @param $key
+   * @param mixed $key
    *   Indicates the element to parse.
    *
    * @return array
@@ -74,4 +74,5 @@ trait UserInputParserTrait {
     catch (\InvalidArgumentException $e) {}
     return $user_input;
   }
+
 }
