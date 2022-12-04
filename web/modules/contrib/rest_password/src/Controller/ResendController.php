@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class ResendController extends ControllerBase {
   public function resend($user, Request $request) {
     // Check if account is unverified.
-    if (empty($user->getLastAccessedTime())) {
+    if (!empty($user->mail)) {
       // Resend verify account token mail.
       _rest_password_user_mail_notify('password_reset_rest', $user);
       \Drupal::messenger()->addStatus('Password reset email was sent to ' . $user->getAccountName() . '.');

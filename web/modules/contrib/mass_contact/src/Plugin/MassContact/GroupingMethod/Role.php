@@ -116,7 +116,7 @@ class Role extends GroupingBase implements ContainerFactoryPluginInterface {
         if ($id !== RoleInterface::AUTHENTICATED_ID) {
           $query->condition('roles', $id);
         }
-        $results[$id] = $query->execute();
+        $results[] = $query->execute();
       }
       return count($results) > 1 ? call_user_func_array('array_intersect', $results) : reset($results);
     }
