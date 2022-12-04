@@ -89,7 +89,7 @@ class QueueUIBatch implements QueueUIBatchInterface {
   /**
    * {@inheritdoc}
    */
-  public function step(string $queueName, array &$context) {
+  public function step(string $queueName, &$context) {
     // Make sure every queue exists. There is no harm in trying to recreate
     // an existing queue.
     $info = $this->queueManager->getDefinition($queueName);
@@ -107,7 +107,7 @@ class QueueUIBatch implements QueueUIBatchInterface {
     $context['finished'] = 0;
     $context['results']['queueName'] = $info['title'];
 
-    $title = t('Processing queue %name: %count items remaining', [
+    $title = $this->t('Processing queue %name: %count items remaining', [
       '%name' => $info['title'],
       '%count' => $num_of_items,
     ]);

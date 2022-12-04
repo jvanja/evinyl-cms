@@ -268,9 +268,9 @@ class MassContactMessageConfirmForm extends ConfirmFormBase {
       ];
       foreach ($this->massContact->getGroupedRecipients($all_recipients) as $recipients) {
         $data = [
-          'recipients' => $recipients,
-          'message' => $this->massContactMessage,
-          'configuration' => $this->messageConfigs,
+          $recipients,
+          $this->massContactMessage,
+          $this->messageConfigs,
         ];
         $batch['operations'][] = [[static::class, 'processRecipients'], $data];
       }

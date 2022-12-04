@@ -271,16 +271,24 @@ class MassContact implements MassContactInterface {
       foreach ($recipients as $recipient) {
         /** @var \Drupal\user\UserInterface $account */
         $account = $this->entityTypeManager->getStorage('user')->load($recipient);
-        $emails[] = $account->getEmail();
+        if ($account) {
+          $emails[] = $account->getEmail();
+        }
       }
-      $params['headers']['Bcc'] = implode(',', array_unique($emails));
-      $this->mail->mail('mass_contact', 'mass_contact', $configuration['sender_mail'], \Drupal::languageManager()->getDefaultLanguage()->getId(), $params);
+      if (count($emails) > 0) {
+        $params['headers']['Bcc'] = implode(',', array_unique($emails));
+        $this->mail->mail('mass_contact', 'mass_contact', $configuration['sender_mail'], \Drupal::languageManager()
+          ->getDefaultLanguage()
+          ->getId(), $params);
+      }
     }
     else {
       foreach ($recipients as $recipient) {
         /** @var \Drupal\user\UserInterface $account */
         $account = $this->entityTypeManager->getStorage('user')->load($recipient);
-        $this->mail->mail('mass_contact', 'mass_contact', $account->getEmail(), $account->getPreferredLangcode(), $params);
+        if ($account) {
+          $this->mail->mail('mass_contact', 'mass_contact', $account->getEmail(), $account->getPreferredLangcode(), $params);
+        }
       }
     }
   }

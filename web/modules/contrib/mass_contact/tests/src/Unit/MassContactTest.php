@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\mass_contact\Unit;
 
+use Prophecy\PhpUnit\ProphecyTrait;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -21,6 +22,7 @@ use Drupal\Tests\UnitTestCase;
  */
 class MassContactTest extends UnitTestCase {
 
+  use ProphecyTrait;
   /**
    * Tests html support detection.
    *
