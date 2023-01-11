@@ -99,7 +99,7 @@ final class ResourceWarmer extends WarmerPluginBase {
    */
   public function loadMultiple(array $ids = []) {
     $ids_per_type = array_reduce($ids, function ($carry, $id) {
-      list($entity_type_id, $entity_id, ) = explode(':', $id);
+      [$entity_type_id, $entity_id] = explode(':', $id);
       if (empty($carry[$entity_type_id])) {
         $carry[$entity_type_id] = [];
       }
@@ -145,7 +145,8 @@ final class ResourceWarmer extends WarmerPluginBase {
         $id_key = $entity_type->getKey('id');
         $query = $this->entityTypeManager
           ->getStorage($entity_type_id)
-          ->getQuery();
+          ->getQuery()
+          ->accessCheck(TRUE);
         if ($id_key) {
           $query->sort($id_key);
         }

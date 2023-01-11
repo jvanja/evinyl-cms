@@ -2,11 +2,10 @@ name: 'Coffee module tests'
 type: module
 description: 'Support module for coffee testing.'
 package: Testing
-core_version_requirement: ^8 || ^9
 dependencies:
   - drupal:node
 
-# Information added by Drupal.org packaging script on 2021-04-02
-version: '8.x-1.2'
+# Information added by Drupal.org packaging script on 2022-12-19
+version: '8.x-1.3'
 project: 'coffee'
-datestamp: 1617351415
+datestamp: 1671440400
