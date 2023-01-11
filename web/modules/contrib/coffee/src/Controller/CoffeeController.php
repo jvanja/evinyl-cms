@@ -111,23 +111,29 @@ class CoffeeController extends ControllerBase {
 
       foreach ($tree as $tree_element) {
         $link = $tree_element->link;
+        try {
+          $output[$link->getRouteName()] = [
+            'value' => $link->getUrlObject()
+              ->setUrlGenerator($this->urlGenerator)
+              ->toString(),
+            'label' => $link->getTitle(),
+            'command' => $commands_group,
+          ];
 
-        $output[$link->getRouteName()] = [
-          'value' => $link->getUrlObject()->setUrlGenerator($this->urlGenerator)->toString(),
-          'label' => $link->getTitle(),
-          'command' => $commands_group,
-        ];
+          $tasks = $this->getLocalTasksForRoute($link->getRouteName(), $link->getRouteParameters());
 
-        $tasks = $this->getLocalTasksForRoute($link->getRouteName(), $link->getRouteParameters());
-
-        foreach ($tasks as $route_name => $task) {
-          if (empty($output[$route_name])) {
-            $output[$route_name] = [
-              'value' => $task['url']->setUrlGenerator($this->urlGenerator)->toString(),
-              'label' => $link->getTitle() . ' - ' . $task['title'],
-              'command' => NULL,
-            ];
+          foreach ($tasks as $route_name => $task) {
+            if (empty($output[$route_name])) {
+              $output[$route_name] = [
+                'value' => $task['url']->setUrlGenerator($this->urlGenerator)
+                  ->toString(),
+                'label' => $link->getTitle() . ' - ' . $task['title'],
+                'command' => NULL,
+              ];
+            }
           }
+        } catch(\Exception $e) {
+          continue;
         }
       }
     }

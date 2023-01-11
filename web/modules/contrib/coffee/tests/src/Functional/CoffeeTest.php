@@ -5,7 +5,6 @@ namespace Drupal\Tests\coffee\Functional;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\system\Entity\Menu;
 use Drupal\Tests\BrowserTestBase;
-use PHPUnit\Util\Json;
 
 /**
  * Tests Coffee module functionality.
@@ -13,6 +12,11 @@ use PHPUnit\Util\Json;
  * @group coffee
  */
 class CoffeeTest extends BrowserTestBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Modules to enable.
@@ -45,7 +49,7 @@ class CoffeeTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->webUser = $this->drupalCreateUser();
@@ -71,7 +75,8 @@ class CoffeeTest extends BrowserTestBase {
       'coffee_menus[account]' => 'account',
       'max_results' => 15,
     ];
-    $this->drupalPostForm('admin/config/user-interface/coffee', $edit, t('Save configuration'));
+    $this->drupalGet('admin/config/user-interface/coffee');
+    $this->submitForm($edit, t('Save configuration'));
     $this->assertSession()->pageTextContains(t('The configuration options have been saved.'));
 
     $expected = [
@@ -151,7 +156,10 @@ class CoffeeTest extends BrowserTestBase {
     $this->assertSession()->responseContains('id="toolbar-administration"');
     $this->assertSession()->elementNotExists('xpath', $tab_xpath);
 
-    $coffee_toolbar_user = $this->drupalCreateUser(['access toolbar', 'access coffee']);
+    $coffee_toolbar_user = $this->drupalCreateUser([
+      'access toolbar',
+      'access coffee',
+    ]);
     $this->drupalLogin($coffee_toolbar_user);
     $this->assertSession()->responseContains('id="toolbar-administration"');
     $this->assertSession()->elementExists('xpath', $tab_xpath);
@@ -161,7 +169,10 @@ class CoffeeTest extends BrowserTestBase {
    * Tests that CSRF tokens are correctly handled.
    */
   public function testCoffeeCsrf() {
-    $account = $this->drupalCreateUser(['access coffee', 'access administration pages']);
+    $account = $this->drupalCreateUser([
+      'access coffee',
+      'access administration pages',
+    ]);
     $this->drupalLogin($account);
 
     // Set up a new menu with one link.
@@ -190,6 +201,7 @@ class CoffeeTest extends BrowserTestBase {
     $token = substr($result[0]->value, strpos($result[0]->value, 'token=') + 6);
 
     $this->drupalGet('/coffee-test-csrf', ['query' => ['token' => $token]]);
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
   }
+
 }
