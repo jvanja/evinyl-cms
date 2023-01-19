@@ -16,6 +16,7 @@
     ],
     "require": {
         "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.0",
         "drupal/adminimal_theme": "^1.5",
         "drupal/captcha": "^1.1",
@@ -76,10 +77,17 @@
             "composer/installers": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "extra": {
+        "enable-patching": true,
+        "patches": {
+          "drupal/core": {
+            "Fixes the Decoupled Router sering non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
+          }
+        },
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
