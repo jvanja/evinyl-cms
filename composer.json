@@ -44,6 +44,7 @@
         "drupal/module_filter": "^3.1",
         "drupal/paragraphs": "^1.10",
         "drupal/pathauto": "^1.6",
+        "drupal/persistent_login": "^1.4",
         "drupal/profile": "^1.0",
         "drupal/queue_ui": "^3.1",
         "drupal/recaptcha": "^3.0",
