@@ -7,7 +7,7 @@ dependencies:
   - jsonapi_extras:jsonapi_extras
   - warmer:warmer
 
-# Information added by Drupal.org packaging script on 2022-12-21
-version: '2.0.3'
+# Information added by Drupal.org packaging script on 2023-01-24
+version: '2.0.4'
 project: 'jsonapi_boost'
-datestamp: 1671637996
+datestamp: 1674562988
