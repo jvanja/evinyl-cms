@@ -85,7 +85,7 @@
         "enable-patching": true,
         "patches": {
           "drupal/core": {
-            "Fixes the Decoupled Router sering non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
+            "Fixes the Decoupled Router serving non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
           }
         },
         "drupal-scaffold": {
