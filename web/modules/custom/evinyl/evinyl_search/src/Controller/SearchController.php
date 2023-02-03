@@ -61,7 +61,6 @@ class SearchController {
       if ($media) {
         $fid = $media->field_media_image->target_id;
         $file = File::load($fid);
-        $url = $file->url();
       } else {
         $file = File::load($node->image_id);
       }
