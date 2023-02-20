@@ -20,11 +20,7 @@
     "require": {
         "league/oauth2-facebook": "^2.0",
         "drupal/social_auth": "^3.0",
-<<<<<<< HEAD
         "drupal/core": "^8.8 || ^9 || ^10"
-=======
-        "drupal/core": "^8.8 || ^9"
->>>>>>> 25e9ac38d (added login facebook)
     },
     "require-dev": {
         "drupal/coder": "^8.3"

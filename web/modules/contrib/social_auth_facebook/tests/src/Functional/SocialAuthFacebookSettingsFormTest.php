@@ -17,20 +17,12 @@ class SocialAuthFacebookSettingsFormTest extends SocialAuthTestBase {
    *
    * @var array
    */
-<<<<<<< HEAD
   protected static $modules = ['social_auth_facebook'];
-=======
-  public static $modules = ['social_auth_facebook'];
->>>>>>> 25e9ac38d (added login facebook)
 
   /**
    * {@inheritdoc}
    */
-<<<<<<< HEAD
   protected function setUp(): void {
-=======
-  protected function setUp() {
->>>>>>> 25e9ac38d (added login facebook)
     $this->module = 'social_auth_facebook';
     $this->provider = 'facebook';
     $this->moduleType = 'social-auth';
