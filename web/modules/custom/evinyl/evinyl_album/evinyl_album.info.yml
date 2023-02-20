@@ -1,5 +1,5 @@
-name: Evinyl Album
-description: Different Album creation functionality
+name: Evinyl Custom API
+description: Creates new API endpoints for various content functions
 package: Evinyl
 type: module
 version: 1.0

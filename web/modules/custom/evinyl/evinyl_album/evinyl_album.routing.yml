@@ -13,6 +13,15 @@ evinyl_artists.content:
     _title: 'Get Artists Controller'
   requirements:
     _permission: 'access content'
+
+evinyl_article.update_link:
+  path: '/api/article/link'
+  defaults:
+    _controller: '\Drupal\evinyl_album\Controller\ArticleController::update_link'
+    _title: 'Link to preview'
+  requirements:
+    _permission: 'access content'
+
 # evinyl_update_albums.content:
 #   path: '/api/update_albums'
 #   defaults:
