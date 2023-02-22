@@ -2,6 +2,7 @@
 
 namespace Drupal\webform_rest\Plugin\rest\resource;
 
+use Drupal\Core\Render\RendererInterface;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\WebformSubmissionForm;
 use Drupal\rest\Plugin\ResourceBase;
@@ -22,6 +23,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class WebformSubmitResource extends ResourceBase {
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The request object.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
@@ -35,6 +43,7 @@ class WebformSubmitResource extends ResourceBase {
     $instance = parent::create($container, $configuration, $plugin_id, $plugin_definition);
     $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->request = $container->get('request_stack');
+    $instance->renderer = $container->get('renderer');
     return $instance;
   }
 
@@ -74,7 +83,6 @@ class WebformSubmitResource extends ResourceBase {
       'webform_id' => $webform_data['webform_id'],
       'entity_type' => NULL,
       'entity_id' => NULL,
-      'in_draft' => FALSE,
       'uri' => '/webform/' . $webform_data['webform_id'] . '/api',
     ];
 
@@ -85,6 +93,20 @@ class WebformSubmitResource extends ResourceBase {
 
     // Check for a valid webform.
     $webform = Webform::load($values['webform_id']);
+
+    //Check if webform allows drafts
+    $allow_draft = $webform->getSetting('draft');
+      if($allow_draft === 'none' && $webform_data['draft'] === TRUE){
+        $errors = [
+          'error' => [
+            'message' => $this->t('This webform does not allow draft submissions.'),
+          ],
+        ];
+      return new ModifiedResourceResponse($errors, 400);
+    }
+
+    $values['in_draft'] = $webform_data['draft'] !== TRUE ? FALSE : TRUE;
+
     if (!$webform) {
       $errors = [
         'error' => [
@@ -117,7 +139,7 @@ class WebformSubmitResource extends ResourceBase {
     else {
       $errors = [
         'error' => [
-          'message' => $this->t('This webform is closed, or too many submissions have been made.'),
+          'message' => $this->renderer->renderPlain($is_open),
         ],
       ];
       return new ModifiedResourceResponse($errors, 400);

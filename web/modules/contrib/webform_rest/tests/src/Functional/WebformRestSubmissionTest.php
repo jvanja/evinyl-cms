@@ -22,7 +22,7 @@ class WebformRestSubmissionTest extends WebformBrowserTestBase {
    *
    * @var array
    */
-  public static $modules = [
+  protected static $modules = [
     'webform',
     'webform_rest',
     'webform_rest_test',
@@ -50,8 +50,8 @@ class WebformRestSubmissionTest extends WebformBrowserTestBase {
 
     // Get webform submission.
     $result = $this->drupalGet("/webform_rest/webform_rest_test/submission/$uuid", ['query' => ['_format' => 'hal_json']]);
-    $this->assertResponse(200);
-    $this->assertRaw('"data":{"first_name":"John","last_name":"Smith"}');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->responseContains('"data":{"first_name":"John","last_name":"Smith"}');
   }
 
   /**
@@ -77,7 +77,7 @@ class WebformRestSubmissionTest extends WebformBrowserTestBase {
       ],
     ]);
     $created_response = Json::decode((string) $response->getBody());
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
     $this->assertArrayHasKey('sid', $created_response);
     $this->assertNotEmpty($created_response['sid']);
   }
@@ -111,14 +111,14 @@ class WebformRestSubmissionTest extends WebformBrowserTestBase {
       ],
     ]);
     $created_response = Json::decode((string) $response->getBody());
-    $this->assertResponse(200);
+    $this->assertSession()->statusCodeEquals(200);
     $this->assertArrayHasKey('sid', $created_response);
     $this->assertNotEmpty($created_response['sid']);
     $uuid = $created_response['sid'];
     // Get webform submission.
     $result = $this->drupalGet("/webform_rest/webform_rest_test/submission/$uuid", ['query' => ['_format' => 'hal_json']]);
-    $this->assertResponse(200);
-    $this->assertRaw('"data":{"first_name":"Daniel","last_name":"Hopkins"}');
+    $this->assertSession()->statusCodeEquals(200);
+    $this->assertSession()->responseContains('"data":{"first_name":"Daniel","last_name":"Hopkins"}');
   }
 
   /**
