@@ -16,8 +16,8 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-// use Patreon\API;
-// use Patreon\OAuth;
+use Patreon\API;
+use Patreon\OAuth;
 use Drupal\user\UserInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -27,8 +27,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @package Drupal\patreon
  */
-class PatreonService implements PatreonServiceInterface
-{
+class PatreonService implements PatreonServiceInterface {
 
   use StringTranslationTrait;
 
@@ -155,8 +154,7 @@ class PatreonService implements PatreonServiceInterface
    * @param \Drupal\Core\State\StateInterface $stateApi
    *   A state service.
    */
-  public function __construct(CurrentPathStack $path, SerializationInterface $serialization_json, ConfigFactoryInterface $configFactory, LoggerChannelFactoryInterface $logger, MessengerInterface $messenger, EntityTypeManager $entityTypeManager, RequestStack $stack, StateInterface $stateApi)
-  {
+  public function __construct(CurrentPathStack $path, SerializationInterface $serialization_json, ConfigFactoryInterface $configFactory, LoggerChannelFactoryInterface $logger, MessengerInterface $messenger, EntityTypeManager $entityTypeManager, RequestStack $stack, StateInterface $stateApi) {
     $this->path = $path;
     $this->serializationJson = $serialization_json;
     $this->configFactory = $configFactory;
@@ -173,8 +171,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function getScopes()
-  {
+  public function getScopes() {
     return $this->scopes;
   }
 
@@ -187,8 +184,7 @@ class PatreonService implements PatreonServiceInterface
    * @return string[]
    *   The current scopes.
    */
-  private function setScopes(array $scopes = [])
-  {
+  private function setScopes(array $scopes = []) {
     $this->scopes = $scopes;
 
     return $this->getScopes();
@@ -202,8 +198,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @throws \Drupal\patreon\PatreonMissingTokenException
    */
-  public function getToken()
-  {
+  public function getToken() {
     if ($tokens = $this->getStoredTokens()) {
       if (isset($tokens['access_token'])) {
         return $tokens['access_token'];
@@ -218,8 +213,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function getRefreshToken()
-  {
+  public function getRefreshToken() {
     if ($tokens = $this->getStoredTokens()) {
       if (isset($tokens['refresh_token'])) {
         return $tokens['refresh_token'];
@@ -232,8 +226,7 @@ class PatreonService implements PatreonServiceInterface
   /**
    * {@inheritdoc}
    */
-  public function getCallback(): Url
-  {
+  public function getCallback(): Url {
     return Url::fromRoute('patreon.patreon_controller_oauth_callback', [], ['absolute' => TRUE]);
   }
 
@@ -242,8 +235,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function authoriseAccount(string $client_id, array $scopes = [], string $return_url = '', bool $redirect = TRUE)
-  {
+  public function authoriseAccount(string $client_id, array $scopes = [], string $return_url = '', bool $redirect = TRUE) {
     $scopes = (empty($scopes)) ? $this->getScopes() : $this->setScopes($scopes);
     $redirect_url = $this->getCallback()->toString();
     $return_url = ($return_url == '') ? $this->path->getPath() : $return_url;
@@ -252,7 +244,8 @@ class PatreonService implements PatreonServiceInterface
 
     if ($redirect) {
       return new TrustedRedirectResponse($url->toString());
-    } else {
+    }
+    else {
       return $url;
     }
   }
@@ -262,8 +255,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function getAuthoriseUrl(string $clientId, string $redirectUrl, array $scopes, string $returnUrl = ''): string
-  {
+  public function getAuthoriseUrl(string $clientId, string $redirectUrl, array $scopes, string $returnUrl = ''): string {
     $url = PATREON_URL . '/oauth2/authorize?response_type=code&client_id=' . $clientId . '&redirect_uri=' . UrlHelper::encodePath($redirectUrl);
     $scope_string = '';
 
@@ -290,8 +282,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function decodeState(string $state)
-  {
+  public function decodeState(string $state) {
     $return = FALSE;
 
     if ($decoded = base64_decode($state)) {
@@ -310,8 +301,7 @@ class PatreonService implements PatreonServiceInterface
   /**
    * {@inheritdoc}
    */
-  public function getOauth(): OAuth
-  {
+  public function getOauth(): OAuth {
     $key = $this->config->get('patreon_client_id');
     $secret = $this->config->get('patreon_client_secret');
     return new OAuth($key, $secret);
@@ -322,13 +312,13 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function tokensFromCode(string $code)
-  {
+  public function tokensFromCode(string $code) {
     $url = $this->getCallback();
 
     try {
       $oauth = $this->getOauth();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       throw new PatreonGeneralException($e->getMessage());
     }
 
@@ -338,7 +328,8 @@ class PatreonService implements PatreonServiceInterface
       $error = (isset($tokens['error_description'])) ? $tokens['error'] . ': ' . $tokens['error_description'] : $tokens['error'];
       if ($tokens['error'] == 'access_denied') {
         throw new PatreonUnauthorizedException($error);
-      } else {
+      }
+      else {
         throw new PatreonGeneralException($error);
       }
     }
@@ -349,8 +340,7 @@ class PatreonService implements PatreonServiceInterface
   /**
    * {@inheritdoc}
    */
-  public function storeTokens($tokens, UserInterface $account = NULL)
-  {
+  public function storeTokens($tokens, UserInterface $account = NULL) {
     $this->stateApi->set('patreon.access_token', $tokens['access_token']);
     $this->stateApi->set('patreon.refresh_token', $tokens['refresh_token']);
   }
@@ -358,8 +348,7 @@ class PatreonService implements PatreonServiceInterface
   /**
    * {@inheritdoc}
    */
-  public function getStoredTokens(UserInterface $account = NULL): array
-  {
+  public function getStoredTokens(UserInterface $account = NULL): array {
     return [
       'refresh_token' => $this->stateApi->get('patreon.refresh_token'),
       'access_token' => $this->stateApi->get('patreon.access_token'),
@@ -371,8 +360,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function getRefreshedTokens($token, $redirect)
-  {
+  public function getRefreshedTokens($token, $redirect) {
     $client = $this->getOauth();
     $tokens = $client->refresh_token($token, $redirect);
 
@@ -380,7 +368,8 @@ class PatreonService implements PatreonServiceInterface
       $error = (isset($tokens['error_description'])) ? $tokens['error'] . ': ' . $tokens['error_description'] : $tokens['error'];
       if ($tokens['error'] == 'access_denied' || $tokens['error'] == 'invalid_grant') {
         throw new PatreonUnauthorizedException($error);
-      } else {
+      }
+      else {
         throw new PatreonGeneralException($error);
       }
     }
@@ -393,8 +382,7 @@ class PatreonService implements PatreonServiceInterface
    *
    * @inheritDoc
    */
-  public function getValueByKey(array $array, array $parents)
-  {
+  public function getValueByKey(array $array, array $parents) {
     $nested = new NestedArray();
 
     return $nested->getValue($array, $parents);
@@ -403,16 +391,14 @@ class PatreonService implements PatreonServiceInterface
   /**
    * {@inheritdoc}
    */
-  public function fetchUser(): ?array
-  {
+  public function fetchUser(): ?array {
     return $this->apiFetch('fetch_user');
   }
 
   /**
    * {@inheritdoc}
    */
-  public function fetchCampaign(): ?array
-  {
+  public function fetchCampaign(): ?array {
     return $this->apiFetch('fetch_campaigns');
   }
 
@@ -425,16 +411,14 @@ class PatreonService implements PatreonServiceInterface
    * @return array|null
    *   An array of data from the API or false on error.
    */
-  public function fetchCampaignDetails(string $campaign_id): ?array
-  {
+  public function fetchCampaignDetails(string $campaign_id): ?array {
     return $this->apiFetch('fetch_campaign_details', [$campaign_id]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function fetchPagePledges($campaign_id, $page_size, $cursor = NULL): ?array
-  {
+  public function fetchPagePledges($campaign_id, $page_size, $cursor = NULL): ?array {
     return $this->apiFetch('fetch_page_of_members_from_campaign', [
       $campaign_id,
       $page_size,
@@ -451,8 +435,7 @@ class PatreonService implements PatreonServiceInterface
    * @return array|null
    *   An array of data or NULL on error.
    */
-  public function fetchMemberDetails(string $member_id): ?array
-  {
+  public function fetchMemberDetails(string $member_id): ?array {
     return $this->apiFetch('fetch_member_details', [$member_id]);
   }
 
@@ -467,8 +450,7 @@ class PatreonService implements PatreonServiceInterface
    * @return null|array
    *   An array of the function callback data, or NULL on error.
    */
-  private function apiFetch(string $function, array $parameters = []): ?array
-  {
+  private function apiFetch(string $function, array $parameters = []): ?array {
     $return = NULL;
 
     try {
@@ -480,11 +462,13 @@ class PatreonService implements PatreonServiceInterface
         if ($parameters) {
           if (count($parameters) < 3) {
             $api_response = $client->{$function}($parameters[0]);
-          } else {
+          }
+          else {
             [$campaign_id, $page_size, $cursor] = $parameters;
             $api_response = $client->{$function}($campaign_id, $page_size, $cursor);
           }
-        } else {
+        }
+        else {
           $api_response = $client->{$function}();
         }
 
@@ -496,30 +480,37 @@ class PatreonService implements PatreonServiceInterface
             if (isset($error['status']) && $error['status'] == '401') {
               if ($this->refreshTried == FALSE) {
                 $this->retry($function, $parameters);
-              } else {
+              }
+              else {
                 throw new PatreonUnauthorizedException('The Patreon API has returned an authorized response.');
               }
-            } else {
+            }
+            else {
               throw new PatreonGeneralException('Patreon API has returned an unknown response.');
             }
-          } else {
+          }
+          else {
             $return = $api_response;
           }
-        } else {
+        }
+        else {
           throw new PatreonGeneralException('Patreon API has returned an unknown response.');
         }
       }
-    } catch (PatreonMissingTokenException $e) {
+    }
+    catch (PatreonMissingTokenException $e) {
       $this->logger->error($this->t('The Patreon API returned the following error: :error', [
         ':error' => $e->getMessage(),
       ]));
       $this->messenger->addError($this->t('A valid API token has not been set. Please visit @link', [
         '@link' => Url::fromRoute('patreon.settings_form'),
       ]));
-    } catch (PatreonUnauthorizedException $e) {
+    }
+    catch (PatreonUnauthorizedException $e) {
       if (!$this->refreshTried) {
         $this->retry($function, $parameters);
-      } else {
+      }
+      else {
         $this->logger->error($this->t('The Patreon API returned the following error: :error', [
           ':error' => $e->getMessage(),
         ]));
@@ -527,7 +518,8 @@ class PatreonService implements PatreonServiceInterface
           '@link' => Url::fromRoute('patreon.settings_form')->toString(),
         ]));
       }
-    } catch (PatreonGeneralException $e) {
+    }
+    catch (PatreonGeneralException $e) {
       $message = $this->t('The Patreon API returned the following error: :error', [
         ':error' => $e->getMessage(),
       ]);
@@ -549,8 +541,7 @@ class PatreonService implements PatreonServiceInterface
    * @return array|false
    *   The returned API data or FALSe on error.
    */
-  private function retry(string $function, array $parameters)
-  {
+  private function retry(string $function, array $parameters) {
     $tokens = $this->getStoredTokens();
     $token = $tokens['refresh_token'];
     $redirect = $this->getCallback();
@@ -563,14 +554,16 @@ class PatreonService implements PatreonServiceInterface
 
       // Retry the function callback.
       $return = $this->apiFetch($function, $parameters);
-    } catch (PatreonUnauthorizedException $error) {
+    }
+    catch (PatreonUnauthorizedException $error) {
       $this->logger->error($this->t('The Patreon API returned the following error: :error', [
         ':error' => $error->getMessage(),
       ]));
       $this->messenger->addError($this->t('Your API token has expired or not been set. Please visit @link', [
         '@link' => Url::fromRoute('patreon.settings_form')->toString(),
       ]));
-    } catch (PatreonGeneralException $error) {
+    }
+    catch (PatreonGeneralException $error) {
       $message = $this->t('The Patreon API returned the following error: :error', [
         ':error' => $error->getMessage(),
       ]);
@@ -590,8 +583,7 @@ class PatreonService implements PatreonServiceInterface
    * @return array
    *   An array of tier data: id => attributes.
    */
-  public function getTierData(array $membership): array
-  {
+  public function getTierData(array $membership): array {
     $return = [];
 
     if (isset($membership['included'])) {
@@ -611,8 +603,7 @@ class PatreonService implements PatreonServiceInterface
   /**
    * Helper to create Drupal roles from Patreon reward types.
    */
-  public function createRoles(): array
-  {
+  public function createRoles(): array {
     $tokens = $this->getStoredTokens();
     $config_data = [];
 
@@ -655,8 +646,7 @@ class PatreonService implements PatreonServiceInterface
    * @return array
    *   An array of reward titles plus default roles.
    */
-  public function getPatreonRoleNames(array $campaigns = NULL): array
-  {
+  public function getPatreonRoleNames(array $campaigns = NULL): array {
     $roles = [
       'Patreon User' => NULL,
       'Deleted Patreon User' => NULL,
@@ -689,8 +679,7 @@ class PatreonService implements PatreonServiceInterface
    * @param array $campaigns
    *   An array of data from ->fetchCampaigns or empty to recall.
    */
-  public function storeCampaigns(array $campaigns = [])
-  {
+  public function storeCampaigns(array $campaigns = []) {
     if (empty($campaigns)) {
       $campaigns = $this->fetchCampaign();
     }
@@ -717,8 +706,7 @@ class PatreonService implements PatreonServiceInterface
    * @return \Drupal\Core\Link
    *   A link object.
    */
-  public function getSignupLink(int $minimum = 0, bool $log_in = FALSE): Link
-  {
+  public function getSignupLink(int $minimum = 0, bool $log_in = FALSE): Link {
 
     $redirect_url = ($log_in) ? $this->getCallback()->toString() : $this->stack->getCurrentRequest()->getSchemeAndHttpHost();
     $state = $this->serializationJson->encode([
@@ -738,4 +726,5 @@ class PatreonService implements PatreonServiceInterface
 
     return Link::fromTextAndUrl($this->t('Become a Patron'), $url);
   }
+
 }
