@@ -19,7 +19,7 @@ class EnqueueFormTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
@@ -66,21 +66,21 @@ class EnqueueFormTest extends BrowserTestBase {
 
     $this->submitForm(['warmers[entity]' => TRUE], 'Warm Caches');
     // Check the number of items being reported as enqueued.
-    $elements = $this->cssSelect('div.messages');
+    $elements = $this->cssSelect('div[data-drupal-messages]');
     $element = reset($elements);
     $this->assertEquals($element->getText(), 'Status message 1 items enqueued for cache warming.');
     // Ensure there is one batch in the queue.
     $queue = \Drupal::service('queue')->get('warmer');
     assert($queue instanceof QueueInterface);
     $this->assertSame(1, $queue->numberOfItems(), 'Correct number of batches in the queue.');
-    // Execute cron to clear queued items
+    // Execute cron to clear queued items.
     $this->drupalGet(URL::fromRoute('system.cron_settings'));
     $this->submitForm([], 'edit-run', 'system-cron-settings');
-    // Check that cron ran successfully
-    $elements = $this->cssSelect('div.messages');
+    // Check that cron ran successfully.
+    $elements = $this->cssSelect('div[data-drupal-messages]');
     $element = reset($elements);
     $this->assertEquals($element->getText(), 'Status message Cron ran successfully.');
-    // Ensure there are no batches in the queue
+    // Ensure there are no batches in the queue.
     $queue = \Drupal::service('queue')->get('warmer');
     assert($queue instanceof QueueInterface);
     $this->assertSame(0, $queue->numberOfItems(), 'Correct number of batches in the queue.');
@@ -98,7 +98,7 @@ class EnqueueFormTest extends BrowserTestBase {
     $elements = $this->xpath('//table[@id="edit-warmers"]/tbody/tr');
     $this->assertCount(1, $elements);
     $this->click('#edit-submit');
-    $elements = $this->cssSelect('div.messages');
+    $elements = $this->cssSelect('div[data-drupal-messages]');
     $element = reset($elements);
     $this->assertEquals($element->getText(), 'Status message 0 items enqueued for cache warming.');
   }

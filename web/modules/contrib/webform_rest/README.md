@@ -1,15 +1,13 @@
-CONTENTS OF THIS FILE
----------------------
+## CONTENTS OF THIS FILE
 
- * Introduction
- * Requirements
- * Installation
- * Configuration
- * Maintainers
+ - Introduction
+ - Requirements
+ - Installation
+ - Configuration
+ - Maintainers
 
 
-INTRODUCTION
-------------
+## INTRODUCTION
 
 Retrieve and submit webforms via REST.
 
@@ -20,29 +18,25 @@ Retrieve and submit webforms via REST.
 5. Enable REST resource "Webform Submission"
 
 Note: This module does not provide UI to enable
-REST resources. Use restui: https://www.drupal.org/project/restui
+REST resources. Use [restui](https://www.drupal.org/project/restui)
 module, for example, to enable resource "Webform Submit",
 "Webform Elements", etc.
 
 
-REQUIREMENTS
-------------
+## REQUIREMENTS
 
 This module requires:
 - webform
 - restui
 
 
-INSTALLATION
-------------
+## INSTALLATION
 
- * Install as you would normally install a contributed Drupal module. Visit
-   https://www.drupal.org/docs/8/extending-drupal-8/installing-drupal-8-modules
+ - Install as you would normally install a contributed Drupal module. Visit
+   <https://www.drupal.org/docs/extending-drupal/installing-modules>
    for further information.
 
-
-CONFIGURATION
--------------
+## CONFIGURATION
 
 - Retrieve Webform Elements
 
@@ -88,10 +82,10 @@ Example PATCH data:
 GET /webform_rest/{webform_id}/submission/{uuid}?_format=json
 
 
-MAINTAINERS
------------
+## MAINTAINERS
 
 Current maintainers:
-* Ian McLean (imclean) - https://www.drupal.org/u/imclean
- * Debora Antunes (dgaspara) - https://www.drupal.org/u/dgaspara
- * João Marques (joaomarques736) - https://www.drupal.org/u/joaomarques736
+- Ian McLean (imclean) - <https://www.drupal.org/u/imclean>
+- Debora Antunes (dgaspara) - <https://www.drupal.org/u/dgaspara>
+- João Marques (joaomarques736) - <https://www.drupal.org/u/joaomarques736>
+- Nelson Alves (nsalves) - <https://www.drupal.org/u/nsalves>

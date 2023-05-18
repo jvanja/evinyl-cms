@@ -8,6 +8,7 @@ use Drupal\webform\WebformSubmissionForm;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ModifiedResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
  * Creates a resource for submitting a webform.
@@ -37,6 +38,13 @@ class WebformSubmitResource extends ResourceBase {
   protected $request;
 
   /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -44,6 +52,7 @@ class WebformSubmitResource extends ResourceBase {
     $instance->entityTypeManager = $container->get('entity_type.manager');
     $instance->request = $container->get('request_stack');
     $instance->renderer = $container->get('renderer');
+    $instance->configFactory = $container->get('config.factory');
     return $instance;
   }
 
@@ -83,7 +92,7 @@ class WebformSubmitResource extends ResourceBase {
       'webform_id' => $webform_data['webform_id'],
       'entity_type' => NULL,
       'entity_id' => NULL,
-      'uri' => '/webform/' . $webform_data['webform_id'] . '/api',
+      'uri' => $this->request->getCurrentRequest()->headers->get('referer')
     ];
 
     $values['data'] = $webform_data;
@@ -96,7 +105,7 @@ class WebformSubmitResource extends ResourceBase {
 
     //Check if webform allows drafts
     $allow_draft = $webform->getSetting('draft');
-      if($allow_draft === 'none' && $webform_data['draft'] === TRUE){
+      if(isset($webform_data['draft']) && $allow_draft === 'none' && $webform_data['draft'] === TRUE){
         $errors = [
           'error' => [
             'message' => $this->t('This webform does not allow draft submissions.'),
@@ -104,8 +113,10 @@ class WebformSubmitResource extends ResourceBase {
         ];
       return new ModifiedResourceResponse($errors, 400);
     }
-
-    $values['in_draft'] = $webform_data['draft'] !== TRUE ? FALSE : TRUE;
+    
+    if (isset($webform_data['draft'])) {
+      $values['in_draft'] = $webform_data['draft'] !== TRUE ? FALSE : TRUE;
+    }
 
     if (!$webform) {
       $errors = [
@@ -133,7 +144,18 @@ class WebformSubmitResource extends ResourceBase {
       else {
         // Return submission UUID.
         $webform_submission = WebformSubmissionForm::submitFormValues($values);
-        return new ModifiedResourceResponse(['sid' => $webform_submission->uuid()]);
+        // Prepare response
+        $response = ['sid' => $webform_submission->uuid()];
+        $send_confirmation_settings = $this->configFactory->get('webform_rest.settings')->get('confirmation_settings');
+        if($send_confirmation_settings){
+          $response += [
+            'confirmation_type' => $webform->getSetting('confirmation_type'),
+            'confirmation_url' => $webform->getSetting('confirmation_url'),
+            'confirmation_message' => $webform->getSetting('confirmation_message'),
+            'confirmation_title' => $webform->getSetting('confirmation_title'),
+          ];
+        }
+        return new ModifiedResourceResponse($response);
       }
     }
     else {

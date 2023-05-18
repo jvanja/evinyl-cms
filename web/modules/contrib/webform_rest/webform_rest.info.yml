@@ -3,12 +3,12 @@ type: module
 description: 'Allows retrieving webform elements and submitting webforms via REST'
 package: 'Webform'
 core_version_requirement: ^8.7.7 || ^9 || ^10
+configure: webform_rest.settings
 dependencies:
   - webform:webform
   - drupal:rest
-  - restui:restui
 
-# Information added by Drupal.org packaging script on 2023-02-16
-version: '4.0.2'
+# Information added by Drupal.org packaging script on 2023-05-15
+version: '4.0.3'
 project: 'webform_rest'
-datestamp: 1676586897
+datestamp: 1684134661
