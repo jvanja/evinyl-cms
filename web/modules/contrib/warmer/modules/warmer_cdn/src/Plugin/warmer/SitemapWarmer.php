@@ -40,6 +40,13 @@ final class SitemapWarmer extends WarmerPluginBase {
   private $urlCollection;
 
   /**
+   * URLs retrieved from sitemaps.
+   *
+   * @var array|null
+   */
+  private $urls = [];
+
+  /**
    * {@inheritdoc}
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
@@ -171,7 +178,7 @@ final class SitemapWarmer extends WarmerPluginBase {
     $min_priority = floatval($min_priority);
     // Only keep the URLs with enough priority.
     $parsed_urls = array_filter(
-      $this->sitemapParser->getURLs(),
+      $this->urls,
       function (array $tags) use ($min_priority) {
         return $tags['priority'] >= $min_priority;
       }
@@ -189,6 +196,7 @@ final class SitemapWarmer extends WarmerPluginBase {
   private function parseSitemap($location) {
     try {
       $this->sitemapParser->parseRecursive($location);
+      $this->urls += $this->sitemapParser->getURLs();
     }
     catch (SitemapParserException $exception) {
       watchdog_exception('warmer_cdn', $exception);
