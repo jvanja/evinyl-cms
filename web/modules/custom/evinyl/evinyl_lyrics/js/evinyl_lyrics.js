@@ -28,30 +28,70 @@
           window.location.host === "localhost"
             ? "http://localhost:8010/proxy/ws/1.1/matcher.lyrics.get?"
             : "https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?";
-        const songsLyrics = new Map();
         const songsNamesFields = elem.querySelectorAll(
-          ".field--name-field-song-name"
+          ".paragraph--type--a-side-songs"
         );
 
         // search the musicmatch API for the songs
         if (artistName.length > 1) {
           songsNamesFields.forEach(async (field) => {
-            const songName = field.innerText;
+            const songIdArr = field.classList.value
+              .split(" ")
+              .filter((cl) => cl.indexOf("paragraph-id--") == 0);
+            const songId = songIdArr[0].replace("paragraph-id--", "");
+
+            const songName = field.querySelector(
+              ".field--name-field-song-name"
+            ).innerText;
             const queryParams = `q_artist=${encodeURIComponent(
               artistName
             )}&q_track=${encodeURIComponent(songName)}`;
             const apiEndPoint = apiEndPointBase + queryParams + apiKey;
-            // console.log(apiEndPoint);
             const response = await fetch(apiEndPoint);
             const lyrics = await response.json();
-            // console.log(lyrics);
-            songsLyrics.set(
-              field.innerText,
-              lyrics.message.body.lyrics.lyrics_body
-            );
-            // update the track with the lyrics from the musicmatch API
+
+            // update each tracks with new lyrics
+            if (lyrics.message.header.status_code === 200) {
+              updateTrackWithLyrics(
+                songId,
+                lyrics.message.body.lyrics.lyrics_body
+              );
+
+              // add the musicmatch tracker script
+              const trackingScript =
+                lyrics.message.body.lyrics.script_tracking_url;
+              addMusicMatchTrackerScript(trackingScript);
+
+              // TODO: add lyrics copyright message
+              const copyrightMessage =
+                lyrics.message.body.lyrics.lyrics_copyright;
+            }
           });
         }
+      }
+
+      async function updateTrackWithLyrics(id, lyricsResponse) {
+        const lyrics =
+          "<p>" + lyricsResponse.replaceAll("\n", "<br/>") + "</p>";
+
+        const lyricsApi =
+          window.drupalSettings.path.baseUrl + "admin/api/lyrics";
+        const updateTracksResponse = await fetch(lyricsApi, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: id,
+            lyrics: lyrics,
+          }),
+        });
+        const responseJson = await updateTracksResponse.json();
+        console.log(responseJson);
+      }
+
+      function addMusicMatchTrackerScript(script) {
+        console.log("adding tracking:", script);
       }
     },
   };

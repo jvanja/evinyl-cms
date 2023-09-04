@@ -1,7 +1,7 @@
 evinyl_lyrics.content:
-  path: '/evinyl_lyrics'
+  path: '/admin/api/lyrics'
   defaults:
     _controller: '\Drupal\evinyl_lyrics\Controller\EvinylLyricsController::content'
-    _title: 'Hello World'
+    _title: 'Update album with lyrics'
   requirements:
-    _permission: 'access content'
+    _permission: 'access administration pages'
