@@ -16,6 +16,8 @@
         });
       }
       function processAlbumHtml(elem) {
+        // - TODO:  <09/04/2023, vanja> -
+        // Append a real button somewhere on the page
         const addLyricsButton = document.querySelector(
           "#field-a-side-songs-values h4"
         );
