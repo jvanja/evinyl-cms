@@ -16,6 +16,15 @@
         });
       }
       function processAlbumHtml(elem) {
+        const addLyricsButton = document.querySelector(
+          "#field-a-side-songs-values h4"
+        );
+        addLyricsButton.addEventListener("click", () => {
+          getLyricsFromMusicMatch(elem);
+        });
+      }
+
+      function getLyricsFromMusicMatch(elem) {
         // get song names
         const apiKey = "&apikey=d778b574003da2f491a96371018c912a";
         const artistName = elem
