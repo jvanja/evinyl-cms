@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Implements hook_page_attachments().
+ */
+function evinyl_lyrics_page_attachments(array &$attachments)
+{
+  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
+    $attachments['#attached']['library'][] = 'evinyl_lyrics/lyrics_assets';
+    // var_dump($attachments['#attached']['library']);
+    // die;
+  }
+}

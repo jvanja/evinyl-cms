@@ -1,0 +1,7 @@
+evinyl_lyrics.content:
+  path: '/evinyl_lyrics'
+  defaults:
+    _controller: '\Drupal\evinyl_lyrics\Controller\EvinylLyricsController::content'
+    _title: 'Hello World'
+  requirements:
+    _permission: 'access content'

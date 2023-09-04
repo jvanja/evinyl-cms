@@ -1,0 +1,7 @@
+lyrics_assets:
+  version: 1.0
+  css:
+    theme:
+      css/evinyl_lyrics.css: {}
+  js:
+    js/evinyl_lyrics.js: {}
