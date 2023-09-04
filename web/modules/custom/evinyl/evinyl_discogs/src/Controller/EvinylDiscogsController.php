@@ -10,6 +10,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\paragraphs\Entity\Paragraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Exception\ConnectException;
 
 /**
@@ -17,7 +18,8 @@ use GuzzleHttp\Exception\ConnectException;
  *
  * @package Drupal\evinyl_discogs\Controller
  */
-class EvinylDiscogsController extends ControllerBase {
+class EvinylDiscogsController extends ControllerBase
+{
 
   /**
    * Guzzle\Client instance.
@@ -29,7 +31,8 @@ class EvinylDiscogsController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct() {
+  public function __construct()
+  {
     // $this->httpClient = \Drupal::httpClient();
 
     // $clientFactory = \Drupal::service('http_client_factory');
@@ -40,7 +43,6 @@ class EvinylDiscogsController extends ControllerBase {
       'base_uri' => 'https://api.discogs.com/releases/'
       // 'base_uri' => 'http://httpbin.org'
     ]);
-
   }
 
   // /**
@@ -60,7 +62,8 @@ class EvinylDiscogsController extends ControllerBase {
    * @return array
    *   A render array used to show the Posts list.
    */
-  public function posts($ids) {
+  public function posts($ids)
+  {
 
     // CONCURRENTLY
     // http://docs.guzzlephp.org/en/latest/quickstart.html#concurrent-requests
@@ -73,8 +76,8 @@ class EvinylDiscogsController extends ControllerBase {
     // Wait for the requests to complete; throws a ConnectException
     // if any of the requests fail
     try {
-      $responses = Promise\unwrap($promises);
-      // $responses = Promise\settle($promises)->wait();
+      // $responses = Promise\unwrap($promises);
+      $responses = Utils::unwrap($promises);
     } catch (ConnectException $e) {
       return false;
     }
@@ -95,20 +98,21 @@ class EvinylDiscogsController extends ControllerBase {
   }
 
 
-  protected function createAlbums($albumData) {
+  protected function createAlbums($albumData)
+  {
     $artistTerms = $this->addTaxonomyTerm('artists', $albumData->artists);
     $labelTerms = $this->addTaxonomyTerm('labels', $albumData->labels);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres);
-    $aSideTracks = array_filter($albumData->tracklist, function($track) {
+    $aSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'A');
     });
-    $bSideTracks = array_filter($albumData->tracklist, function($track) {
+    $bSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'B');
     });
-    $cSideTracks = array_filter($albumData->tracklist, function($track) {
+    $cSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'C');
     });
-    $dSideTracks = array_filter($albumData->tracklist, function($track) {
+    $dSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'D');
     });
     $aSideSongs = $this->createSongsParagraphs('a_side_songs', $aSideTracks);
@@ -150,16 +154,17 @@ class EvinylDiscogsController extends ControllerBase {
    * @return string
    *   Term ID
    */
-  protected function addTaxonomyTerm($voc, $termsArray) {
+  protected function addTaxonomyTerm($voc, $termsArray)
+  {
     $terms = [];
-    foreach($termsArray as $discogsTerm) {
+    foreach ($termsArray as $discogsTerm) {
       $discogsTermName = ($voc == 'genre') ? $discogsTerm : $discogsTerm->name;
       $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $discogsTermName, 'vid' => $voc]);
       $term = reset($term);
       if (empty($term)) {
         $new_term = Term::create([
-            'vid' => $voc,
-            'name' => $discogsTermName,
+          'vid' => $voc,
+          'name' => $discogsTermName,
         ]);
         $new_term->save();
         $terms[] = ['target_id' => $new_term->id()];
@@ -184,9 +189,10 @@ class EvinylDiscogsController extends ControllerBase {
    * @return array
    *   List of paragraphs
    */
-  protected function createSongsParagraphs($paragraphName, $tracksArray) {
+  protected function createSongsParagraphs($paragraphName, $tracksArray)
+  {
     $paragraphs = [];
-    foreach($tracksArray as $track) {
+    foreach ($tracksArray as $track) {
       $credits = [];
       $creditsString = '';
       foreach ($track->extraartists as $extraArtist) {
@@ -212,7 +218,8 @@ class EvinylDiscogsController extends ControllerBase {
     return $paragraphs;
   }
 
-  protected function createAlbumsCredits($albumCredits) {
+  protected function createAlbumsCredits($albumCredits)
+  {
     // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
 
     if (count($albumCredits) > 0) {
@@ -237,7 +244,8 @@ class EvinylDiscogsController extends ControllerBase {
     }
   }
 
-  private function hhmmss_to_seconds($str_time = '0:0') {
+  private function hhmmss_to_seconds($str_time = '0:0')
+  {
     $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $str_time);
     sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
     $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;
