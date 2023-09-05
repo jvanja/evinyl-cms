@@ -111,13 +111,15 @@
       }
 
       function addStatusToTrackElement(element, status) {
-        if (document.querySelector('#tracks .lyrics-loader-status'))
-          document.querySelector('#tracks .lyrics-loader-status').remove()
+        console.log(status)
+        if (element.querySelector('#tracks .lyrics-loader-status'))
+          element.querySelector('#tracks .lyrics-loader-status').remove()
         const statusElement = document.createElement('div')
         statusElement.setAttribute('class', 'lyrics-loader-status')
         element.appendChild(statusElement)
         switch (status) {
           case 'loading':
+            console.log('loading')
             statusElement.classList.add('loading')
             break
           case 'success':

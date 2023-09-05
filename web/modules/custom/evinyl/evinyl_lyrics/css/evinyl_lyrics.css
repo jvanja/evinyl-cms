@@ -9,17 +9,11 @@
   background-repeat: no-repeat;
 }
 .lyrics-loader-status.loading {
-  background-image: url(../assets/images/loader.svg);
+  background-image: url('../assets/images/loader.svg');
 }
 .lyrics-loader-status.success {
-  background-image: url(../assets/images/success.svg);
+  background-image: url('../../../../../core/misc/icons/73b355/check.svg');
 }
 .lyrics-loader-status.error {
-  background-image: url(../assets/images/error.svg);
+  background-image: url('../../../../../core/misc/icons/e32700/error.svg');
 }
-/* Module styles end */
-
-/*******************************************************************************
- * Various other styles
- ******************************************************************************/
-/* Various other styles end */
