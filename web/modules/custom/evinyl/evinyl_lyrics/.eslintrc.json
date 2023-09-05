@@ -1,0 +1,21 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true
+  },
+  "parser": "/Users/vanjajelic/.nvm/versions/node/v16.18.0/lib/node_modules/@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false,
+    "sourceType": "module",
+    "babelOptions": {
+      "babelrc": false,
+      "configFile": false
+    }
+  },
+  "rules": {
+    "no-console": "off"
+  },
+  "plugins": []
+}
