@@ -1,6 +1,22 @@
 /*******************************************************************************
  * Module styles
  ******************************************************************************/
+.lyrics-loader-status {
+  width: 20px;
+  height: 20px;
+  margin-left: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.lyrics-loader-status.loading {
+  background-image: url(../assets/images/loader.svg);
+}
+.lyrics-loader-status.success {
+  background-image: url(../assets/images/success.svg);
+}
+.lyrics-loader-status.error {
+  background-image: url(../assets/images/error.svg);
+}
 /* Module styles end */
 
 /*******************************************************************************
