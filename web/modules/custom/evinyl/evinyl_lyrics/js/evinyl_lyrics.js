@@ -16,8 +16,6 @@
         })
       }
       function processAlbumHtml(elem) {
-        // - TODO:  <09/04/2023, vanja> -
-        // Append a real button somewhere on the page
         let button = document.createElement('button')
         button.setAttribute('id', 'add-lyrics')
         button.setAttribute('class', 'button button--primary')
