@@ -42,7 +42,7 @@ class EvinylLyricsController
   public function updateParapgraphs($paragraphId, $musicMatchResponse)
   {
     $responseObject =  json_decode($musicMatchResponse->getBody(), true);
-    $lyrics = $responseObject['message']['body']['lyrics']['lyrics_body'];
+    $lyrics = str_replace("\n", '<br/>', $responseObject['message']['body']['lyrics']['lyrics_body']);
     $responseStatusCode = $responseObject['message']['header']['status_code'];
     if ($responseStatusCode == 200) {
       try {
