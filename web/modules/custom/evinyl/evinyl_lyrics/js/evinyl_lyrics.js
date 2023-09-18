@@ -39,10 +39,10 @@
           .trim()
 
         // route API calls through proxy from localhost to avoid CORS errors
-        const apiEndPointBase =
-          window.location.host === 'localhost'
-            ? 'http://localhost:8010/proxy/ws/1.1/matcher.lyrics.get?'
-            : 'https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?'
+        // const apiEndPointBase =
+        //   window.location.host === 'localhost'
+        //     ? 'http://localhost:8010/proxy/ws/1.1/matcher.lyrics.get?'
+        //     : 'https://api.musixmatch.com/ws/1.1/matcher.lyrics.get?'
         const songsNamesFields = elem.querySelectorAll('.paragraph--type--a-side-songs')
 
         // search the musicmatch API for the songs
@@ -56,53 +56,76 @@
               .filter((cl) => cl.indexOf('paragraph-id--') == 0)
             const songId = songIdArr[0].replace('paragraph-id--', '')
             const songName = song_paragraph.querySelector('.field--name-field-song-name').innerText
-            const queryParams = `q_artist=${encodeURIComponent(artistName)}&q_track=${encodeURIComponent(songName)}`
-            const apiEndPoint = apiEndPointBase + queryParams + apiKey
+            // const queryParams = `q_artist=${encodeURIComponent(artistName)}&q_track=${encodeURIComponent(songName)}`
+            // const apiEndPoint = apiEndPointBase + queryParams + apiKey
 
-            // call the musicmatch API
+            // call the Drupal module and point
             try {
-              const response = await fetch(apiEndPoint)
-              const lyrics = await response.json()
-              if (lyrics.message.header.status_code === 200) {
-                // update the CMS with the new lyrics
-                updateTrackWithLyrics(songId, lyrics.message.body.lyrics.lyrics_body, song_paragraph)
-
-                // add the musicmatch tracker script
-                const trackingScript = lyrics.message.body.lyrics.script_tracking_url
-                addMusicMatchTrackerScript(trackingScript)
-
-                // TODO: add lyrics copyright message
-                const copyrightMessage = lyrics.message.body.lyrics.lyrics_copyright
+              const lyricsApi = window.drupalSettings.path.baseUrl + 'admin/api/lyrics'
+              const updateTracksResponse = await fetch(lyricsApi, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  id: songId,
+                  artistName,
+                  songName,
+                }),
+              })
+              const responseJson = await updateTracksResponse.json()
+              if (responseJson.status === 200) {
+                addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'success')
               } else {
                 addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'error')
               }
             } catch (error) {
               addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'error')
             }
+            // call the musicmatch API
+            // try {
+            //   const response = await fetch(apiEndPoint)
+            //   const lyrics = await response.json()
+            //   if (lyrics.message.header.status_code === 200) {
+            //     // update the CMS with the new lyrics
+            //     updateTrackWithLyrics(songId, lyrics.message.body.lyrics.lyrics_body, song_paragraph)
+            //
+            //     // add the musicmatch tracker script
+            //     const trackingScript = lyrics.message.body.lyrics.script_tracking_url
+            //     addMusicMatchTrackerScript(trackingScript)
+            //
+            //     // TODO: add lyrics copyright message
+            //     const copyrightMessage = lyrics.message.body.lyrics.lyrics_copyright
+            //   } else {
+            //     addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'error')
+            //   }
+            // } catch (error) {
+            //   addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'error')
+            // }
 
             // update each tracks with new lyrics
           })
         }
       }
 
-      async function updateTrackWithLyrics(id, lyricsResponse, song_paragraph) {
-        const lyrics = '<p>' + lyricsResponse.replaceAll('\n', '<br/>') + '</p>'
-
-        const lyricsApi = window.drupalSettings.path.baseUrl + 'admin/api/lyrics'
-        const updateTracksResponse = await fetch(lyricsApi, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            id: id,
-            lyrics: lyrics,
-          }),
-        })
-        const responseJson = await updateTracksResponse.json()
-        addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'success')
-        console.log(responseJson)
-      }
+      // async function updateTrackWithLyrics(id, lyricsResponse, song_paragraph) {
+      //   const lyrics = '<p>' + lyricsResponse.replaceAll('\n', '<br/>') + '</p>'
+      //
+      //   const lyricsApi = window.drupalSettings.path.baseUrl + 'admin/api/lyrics'
+      //   const updateTracksResponse = await fetch(lyricsApi, {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify({
+      //       id: id,
+      //       lyrics: lyrics,
+      //     }),
+      //   })
+      //   const responseJson = await updateTracksResponse.json()
+      //   addStatusToTrackElement(song_paragraph.querySelector('.layout__region--second'), 'success')
+      //   console.log(responseJson)
+      // }
 
       function addMusicMatchTrackerScript(script) {
         console.log('adding tracking:', script)

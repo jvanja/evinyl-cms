@@ -9,6 +9,7 @@ namespace Drupal\evinyl_lyrics\Controller;
 
 use Drupal\paragraphs\Entity\Paragraph;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use GuzzleHttp\Client;
 
 class EvinylLyricsController
 {
@@ -16,16 +17,44 @@ class EvinylLyricsController
   {
     $request_body = file_get_contents('php://input');
     $data = json_decode($request_body);
-    $lyrics = $data->lyrics;
+    $artistName = $data->artistName;
+    $songName = $data->songName;
     $paragraphId = $data->id;
 
-    try {
-      $paragraph = Paragraph::load($paragraphId);
-      $paragraph->set('field_lyrics', $lyrics);
-      $paragraph->save();
-      return new JsonResponse(['data' => $data, 'status' => 200]);
-    } catch (\Throwable $th) {
-      return new JsonResponse(['data' => $th, 'status' => 500]);
+    $apiEndPoint = 'https://api.musixmatch.com/ws/1.1/matcher.lyrics.get';
+    $params = [
+      'query' => [
+        'q_artist' => $artistName,
+        'q_track' => $songName,
+        'apikey' => 'd778b574003da2f491a96371018c912a'
+      ]
+    ];
+    $client = new Client();
+    $res = $client->request('GET', $apiEndPoint, $params);
+
+    if ($res->getStatusCode() === 200) {
+      return $this->updateParapgraphs($paragraphId, $res);
+    } else {
+      return new JsonResponse(['data' => null, 'status' => $res->getStatusCode()]);
+    }
+  }
+
+  public function updateParapgraphs($paragraphId, $musicMatchResponse)
+  {
+    $responseObject =  json_decode($musicMatchResponse->getBody(), true);
+    $lyrics = $responseObject['message']['body']['lyrics']['lyrics_body'];
+    $responseStatusCode = $responseObject['message']['header']['status_code'];
+    if ($responseStatusCode == 200) {
+      try {
+        $paragraph = Paragraph::load($paragraphId);
+        $paragraph->set('field_lyrics', $lyrics);
+        $paragraph->save();
+        return new JsonResponse(['data' => ['id' => $paragraphId, 'lyrics' => $lyrics], 'status' => 200]);
+      } catch (\Throwable $th) {
+        return new JsonResponse(['data' => $th, 'status' => 500]);
+      }
+    } else {
+      return new JsonResponse(['status' => $responseStatusCode]);
     }
   }
 }
