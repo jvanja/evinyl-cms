@@ -10,6 +10,7 @@ use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\user\UserAuthInterface;
 use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,6 +98,13 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
   protected $logger;
 
   /**
+   * The shared temp store.
+   *
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
+   */
+  protected $sharedTempStore;
+
+  /**
    * Constructs a new UserAuthenticationController object.
    *
    * @param \Drupal\Core\Flood\FloodInterface $flood
@@ -115,8 +123,10 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory
+   *   The shared temp store.
    */
-  public function __construct(FloodInterface $flood, UserStorageInterface $user_storage, CsrfTokenGenerator $csrf_token, UserAuthInterface $user_auth, RouteProviderInterface $route_provider, Serializer $serializer, array $serializer_formats, LoggerInterface $logger) {
+  public function __construct(FloodInterface $flood, UserStorageInterface $user_storage, CsrfTokenGenerator $csrf_token, UserAuthInterface $user_auth, RouteProviderInterface $route_provider, Serializer $serializer, array $serializer_formats, LoggerInterface $logger, SharedTempStoreFactory $shared_temp_store) {
     $this->flood = $flood;
     $this->userStorage = $user_storage;
     $this->csrfToken = $csrf_token;
@@ -125,6 +135,7 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
     $this->serializerFormats = $serializer_formats;
     $this->routeProvider = $route_provider;
     $this->logger = $logger;
+    $this->sharedTempStore = $shared_temp_store;
   }
 
   /**
@@ -149,7 +160,8 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
       $container->get('router.route_provider'),
       $serializer,
       $formats,
-      $container->get('logger.factory')->get('user')
+      $container->get('logger.factory')->get('user'),
+      $container->get('tempstore.shared')
     );
   }
 
@@ -217,10 +229,10 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
       if (is_array($user) && count($user) == 1) {
         $user = reset($user);
         $uid = $user->id();
-        $service = \Drupal::service('tempstore.shared');
+        $service = $this->sharedTempStore;
         $collection = 'rest_password';
         $tempstore = $service->get($collection, $uid);
-        $temp_pass = $tempstore->get('temp_pass_' . $uid);
+        $temp_pass = $tempstore->getIfOwner('temp_pass_' . $uid);
         if (!empty($temp_pass)) {
           // Check that the dude supplied the right temp pass.
           if (hash_equals($credentials['pass'], $temp_pass) === TRUE) {

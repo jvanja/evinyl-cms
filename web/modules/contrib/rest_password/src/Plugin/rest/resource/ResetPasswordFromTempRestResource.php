@@ -2,12 +2,14 @@
 
 namespace Drupal\rest_password\Plugin\rest\resource;
 
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\Plugin\ResourceBase;
-use Drupal\rest\ResourceResponse;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use Drupal\rest\ModifiedResourceResponse;
+use Drupal\rest_password\Event\PasswordResetEvent;
 use Drupal\user\UserStorageInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a resource to reset Drupal password for user.
@@ -38,7 +40,14 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
   protected $userStorage;
 
   /**
-   * Constructs a new GetPasswordRestResourse object.
+   * Event dispatcher.
+   *
+   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
+
+  /**
+   * Constructs a new ResetPasswordFromTempRestResource object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -52,6 +61,10 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
    *   A logger instance.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   A current user instance.
+   * @param \Drupal\user\UserStorageInterface $user_storage
+   *   User storage.
+   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
+   *   Event dispatcher.
    */
   public function __construct(
     array $configuration,
@@ -60,11 +73,13 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
     array $serializer_formats,
     LoggerInterface $logger,
     AccountProxyInterface $current_user,
-    UserStorageInterface $user_storage) {
+    UserStorageInterface $user_storage,
+    ContainerAwareEventDispatcher $eventDispatcher) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->currentUser = $current_user;
     $this->userStorage = $user_storage;
     $this->logger = $logger;
+    $this->eventDispatcher = $eventDispatcher;
   }
 
   /**
@@ -78,7 +93,8 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest_password'),
       $container->get('current_user'),
-      $container->get('entity_type.manager')->getStorage('user')
+      $container->get('entity_type.manager')->getStorage('user'),
+      $container->get('event_dispatcher')
     );
   }
 
@@ -88,13 +104,14 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
    * @param array $data
    *   Post data array.
    *
-   * @return ResourceResponse
-   *   Returns ResourceResponse.
+   * @return \Drupal\rest\ModifiedResourceResponse
+   *   Returns ModifiedResourceResponse.
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
    */
-  public function post(array $data) {
+  public function post(array $data): ModifiedResourceResponse {
     $code = 400;
+    $response = [];
     if (!empty($data['name']) && !empty($data['temp_pass']) && !empty($data['new_pass'])) {
       $name = $data['name'];
       $temp_pass = $data['temp_pass'];
@@ -123,10 +140,13 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
             $temp_pass_from_storage = $tempstore->get('temp_pass_' . $uid);
             if (!empty($temp_pass_from_storage)) {
               // Trying to be a bit good. Issue #3036405.
-              if (hash_equals($temp_pass_from_storage,$temp_pass) === TRUE) {
+              if (hash_equals($temp_pass_from_storage, $temp_pass) === TRUE) {
                 // Cool.... lets change this password.
                 $account->setPassword($new_pass);
+                $event = new PasswordResetEvent($account);
+                $this->eventDispatcher->dispatch($event, PasswordResetEvent::PRE_RESET);
                 $account->save();
+                $this->eventDispatcher->dispatch($event, PasswordResetEvent::POST_RESET);
                 $code = 200;
                 $response = ['message' => $this->t('Your New Password has been saved please log in.')];
                 // Delete temp password because next time it will be not valid.
@@ -151,7 +171,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
       $response = ['message' => $this->t('name, new_pass, and temp_pass fields are required')];
     }
 
-    return new ResourceResponse($response, $code);
+    return new ModifiedResourceResponse($response, $code);
   }
 
 }
