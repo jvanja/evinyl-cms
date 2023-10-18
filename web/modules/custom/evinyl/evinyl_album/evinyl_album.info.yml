@@ -3,5 +3,4 @@ description: Creates new API endpoints for various content functions
 package: Evinyl
 type: module
 version: 1.0
-core: 8.x
 core_version_requirement: ^9.2 || ^10
