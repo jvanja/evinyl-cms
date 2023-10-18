@@ -1468,7 +1468,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
         }
 
         $build = [];
-        foreach ($items as $index => &$item) {
+        foreach ($items as $index => $item) {
           $build[] = (is_array($item)) ? $item : ['#markup' => $item];
           if ($total === 2 && $index === 0) {
             $build[] = ['#markup' => ' ' . $this->t('and') . ' '];
@@ -1502,7 +1502,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
         $total = count($items);
 
         $build = [];
-        foreach ($items as $index => &$item) {
+        foreach ($items as $index => $item) {
           $build[] = (is_array($item)) ? $item : ['#markup' => $item];
           if ($index !== ($total - 1)) {
             $build[] = ['#markup' => $delimiter];
