@@ -15,9 +15,9 @@ use Drupal\simple_sitemap\Settings;
  * the sitemap. Services for custom link and entity link generation can be
  * fetched from this service as well.
  */
-class Generator implements SitemapGetterInterface {
+class Generator {
 
-  use SitemapGetterTrait;
+  use VariantSetterTrait;
 
   /**
    * The simple_sitemap.settings service.
@@ -103,42 +103,6 @@ class Generator implements SitemapGetterInterface {
   }
 
   /**
-   * Gets the default variant from the currently set variants.
-   *
-   * @return string|null
-   *   The default variant or NULL if there are no variants.
-   *
-   * @deprecated in simple_sitemap:4.1.7 and is removed from simple_sitemap:5.0.0.
-   *   Use getDefaultSitemap() instead.
-   * @see https://www.drupal.org/project/simple_sitemap/issues/3375932
-   */
-  public function getDefaultVariant(): ?string {
-    return $this->getDefaultSitemap()?->id();
-  }
-
-  /**
-   * Gets the default sitemap from the currently set sitemaps.
-   *
-   * @return \Drupal\simple_sitemap\Entity\SimpleSitemap|null
-   *   The default sitemap or NULL if there are no sitemaps.
-   */
-  public function getDefaultSitemap(): ?SimpleSitemap {
-    if (empty($sitemaps = $this->getSitemaps())) {
-      return NULL;
-    }
-
-    if (count($sitemaps) > 1) {
-      $variant = $this->getSetting('default_variant');
-
-      if ($variant && array_key_exists($variant, $sitemaps)) {
-        return $sitemaps[$variant];
-      }
-    }
-
-    return reset($sitemaps);
-  }
-
-  /**
    * Returns a sitemap variant, its index, or its requested chunk.
    *
    * @param int|null $delta
@@ -151,16 +115,19 @@ class Generator implements SitemapGetterInterface {
    *   Returns null if the content is not retrievable from the database.
    */
   public function getContent(?int $delta = NULL): ?string {
-    $sitemap = $this->getDefaultSitemap();
-
     /** @var \Drupal\simple_sitemap\Entity\SimpleSitemapInterface $sitemap */
-    if ($sitemap
-      && $sitemap->isEnabled()
-      && ($sitemap_string = $sitemap->fromPublished()->toString($delta))) {
-      return $sitemap_string;
+    if (empty($variants = $this->getVariants())) {
+      return NULL;
     }
 
-    return NULL;
+    $variant = count($variants) > 1
+    && !empty($default_variant = $this->getSetting('default_variant', ''))
+      ? $default_variant
+      : reset($variants);
+
+    $sitemap = SimpleSitemap::load($variant);
+
+    return $sitemap ? $sitemap->fromPublished()->toString($delta) : NULL;
   }
 
   /**
@@ -201,7 +168,7 @@ class Generator implements SitemapGetterInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginException
    */
   public function queue(): Generator {
-    $this->queueWorker->queue($this->getSitemaps());
+    $this->queueWorker->queue($this->getVariants());
 
     return $this;
   }
@@ -218,7 +185,7 @@ class Generator implements SitemapGetterInterface {
       $this->logger->m('Unable to acquire a lock for sitemap generation.')->log('error')->display('error');
       return $this;
     }
-    $this->queueWorker->rebuildQueue($this->getSitemaps());
+    $this->queueWorker->rebuildQueue($this->getVariants());
 
     return $this;
   }
@@ -230,14 +197,10 @@ class Generator implements SitemapGetterInterface {
    *   The simple_sitemap.entity_manager service.
    */
   public function entityManager(): EntityManager {
-    /** @var \Drupal\simple_sitemap\Manager\EntityManager $entity_manager */
-    $entity_manager = \Drupal::service('simple_sitemap.entity_manager');
+    /** @var \Drupal\simple_sitemap\Manager\EntityManager $entities */
+    $entities = \Drupal::service('simple_sitemap.entity_manager');
 
-    if ($this->sitemaps !== NULL) {
-      $entity_manager->setSitemaps($this->getSitemaps());
-    }
-
-    return $entity_manager;
+    return $entities->setVariants($this->getVariants());
   }
 
   /**
@@ -247,24 +210,10 @@ class Generator implements SitemapGetterInterface {
    *   The simple_sitemap.custom_link_manager service.
    */
   public function customLinkManager(): CustomLinkManager {
-    /** @var \Drupal\simple_sitemap\Manager\CustomLinkManager $custom_link_manager */
-    $custom_link_manager = \Drupal::service('simple_sitemap.custom_link_manager');
+    /** @var \Drupal\simple_sitemap\Manager\CustomLinkManager $custom_links */
+    $custom_links = \Drupal::service('simple_sitemap.custom_link_manager');
 
-    if ($this->sitemaps !== NULL) {
-      $custom_link_manager->setSitemaps($this->getSitemaps());
-    }
-
-    return $custom_link_manager;
-  }
-
-  /**
-   * Gets all compatible sitemaps.
-   *
-   * @return \Drupal\simple_sitemap\Entity\SimpleSitemap[]
-   *   Array of sitemaps.
-   */
-  protected function getCompatibleSitemaps(): array {
-    return SimpleSitemap::loadMultiple();
+    return $custom_links->setVariants($this->getVariants());
   }
 
 }

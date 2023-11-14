@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\simple_sitemap\Entity\SimpleSitemap;
+use Drupal\simple_sitemap\Form\FormHelper;
 use Drupal\simple_sitemap\Form\StatusForm;
 
 /**
@@ -39,35 +40,29 @@ class SimpleSitemapListBuilder extends DraggableListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row['name']['#markup'] = '<span title="' . $entity->get('description') . '">' . $entity->label() . '</span>';
     $row['type']['#markup'] = '<span title="' . $entity->getType()->get('description') . '">' . $entity->getType()->label() . '</span>';
-    $row['status']['#markup'] = $this->t('disabled');
+    $row['status']['#markup'] = $this->t('pending');
     $row['count']['#markup'] = '';
 
-    if ($entity->isEnabled()) {
-      $row['status']['#markup'] = $this->t('pending');
+    /** @var \Drupal\simple_sitemap\Entity\SimpleSitemapInterface $entity */
+    if (!empty($entity->fromPublishedAndUnpublished()->getChunkCount())) {
+      switch ($entity->contentStatus()) {
 
-      /** @var \Drupal\simple_sitemap\Entity\SimpleSitemapInterface $entity */
-      if ($entity->fromPublishedAndUnpublished()->getChunkCount()) {
-        switch ($entity->contentStatus()) {
+        case SimpleSitemap::SITEMAP_UNPUBLISHED:
+          $row['status']['#markup'] = $this->t('generating');
+          break;
 
-          case SimpleSitemap::SITEMAP_UNPUBLISHED:
-            $row['status']['#markup'] = $this->t('generating');
-            break;
+        case SimpleSitemap::SITEMAP_PUBLISHED:
+        case SimpleSitemap::SITEMAP_PUBLISHED_GENERATING:
+          $created = \Drupal::service('date.formatter')->format($entity->fromPublished()->getCreated());
 
-          case SimpleSitemap::SITEMAP_PUBLISHED:
-          case SimpleSitemap::SITEMAP_PUBLISHED_GENERATING:
-            $row['name']['#markup'] = '<a title ="' . $entity->get('description')
-              . '" href="' . $entity->toUrl()->toString() . '" target="_blank">'
-              . $entity->label() . '</a>';
-
-            $created = \Drupal::service('date.formatter')->format($entity->fromPublished()->getCreated());
-            $row['status']['#markup'] = $entity->contentStatus() === SimpleSitemap::SITEMAP_PUBLISHED
-              ? $this->t('published on @time', ['@time' => $created])
-              : $this->t('published on @time, regenerating', ['@time' => $created]);
-
-            $row['count']['#markup'] = $entity->fromPublished()->getLinkCount();
-
-            break;
-        }
+          $row['name']['#markup'] = '<a title ="' . $entity->get('description')
+            . '" href="' . $entity->toUrl()->toString() . '" target="_blank">'
+            . $entity->label() . '</a>';
+          $row['status']['#markup'] = $entity->contentStatus() === SimpleSitemap::SITEMAP_PUBLISHED
+            ? $this->t('published on @time', ['@time' => $created])
+            : $this->t('published on @time, regenerating', ['@time' => $created]);
+          $row['count']['#markup'] = $entity->fromPublished()->getLinkCount();
+          break;
       }
     }
 
@@ -93,6 +88,7 @@ class SimpleSitemapListBuilder extends DraggableListBuilder {
     $form['entities']['#empty'] = $this->t('No sitemaps have been defined yet. <a href="@url">Add a new one</a>.', [
       '@url' => Url::fromRoute('simple_sitemap.add')->toString(),
     ]);
+    $form['#prefix'] = FormHelper::getDonationText();
 
     return $form;
   }

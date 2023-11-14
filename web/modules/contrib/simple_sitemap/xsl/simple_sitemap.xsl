@@ -18,22 +18,20 @@
         <link href="[xsl-css]" type="text/css" rel="stylesheet"/>
       </head>
       <body>
-        <header role="banner">
-          <h1>[title]</h1>
-        </header>
-        <main role="main">
-          <xsl:choose>
-            <xsl:when test="//sitemap:url">
-              <xsl:call-template name="sitemapTable"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:call-template name="sitemapIndexTable"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </main>
-        <footer role="contentinfo" id="footer">
+        <h1>[title]</h1>
+
+        <xsl:choose>
+          <xsl:when test="//sitemap:url">
+            <xsl:call-template name="sitemapTable"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="sitemapIndexTable"/>
+          </xsl:otherwise>
+        </xsl:choose>
+
+        <div id="footer">
           <p>[generated-by]</p>
-        </footer>
+        </div>
       </body>
     </html>
   </xsl:template>

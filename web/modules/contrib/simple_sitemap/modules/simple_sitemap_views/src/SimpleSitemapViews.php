@@ -16,9 +16,6 @@ use Drupal\views\Views;
 
 /**
  * Class to manage sitemap data for views.
- *
- * @todo Replace with something similar to CustomLinkManager including
- * getting/setting of sitemaps.
  */
 class SimpleSitemapViews {
 
@@ -325,7 +322,8 @@ class SimpleSitemapViews {
     }
 
     // Add a set of arguments to the index.
-    $query = $this->database->insert('simple_sitemap_views');
+    $options = ['return' => Database::RETURN_AFFECTED];
+    $query = $this->database->insert('simple_sitemap_views', $options);
     $query->fields([
       'view_id' => $view->id(),
       'display_id' => $view->current_display,

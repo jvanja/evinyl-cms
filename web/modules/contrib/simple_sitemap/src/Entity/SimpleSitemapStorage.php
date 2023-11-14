@@ -3,7 +3,6 @@
 namespace Drupal\simple_sitemap\Entity;
 
 use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
 use Drupal\Core\Config\Entity\ConfigEntityStorage;
 use Drupal\Component\Uuid\UuidInterface;
@@ -182,12 +181,12 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
    */
   protected function doSave($id, EntityInterface $entity) {
     /** @var SimpleSitemapInterface $entity */
-    if (preg_match('/[^a-z0-9-_]+/', $id)) {
-      throw new \InvalidArgumentException('The sitemap ID can only contain lowercase letters, numbers, dashes and underscores.');
+    if (!preg_match('/^[\w\-_]+$/', $id)) {
+      throw new \InvalidArgumentException("The sitemap ID can only include alphanumeric characters, dashes and underscores.");
     }
 
     if ($entity->get('type') === NULL || $entity->get('type') === '') {
-      throw new \InvalidArgumentException('The sitemap must define its sitemap type information.');
+      throw new \InvalidArgumentException("The sitemap must define its sitemap type information.");
     }
 
     if ($this->entityTypeManager->getStorage('simple_sitemap_type')->load($entity->get('type')) === NULL) {
@@ -200,16 +199,6 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
 
     if ($entity->get('weight') === NULL || $entity->get('weight') === '') {
       $entity->set('weight', 0);
-    }
-
-    // If disabling the entity, delete sitemap content if any.
-    if (!$entity->isEnabled() && $entity->fromPublishedAndUnpublished()->getChunkCount()) {
-      $this->deleteContent($entity);
-    }
-    // We need the else since we don't want to thrash cache invalidation and
-    // deleting content already invalidates cache.
-    else {
-      $this->invalidateCache([$entity->id()]);
     }
 
     return parent::doSave($id, $entity);
@@ -262,21 +251,17 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
         ':type' => $entity->id(),
         ':status' => self::SITEMAP_PUBLISHED,
       ]);
-      $this->invalidateCache([$entity->id()]);
     }
   }
 
   /**
    * Removes the content of the specified sitemap.
    *
-   * A sitemap entity can exist without the sitemap (XML) content which lives
-   * in the DB. This purges the sitemap content.
-   *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity to process.
    */
   public function deleteContent(SimpleSitemap $entity): void {
-    $this->purgeContent([$entity->id()]);
+    $this->purgeContent($entity->id());
   }
 
   /**
@@ -306,11 +291,10 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
       'status' => 0,
       'link_count' => $link_count,
     ])->execute();
-    $this->invalidateCache([$entity->id()]);
   }
 
   /**
-   * Generates the chunk index of the specified sitemap's content chunks.
+   * Generates the index of the specified sitemap's content chunks.
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemapInterface $entity
    *   The sitemap entity to process.
@@ -338,7 +322,6 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
         'sitemap_created' => $this->time->getRequestTime(),
       ])
       ->execute();
-    $this->invalidateCache([$entity->id()]);
   }
 
   /**
@@ -346,13 +329,13 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity.
-   * @param int|null $status
+   * @param bool|null $status
    *   Fetch by sitemap status.
    *
    * @return int
    *   Number of chunks.
    */
-  public function getChunkCount(SimpleSitemap $entity, ?int $status = SimpleSitemap::FETCH_BY_STATUS_ALL): int {
+  public function getChunkCount(SimpleSitemap $entity, ?bool $status = SimpleSitemap::FETCH_BY_STATUS_ALL): int {
     $query = $this->database->select('simple_sitemap', 's')
       ->condition('s.type', $entity->id())
       ->condition('s.delta', self::SITEMAP_INDEX_DELTA, '<>');
@@ -388,7 +371,7 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
   }
 
   /**
-   * Determines whether the specified sitemap has a chunk index.
+   * Determines whether the specified sitemap has an index.
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity to check.
@@ -409,7 +392,7 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
   }
 
   /**
-   * Gets the sitemap chunk index content.
+   * Gets the sitemap index content.
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity.
@@ -482,9 +465,6 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
   /**
    * Returns the status of the specified sitemap.
    *
-   * The sitemap can be unpublished (0), published (1), or published and in
-   * regeneration (2).
-   *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity.
    *
@@ -514,13 +494,13 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity.
-   * @param int|null $status
+   * @param bool|null $status
    *   Fetch by sitemap status.
    *
    * @return string|null
    *   Timestamp of sitemap chunk generation.
    */
-  public function getCreated(SimpleSitemap $entity, ?int $status = SimpleSitemap::FETCH_BY_STATUS_ALL): ?string {
+  public function getCreated(SimpleSitemap $entity, ?bool $status = SimpleSitemap::FETCH_BY_STATUS_ALL): ?string {
     foreach ($this->getChunkData($entity) as $chunk) {
       if ($status === SimpleSitemap::FETCH_BY_STATUS_ALL || $chunk->status == $status) {
         return $chunk->sitemap_created;
@@ -535,13 +515,13 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
    *
    * @param \Drupal\simple_sitemap\Entity\SimpleSitemap $entity
    *   The sitemap entity.
-   * @param int|null $status
+   * @param bool|null $status
    *   Fetch by sitemap status.
    *
    * @return int
    *   Number of links.
    */
-  public function getLinkCount(SimpleSitemap $entity, ?int $status = SimpleSitemap::FETCH_BY_STATUS_ALL): int {
+  public function getLinkCount(SimpleSitemap $entity, ?bool $status = SimpleSitemap::FETCH_BY_STATUS_ALL): int {
     $count = 0;
     foreach ($this->getChunkData($entity) as $chunk) {
       if ($chunk->delta != self::SITEMAP_INDEX_DELTA
@@ -556,36 +536,20 @@ class SimpleSitemapStorage extends ConfigEntityStorage {
   /**
    * Removes the content from all or specified sitemaps.
    *
-   * A sitemap entity can exist without the sitemap (XML) content which lives
-   * in the DB. This purges the sitemap content.
-   *
    * @param array|null $variants
    *   An array of sitemap IDs, or NULL for all sitemaps.
-   * @param int|null $status
+   * @param bool|null $status
    *   Purge by sitemap status.
    */
-  public function purgeContent(?array $variants = NULL, ?int $status = SimpleSitemap::FETCH_BY_STATUS_ALL): void {
+  public function purgeContent($variants = NULL, ?bool $status = SimpleSitemap::FETCH_BY_STATUS_ALL): void {
     $query = $this->database->delete('simple_sitemap');
     if ($status !== SimpleSitemap::FETCH_BY_STATUS_ALL) {
       $query->condition('status', $status);
     }
     if ($variants !== NULL) {
-      $query->condition('type', $variants, 'IN');
+      $query->condition('type', (array) $variants, 'IN');
     }
     $query->execute();
-    $this->invalidateCache($variants);
-  }
-
-  /**
-   * Invalidates cache for all or specified sitemaps.
-   *
-   * @param array|null $variants
-   *   An array of sitemap IDs, or NULL for all sitemaps.
-   */
-  public function invalidateCache(?array $variants = NULL): void {
-    $variants = $variants ?? array_keys(SimpleSitemap::loadMultiple());
-    $tags = Cache::buildTags('simple_sitemap', $variants);
-    Cache::invalidateTags($tags);
   }
 
 }

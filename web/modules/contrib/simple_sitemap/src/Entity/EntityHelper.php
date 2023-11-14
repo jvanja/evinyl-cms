@@ -110,40 +110,39 @@ class EntityHelper {
   }
 
   /**
-   * Gets the bundle of the entity.
-   *
-   * Special handling of 'menu_link_content' entities.
+   * Gets an entity's bundle name.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity to get the bundle for.
+   *   The entity to get the bundle name for.
    *
    * @return string
    *   The bundle of the entity.
    */
-  public function getEntityBundle(EntityInterface $entity): string {
-    return $entity->getEntityTypeId() === 'menu_link_content' && method_exists($entity, 'getMenuName') ? $entity->getMenuName() : $entity->bundle();
+  public function getEntityInstanceBundleName(EntityInterface $entity): string {
+    return $entity->getEntityTypeId() === 'menu_link_content'
+      // Menu fix.
+      ? $entity->getMenuName() : $entity->bundle();
   }
 
   /**
-   * Gets the entity type for which the entity provides bundles.
-   *
-   * Special handling of 'menu' entities.
+   * Gets the entity type id for a bundle.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The entity to get the "bundle of" for.
+   *   The entity to get an entity type id for a bundle.
    *
    * @return null|string
-   *   The entity type for which the entity provides bundles, or NULL if does
-   *   not provide bundles for another entity type.
+   *   The entity type for a bundle or NULL on failure.
    */
-  public function getEntityBundleOf(EntityInterface $entity): ?string {
-    return $entity->getEntityTypeId() === 'menu' ? 'menu_link_content' : $entity->getEntityType()->getBundleOf();
+  public function getBundleEntityTypeId(EntityInterface $entity): ?string {
+    return $entity->getEntityTypeId() === 'menu'
+      // Menu fix.
+      ? 'menu_link_content' : $entity->getEntityType()->getBundleOf();
   }
 
   /**
    * Returns objects of entity types that can be indexed.
    *
-   * @return \Drupal\Core\Entity\ContentEntityTypeInterface[]
+   * @return array
    *   Objects of entity types that can be indexed by the sitemap.
    */
   public function getSupportedEntityTypes(): array {
@@ -163,7 +162,13 @@ class EntityHelper {
    *   TRUE if entity type is supported, FALSE if not.
    */
   public function supports(EntityTypeInterface $entity_type): bool {
-    return $entity_type instanceof ContentEntityTypeInterface && $entity_type->hasLinkTemplate('canonical');
+    if (!$entity_type instanceof ContentEntityTypeInterface
+      || !method_exists($entity_type, 'getBundleEntityType')
+      || !$entity_type->hasLinkTemplate('canonical')) {
+      return FALSE;
+    }
+
+    return TRUE;
   }
 
   /**
@@ -213,11 +218,9 @@ class EntityHelper {
         $url_object = Url::fromUri('internal:' . $uri);
       }
 
-      foreach ($url_object->getRouteParameters() as $entity_type_id => $entity_id) {
-        if ($entity_id && $this->entityTypeManager->hasDefinition($entity_type_id)
-          && $entity = $this->entityTypeManager->getStorage($entity_type_id)->load($entity_id)) {
-          return $entity;
-        }
+      if (!empty($route_parameters = $url_object->getRouteParameters())
+        && $this->entityTypeManager->getDefinition($entity_type_id = key($route_parameters), FALSE)) {
+        return $this->entityTypeManager->getStorage($entity_type_id)->load($route_parameters[$entity_type_id]);
       }
     }
 

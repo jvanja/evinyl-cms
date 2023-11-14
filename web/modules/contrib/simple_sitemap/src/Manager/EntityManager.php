@@ -2,21 +2,19 @@
 
 namespace Drupal\simple_sitemap\Manager;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\simple_sitemap\Entity\EntityHelper;
-use Drupal\simple_sitemap\Entity\SimpleSitemap;
-use Drupal\simple_sitemap\Plugin\simple_sitemap\UrlGenerator\EntityUrlGeneratorBase;
+use Drupal\simple_sitemap\Logger;
 use Drupal\simple_sitemap\Settings;
 
 /**
  * The simple_sitemap.entity_manager service.
  */
-class EntityManager implements SitemapGetterInterface {
+class EntityManager {
 
-  use SitemapGetterTrait;
+  use VariantSetterTrait;
   use LinkSettingsTrait;
 
   /**
@@ -67,11 +65,11 @@ class EntityManager implements SitemapGetterInterface {
   protected $entityTypeManager;
 
   /**
-   * The entity field manager.
+   * Simple XML Sitemap logger.
    *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   * @var \Drupal\simple_sitemap\Logger
    */
-  protected $entityFieldManager;
+  protected $logger;
 
   /**
    * Simplesitemap constructor.
@@ -86,8 +84,8 @@ class EntityManager implements SitemapGetterInterface {
    *   The database connection.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
-   *   The entity field manager.
+   * @param \Drupal\simple_sitemap\Logger|null $logger
+   *   Simple XML Sitemap logger.
    */
   public function __construct(
     EntityHelper $entity_helper,
@@ -95,14 +93,14 @@ class EntityManager implements SitemapGetterInterface {
     ConfigFactoryInterface $config_factory,
     Connection $database,
     EntityTypeManagerInterface $entity_type_manager,
-    EntityFieldManagerInterface $entity_field_manager
+    Logger $logger = NULL
   ) {
     $this->entityHelper = $entity_helper;
     $this->settings = $settings;
     $this->configFactory = $config_factory;
     $this->database = $database;
     $this->entityTypeManager = $entity_type_manager;
-    $this->entityFieldManager = $entity_field_manager;
+    $this->logger = $logger;
   }
 
   /**
@@ -120,14 +118,9 @@ class EntityManager implements SitemapGetterInterface {
    */
   public function enableEntityType(string $entity_type_id): EntityManager {
     $enabled_entity_types = $this->settings->get('enabled_entity_types', []);
-
     if (!in_array($entity_type_id, $enabled_entity_types, TRUE)) {
       $enabled_entity_types[] = $entity_type_id;
       $this->settings->save('enabled_entity_types', $enabled_entity_types);
-
-      // Clear necessary caches to apply field definition updates.
-      // @see simple_sitemap_entity_extra_field_info()
-      $this->entityFieldManager->clearCachedFieldDefinitions();
     }
 
     return $this;
@@ -151,10 +144,6 @@ class EntityManager implements SitemapGetterInterface {
     if (FALSE !== ($key = array_search($entity_type_id, $enabled_entity_types, TRUE))) {
       unset($enabled_entity_types[$key]);
       $this->settings->save('enabled_entity_types', array_values($enabled_entity_types));
-
-      // Clear necessary caches to apply field definition updates.
-      // @see simple_sitemap_entity_extra_field_info()
-      $this->entityFieldManager->clearCachedFieldDefinitions();
     }
 
     // Deleting inclusion settings.
@@ -173,7 +162,7 @@ class EntityManager implements SitemapGetterInterface {
     }
 
     // Deleting entity overrides.
-    $this->setSitemaps()->removeEntityInstanceSettings($entity_type_id);
+    $this->setVariants()->removeEntityInstanceSettings($entity_type_id);
 
     return $this;
   }
@@ -200,19 +189,17 @@ class EntityManager implements SitemapGetterInterface {
    * @todo Throw exception on non-existing entity type/bundle.
    */
   public function setBundleSettings(string $entity_type_id, ?string $bundle_name = NULL, array $settings = ['index' => TRUE]): EntityManager {
-    if (empty($variants = array_keys($this->getSitemaps()))) {
+    if (empty($variants = $this->getVariants())) {
       return $this;
     }
     if (!isset($this->entityHelper->getSupportedEntityTypes()[$entity_type_id])) {
       return $this;
     }
 
-    // @todo Not working with menu link content.
-    // phpcs:disable
+    //@todo Not working with menu link content.
 //    if ($bundle_name && !isset($this->entityHelper->getBundleInfo($entity_type_id)[$bundle_name])) {
 //      return $this;
 //    }
-    // phpcs:enable
 
     $bundle_name = $bundle_name ?? $entity_type_id;
 
@@ -256,7 +243,7 @@ class EntityManager implements SitemapGetterInterface {
       $delete_instances = [];
       foreach ($query->execute()->fetchAll() as $result) {
         $delete = TRUE;
-        $instance_settings = unserialize($result->inclusion_settings, ['allowed_classes' => FALSE]);
+        $instance_settings = unserialize($result->inclusion_settings);
         foreach ($instance_settings as $setting_key => $instance_setting) {
           if ($instance_setting != $settings[$setting_key]) {
             $delete = FALSE;
@@ -298,16 +285,14 @@ class EntityManager implements SitemapGetterInterface {
     if (!isset($this->entityHelper->getSupportedEntityTypes()[$entity_type_id])) {
       return [];
     }
-    // @todo Not working with menu link content.
-    // phpcs:disable
+    //@todo Not working with menu link content.
 //    if ($bundle_name && !isset($this->entityHelper->getBundleInfo($entity_type_id)[$bundle_name])) {
 //      return [];
 //    }
-    // phpcs:enable
     $bundle_name = $bundle_name ?? $entity_type_id;
     $all_bundle_settings = [];
 
-    foreach (array_keys($this->getSitemaps()) as $variant) {
+    foreach ($this->getVariants() as $variant) {
       $bundle_settings = $this->configFactory
         ->get("simple_sitemap.bundle_settings.$variant.$entity_type_id.$bundle_name")
         ->get();
@@ -331,7 +316,7 @@ class EntityManager implements SitemapGetterInterface {
    */
   public function getAllBundleSettings() {
     $all_bundle_settings = [];
-    foreach (array_keys($this->getSitemaps()) as $variant) {
+    foreach ($this->getVariants() as $variant) {
       $config_names = $this->configFactory->listAll("simple_sitemap.bundle_settings.$variant.");
       $bundle_settings = [];
       foreach ($config_names as $config_name) {
@@ -370,7 +355,7 @@ class EntityManager implements SitemapGetterInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function removeBundleSettings(?string $entity_type_id = NULL, ?string $bundle_name = NULL): EntityManager {
-    if (empty($variants = array_keys($this->getSitemaps()))) {
+    if (empty($variants = $this->getVariants())) {
       return $this;
     }
 
@@ -417,7 +402,7 @@ class EntityManager implements SitemapGetterInterface {
    * @todo Pass entity object instead of id and entity type?
    */
   public function setEntityInstanceSettings(string $entity_type_id, string $id, array $settings): EntityManager {
-    if (empty($variants = array_keys($this->getSitemaps()))) {
+    if (empty($this->getVariants())) {
       return $this;
     }
 
@@ -427,14 +412,11 @@ class EntityManager implements SitemapGetterInterface {
     }
 
     $all_bundle_settings = $this->getBundleSettings(
-      $entity_type_id, $this->entityHelper->getEntityBundle($entity)
+      $entity_type_id, $this->entityHelper->getEntityInstanceBundleName($entity)
     );
 
     foreach ($all_bundle_settings as $variant => $bundle_settings) {
       if (!empty($bundle_settings)) {
-
-        // Only one variant at a time.
-        $this->setSitemaps($variant);
 
         // Check if overrides are different from bundle setting before saving.
         $override = FALSE;
@@ -468,9 +450,6 @@ class EntityManager implements SitemapGetterInterface {
       }
     }
 
-    // Restore original variants.
-    $this->setSitemaps($variants);
-
     return $this;
   }
 
@@ -498,7 +477,7 @@ class EntityManager implements SitemapGetterInterface {
    * @todo Pass entity object instead of id and entity type?
    */
   public function getEntityInstanceSettings(string $entity_type_id, string $id) {
-    if (empty($variants = array_keys($this->getSitemaps()))) {
+    if (empty($variants = $this->getVariants())) {
       return FALSE;
     }
     $variant = reset($variants);
@@ -512,7 +491,7 @@ class EntityManager implements SitemapGetterInterface {
       ->fetchField();
 
     if (!empty($results)) {
-      return [$variant => unserialize($results, ['allowed_classes' => FALSE])];
+      return [$variant => unserialize($results)];
     }
 
     if (($entity = $this->entityTypeManager->getStorage($entity_type_id)->load($id)) === NULL) {
@@ -521,7 +500,7 @@ class EntityManager implements SitemapGetterInterface {
 
     $bundle_settings = $this->getBundleSettings(
       $entity_type_id,
-      $this->entityHelper->getEntityBundle($entity)
+      $this->entityHelper->getEntityInstanceBundleName($entity)
     );
 
     return $bundle_settings ?: FALSE;
@@ -540,7 +519,7 @@ class EntityManager implements SitemapGetterInterface {
    * @return $this
    */
   public function removeEntityInstanceSettings(?string $entity_type_id = NULL, $entity_ids = NULL): EntityManager {
-    if (empty($variants = array_keys($this->getSitemaps()))) {
+    if (empty($variants = $this->getVariants())) {
       return $this;
     }
 
@@ -595,30 +574,6 @@ class EntityManager implements SitemapGetterInterface {
    */
   public function entityTypeIsEnabled(string $entity_type_id): bool {
     return in_array($entity_type_id, $this->settings->get('enabled_entity_types', []), TRUE);
-  }
-
-  /**
-   * Gets all compatible sitemaps.
-   *
-   * @return \Drupal\simple_sitemap\Entity\SimpleSitemap[]
-   *   Array of sitemaps of a type that uses a URL generator which
-   *   extends EntityUrlGeneratorBase. Keyed by variant.
-   *
-   * @todo This is not ideal as it shows only-menu-link-sitemaps on all bundle
-   * setting pages and vice versa. It also shows only-custom-link-sitemaps on
-   * all bundle setting pages and vice versa.
-   */
-  protected function getCompatibleSitemaps(): array {
-    foreach (SimpleSitemap::loadMultiple() as $variant => $sitemap) {
-      foreach ($sitemap->getType()->getUrlGenerators() as $url_generator) {
-        if ($url_generator instanceof EntityUrlGeneratorBase) {
-          $sitemaps[$variant] = $sitemap;
-          break;
-        }
-      }
-    }
-
-    return $sitemaps ?? [];
   }
 
 }

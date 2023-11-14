@@ -3,16 +3,16 @@
  * Views UI helpers for Simple XML Sitemap display extender.
  */
 
-(function ($, Drupal, once) {
+(function ($, Drupal) {
   Drupal.simpleSitemapViewsUi = {};
 
   Drupal.behaviors.simpleSitemapViewsUiArguments = {
     attach: function attach() {
-      let $arguments = $(once('simple-sitemap-views-ui-arguments', '.indexed-arguments'));
+      var $arguments = $('.indexed-arguments').once('simple-sitemap-views-ui-arguments');
 
       if ($arguments.length) {
         $arguments.each(function () {
-          let $checkboxes = $(this).find('input[type="checkbox"]');
+          var $checkboxes = $(this).find('input[type="checkbox"]');
 
           if ($checkboxes.length) {
             new Drupal.simpleSitemapViewsUi.Arguments($checkboxes);
@@ -28,7 +28,7 @@
   };
 
   Drupal.simpleSitemapViewsUi.Arguments.prototype.changeHandler = function (e) {
-    let $checkbox = $(e.target), index = this.$checkboxes.index($checkbox);
+    var $checkbox = $(e.target), index = this.$checkboxes.index($checkbox);
     $checkbox.prop('checked') ? this.check(index) : this.uncheck(index);
   };
 
@@ -40,4 +40,4 @@
     this.$checkboxes.slice(index).prop('checked', false);
   };
 
-})(jQuery, Drupal, once);
+})(jQuery, Drupal);

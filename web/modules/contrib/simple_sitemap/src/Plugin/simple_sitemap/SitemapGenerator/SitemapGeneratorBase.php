@@ -2,7 +2,6 @@
 
 namespace Drupal\simple_sitemap\Plugin\simple_sitemap\SitemapGenerator;
 
-use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\simple_sitemap\Plugin\simple_sitemap\SimpleSitemapPluginBase;
 use Drupal\simple_sitemap\Entity\SimpleSitemapInterface;
 use Drupal\simple_sitemap\Settings;
@@ -45,13 +44,6 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
   protected $sitemap;
 
   /**
-   * The extension.list.module service.
-   *
-   * @var \Drupal\Core\Extension\ModuleExtensionList
-   */
-  protected $moduleList;
-
-  /**
    * An array of index attributes.
    *
    * @var array
@@ -75,8 +67,6 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
    *   Sitemap XML writer.
    * @param \Drupal\simple_sitemap\Settings $settings
    *   The simple_sitemap.settings service.
-   * @param \Drupal\Core\Extension\ModuleExtensionList $module_list
-   *   The extension.list.module service.
    */
   public function __construct(
     array $configuration,
@@ -84,14 +74,12 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
     $plugin_definition,
     ModuleHandlerInterface $module_handler,
     SitemapWriter $sitemap_writer,
-    Settings $settings,
-    ModuleExtensionList $module_list
+    Settings $settings
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->moduleHandler = $module_handler;
     $this->writer = $sitemap_writer;
     $this->settings = $settings;
-    $this->moduleList = $module_list;
   }
 
   /**
@@ -104,8 +92,7 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
       $plugin_definition,
       $container->get('module_handler'),
       $container->get('simple_sitemap.sitemap_writer'),
-      $container->get('simple_sitemap.settings'),
-      $container->get('extension.list.module')
+      $container->get('simple_sitemap.settings')
     );
   }
 
@@ -133,7 +120,11 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
     $this->writer->setIndent(TRUE);
     $this->writer->startSitemapDocument();
 
-    $this->addXslUrl();
+    // Add the XML stylesheet to document if enabled.
+    if ($this->settings->get('xsl')) {
+      $this->writer->writeXsl();
+    }
+
     $this->writer->writeGeneratedBy();
     $this->writer->startElement('sitemapindex');
 
@@ -157,22 +148,6 @@ abstract class SitemapGeneratorBase extends SimpleSitemapPluginBase implements S
     $this->writer->endDocument();
 
     return $this->writer->outputMemory();
-  }
-
-  /**
-   * Adds the XML stylesheet.
-   */
-  protected function addXslUrl(): void {
-    if ($this->settings->get('xsl')) {
-      $this->writer->writeXsl($this->getPluginId());
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getXslContent(): ?string {
-    return NULL;
   }
 
 }

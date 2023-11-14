@@ -1,9 +1,8 @@
 id: default
 label: Default
-description: 'The default hreflang sitemap - lists URLs to be indexed by modern search engines.'
+description: The default hreflang sitemap.
 type: default_hreflang
 weight: 0
-status: true
 dependencies:
   config:
     - simple_sitemap.type.default_hreflang

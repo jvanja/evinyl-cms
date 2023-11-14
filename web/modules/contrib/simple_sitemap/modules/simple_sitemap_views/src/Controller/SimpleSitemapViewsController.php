@@ -2,6 +2,7 @@
 
 namespace Drupal\simple_sitemap_views\Controller;
 
+use Drupal\simple_sitemap\Form\FormHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\simple_sitemap_views\SimpleSitemapViews;
 use Drupal\Core\Controller\ControllerBase;
@@ -45,8 +46,6 @@ class SimpleSitemapViewsController extends ControllerBase {
    *   A render array.
    */
   public function content(): array {
-    $table = &$build['simple_sitemap_views'];
-
     $table = [
       '#type' => 'table',
       '#header' => [
@@ -55,13 +54,13 @@ class SimpleSitemapViewsController extends ControllerBase {
         $this->t('Sitemaps'),
         $this->t('Operations'),
       ],
-      '#empty' => $this->t('No view displays are set to be indexed yet. <a href="@url">Edit a view.</a>', ['@url' => Url::fromRoute('entity.view.collection')->toString()]),
+      '#empty' => $this->t('No view displays are set to be indexed yet. <a href="@url">Edit a view.</a>', ['@url' => $GLOBALS['base_url'] . '/admin/structure/views']),
     ];
 
     if (empty($this->sitemapViews->getSitemaps())) {
       $table['#empty'] = $this->t('Please configure at least one <a href="@sitemaps_url">sitemap</a> to be of a <a href="@types_url">type</a> that implements the views URL generator.', [
-        '@sitemaps_url' => Url::fromRoute('entity.simple_sitemap.collection')->toString(),
-        '@types_url' => Url::fromRoute('entity.simple_sitemap_type.collection')->toString(),
+        '@sitemaps_url' => $GLOBALS['base_url'] . '/admin/config/search/simplesitemap',
+        '@types_url' => $GLOBALS['base_url'] . '/admin/config/search/simplesitemap/types',
       ]);
     }
 
@@ -89,6 +88,14 @@ class SimpleSitemapViewsController extends ControllerBase {
         ],
       ];
     }
+
+    // Show information about indexed displays.
+    $build['simple_sitemap_views'] = [
+      '#prefix' => FormHelper::getDonationText(),
+      '#title' => $this->t('Indexed view displays'),
+      '#type' => 'fieldset',
+      'table' => $table,
+    ];
 
     return $build;
   }
