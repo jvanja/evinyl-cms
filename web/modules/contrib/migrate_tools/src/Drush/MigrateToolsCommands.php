@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\migrate_tools\Commands;
+declare(strict_types = 1);
+
+namespace Drupal\migrate_tools\Drush;
 
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drupal\Component\Graph\Graph;
@@ -16,7 +18,10 @@ use Drupal\migrate_tools\Drush9LogMigrateMessage;
 use Drupal\migrate_tools\IdMapFilter;
 use Drupal\migrate_tools\MigrateExecutable;
 use Drupal\migrate_tools\MigrateTools;
+use Drush\Commands\core\DocsCommands;
 use Drush\Commands\DrushCommands;
+use Drush\Attributes as CLI;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Migrate Tools drush commands.
@@ -25,38 +30,28 @@ class MigrateToolsCommands extends DrushCommands {
 
   /**
    * Migration plugin manager service.
-   *
-   * @var \Drupal\migrate\Plugin\MigrationPluginManager
    */
-  protected $migrationPluginManager;
+  protected MigrationPluginManager $migrationPluginManager;
 
   /**
    * Date formatter service.
-   *
-   * @var \Drupal\Core\Datetime\DateFormatter
    */
-  protected $dateFormatter;
+  protected DateFormatter $dateFormatter;
 
   /**
    * Entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * Key-value store service.
-   *
-   * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
    */
-  protected $keyValue;
+  protected KeyValueFactoryInterface $keyValue;
 
   /**
    * Migrate message logger.
-   *
-   * @var \Drupal\migrate_tools\Drush9LogMigrateMessage
    */
-  protected $migrateMessage;
+  protected ?Drush9LogMigrateMessage $migrateMessage = NULL;
 
   /**
    * MigrateToolsCommands constructor.
@@ -78,6 +73,15 @@ class MigrateToolsCommands extends DrushCommands {
     $this->keyValue = $keyValue;
   }
 
+  public static function create(ContainerInterface $container): self {
+    return new static(
+      $container->get('plugin.manager.migration'),
+      $container->get('date.formatter'),
+      $container->get('entity_type.manager'),
+      $container->get('keyvalue')
+    );
+  }
+
   /**
    * Shows a tree of migration dependencies.
    *
@@ -88,11 +92,18 @@ class MigrateToolsCommands extends DrushCommands {
    *
    * @command migrate:tree
    */
+  #[CLI\Command(name: 'migrate:tree')]
+  #[CLI\Argument(name: 'migration_names', description: 'Restrict to a comma-separated list of migrations (Optional).')]
+  #[CLI\Option(name: 'all', description: 'Process all migrations')]
+  #[CLI\Option(name: 'group', description: 'A comma-separated list of migration groups to import')]
+  #[CLI\Option(name: 'tag', description: 'A comma-separated list of migration tags to import')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
   public function dependencyTree($migration_names = '', array $options = [
     'all' => FALSE,
     'group' => self::REQ,
     'tag' => self::REQ,
-  ]) {
+  ]): void {
     $manager = $this->migrationPluginManager;
     $migrations = $this->migrationsList($migration_names, $options);
 
@@ -157,7 +168,7 @@ class MigrateToolsCommands extends DrushCommands {
    * @param string $migration_name
    *   The name of the migration to print dependencies for.
    */
-  protected function printDependencies($level, $prefix, array $dependency_graph, $migration_name) {
+  protected function printDependencies($level, $prefix, array $dependency_graph, $migration_name): void {
     $last_edge = end($dependency_graph[$migration_name]['edges']);
 
     foreach ($dependency_graph[$migration_name]['edges'] as $edge) {
@@ -216,18 +227,35 @@ class MigrateToolsCommands extends DrushCommands {
    *   total: Total
    *   imported: Imported
    *   unprocessed: Unprocessed
+   *   message_count: Message Count
    *   last_imported: Last Imported
-   * @default-fields group,id,status,total,imported,unprocessed,last_imported
+   * @default-fields group,id,status,total,imported,unprocessed,message_count,last_imported
    *
-   * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
    *   Migrations status formatted as table.
    */
+  #[CLI\Command(name: 'migrate:status', aliases: ['ms', 'migrate-status'])]
+  #[CLI\Argument(name: 'migration_names', description: 'Restrict to a comma-separated list of migrations. Optional.')]
+  #[CLI\Option(name: 'group', description: 'A comma-separated list of migration groups to import')]
+  #[CLI\Option(name: 'tag', description: 'Name of the migration tag to list')]
+  #[CLI\Option(name: 'names-only', description: 'Only return names, not all the details (faster)')]
+  #[CLI\Option(name: 'continue-on-failure', description: 'When a migration fails, continue processing remaining migrations.')]
+  #[CLI\Usage(name: 'migrate:status', description: 'Retrieve status for all migrations')]
+  #[CLI\Usage(name: 'migrate:status --group=beer', description: 'Retrieve status for all migrations, grouped by tag')]
+  #[CLI\Usage(name: 'migrate:status --tag=user', description: 'Retrieve status for all migrations tagged with user.')]
+  #[CLI\Usage(name: 'migrate:status beer_term,beer_node', description: 'Retrieve status for specific migrations')]
+  #[CLI\Usage(name: 'migrate:status --field=id', description: 'Retrieve a raw list of migration IDs.')]
+  #[CLI\Usage(name: 'ms --fields=id,status --format=json', description: 'Retrieve a JSON serialized list of migrations, each item containing only the migration ID and its status.')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
+  #[CLI\FieldLabels(labels: ['group' => 'Group', 'id' => 'Migration ID', 'status' => 'Status', 'total' => 'Total', 'imported' => 'Imported', 'unprocessed' => 'Unprocessed', 'message_count' => 'Message Count', 'last_imported' => 'Last Imported'])]
+  #[CLI\DefaultFields(fields: ['group', 'id', 'status', 'total', 'imported', 'unprocessed', 'message_count', 'last_imported'])]
+  #[CLI\FilterDefaultField(field: 'status')]
   public function status($migration_names = '', array $options = [
     'group' => self::REQ,
     'tag' => self::REQ,
     'names-only' => FALSE,
     'continue-on-failure' => FALSE,
-  ]) {
+  ]): RowsOfFields {
     $names_only = $options['names-only'];
 
     $migrations = $this->migrationsList($migration_names, $options);
@@ -235,15 +263,19 @@ class MigrateToolsCommands extends DrushCommands {
     $table = [];
     $errors = [];
     // Take it one group at a time, listing the migrations within each group.
+    $group_entity_exists = $this->entityTypeManager->hasHandler('migration_group', 'storage');
+    $group_name = 'Default (default)';
     foreach ($migrations as $group_id => $migration_list) {
-      /** @var \Drupal\migrate_plus\Entity\MigrationGroup $group */
-      $group = $this->entityTypeManager->getStorage('migration_group')->load($group_id);
-      $group_name = !empty($group) ? "{$group->label()} ({$group->id()})" : $group_id;
+      if ($group_entity_exists) {
+        /** @var \Drupal\migrate_plus\Entity\MigrationGroup $group */
+        $group = $this->entityTypeManager->getStorage('migration_group')->load($group_id);
+        $group_name = !empty($group) ? "{$group->label()} ({$group->id()})" : $group_id;
+      }
 
       foreach ($migration_list as $migration_id => $migration) {
         if ($names_only) {
           $table[] = [
-            'group' => dt('Group: @name', ['@name' => $group_name]),
+            'group' => \dt('Group: @name', ['@name' => $group_name]),
             'id' => $migration_id,
           ];
         }
@@ -254,7 +286,7 @@ class MigrateToolsCommands extends DrushCommands {
             $source_plugin = $migration->getSourcePlugin();
           }
           catch (\Exception $e) {
-            $error = dt(
+            $error = \dt(
               'Failure retrieving information on @migration: @message',
               ['@migration' => $migration_id, '@message' => $e->getMessage()]
             );
@@ -267,8 +299,8 @@ class MigrateToolsCommands extends DrushCommands {
             $source_rows = $source_plugin->count();
             // -1 indicates uncountable sources.
             if ($source_rows == -1) {
-              $source_rows = dt('N/A');
-              $unprocessed = dt('N/A');
+              $source_rows = \dt('N/A');
+              $unprocessed = \dt('N/A');
             }
             else {
               $unprocessed = $source_rows - $map->processedCount();
@@ -276,16 +308,18 @@ class MigrateToolsCommands extends DrushCommands {
           }
           catch (\Exception $e) {
             $this->logger()->error(
-              dt(
+              \dt(
                 'Could not retrieve source count from @migration: @message',
                 ['@migration' => $migration_id, '@message' => $e->getMessage()]
               )
             );
-            $source_rows = dt('N/A');
-            $unprocessed = dt('N/A');
+            $source_rows = \dt('N/A');
+            $unprocessed = \dt('N/A');
           }
 
           $status = $migration->getStatusLabel();
+          $message_count = $map->messageCount();
+
           $migrate_last_imported_store = $this->keyValue->get(
             'migrate_last_imported'
           );
@@ -295,7 +329,7 @@ class MigrateToolsCommands extends DrushCommands {
           );
           if ($last_imported) {
             $last_imported = $this->dateFormatter->format(
-              $last_imported / 1000,
+              (int) ($last_imported / 1000),
               'custom',
               'Y-m-d H:i:s'
             );
@@ -303,6 +337,7 @@ class MigrateToolsCommands extends DrushCommands {
           else {
             $last_imported = '';
           }
+
           $table[] = [
             'group' => $group_name,
             'id' => $migration_id,
@@ -311,13 +346,11 @@ class MigrateToolsCommands extends DrushCommands {
             'imported' => $imported,
             'unprocessed' => $unprocessed,
             'last_imported' => $last_imported,
+            'message_count' => $message_count,
           ];
         }
       }
-
-      // Add empty row to separate groups, for readability.
-      end($migrations);
-      if ($group_id !== key($migrations)) {
+      if ($group_id !== array_key_last($migrations)) {
         $table[] = [];
       }
     }
@@ -384,6 +417,33 @@ class MigrateToolsCommands extends DrushCommands {
    * @throws \Exception
    *   If there are not enough parameters to the command.
    */
+  #[CLI\Command(name: 'migrate:import', aliases: ['mim', 'migrate-import'])]
+  #[CLI\Argument(name: 'migration_names', description: 'ID of migration(s) to import. Delimit multiple using commas.')]
+  #[CLI\Option(name: 'all', description: 'Process all migrations')]
+  #[CLI\Option(name: 'group', description: 'A comma-separated list of migration groups to import')]
+  #[CLI\Option(name: 'tag', description: 'A comma-separated list of migration tags to import')]
+  #[CLI\Option(name: 'limit', description: 'Limit on the number of items to process in each migration')]
+  #[CLI\Option(name: 'feedback', description: 'Frequency of progress messages, in items processed')]
+  #[CLI\Option(name: 'idlist', description: 'Comma-separated list of IDs to import.')]
+  #[CLI\Option(name: 'idlist-delimiter', description: 'The delimiter for records')]
+  #[CLI\Option(name: 'update', description: 'In addition to processing unprocessed items from the source, update previously-imported items with the current data')]
+  #[CLI\Option(name: 'force', description: 'Force an operation to run, even if all dependencies are not satisfied')]
+  #[CLI\Option(name: 'continue-on-failure', description: 'When a migration fails, continue processing remaining migrations.')]
+  #[CLI\Option(name: 'execute-dependencies', description: 'Execute all dependent migrations first')]
+  #[CLI\Option(name: 'skip-progress-bar', description: 'Skip displaying a progress bar.')]
+  #[CLI\Option(name: 'sync', description: 'Sync source and destination. Delete destination records that do not exist in the source.')]
+  #[CLI\Usage(name: 'migrate:import --all', description: 'Perform all migrations')]
+  #[CLI\Usage(name: 'migrate:import --group=beer', description: 'Import all migrations in the beer group')]
+  #[CLI\Usage(name: 'migrate:import --tag=user', description: 'Import all migrations with the user tag')]
+  #[CLI\Usage(name: 'migrate:import --group=beer --tag=user', description: 'Import all migrations in the beer group and with the user tag')]
+  #[CLI\Usage(name: 'migrate:import beer_term,beer_node', description: 'Import new terms and nodes')]
+  #[CLI\Usage(name: 'migrate:import beer_user --limit=2', description: 'Import no more than 2 users')]
+  #[CLI\Usage(name: 'migrate:import beer_user --idlist=5', description: 'Import the user record with source ID 5')]
+  #[CLI\Usage(name: 'migrate:import beer_node_revision --idlist=1:2,2:3,3:5', description: 'Import the node revision record with source IDs [1,2], [2,3], and [3,5]')]
+  #[CLI\Usage(name: 'migrate:import beer_user --limit=50 --feedback=20', description: 'Import 50 users and show process message every 20th record')]
+  #[CLI\Usage(name: 'migrate:import --all --sync', description: 'Perform all migrations and delete the destination items that are missing from source')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
   public function import($migration_names = '', array $options = [
     'all' => FALSE,
     'group' => self::REQ,
@@ -398,7 +458,7 @@ class MigrateToolsCommands extends DrushCommands {
     'execute-dependencies' => FALSE,
     'skip-progress-bar' => FALSE,
     'sync' => FALSE,
-  ]) {
+  ]): void {
     $group_names = $options['group'];
     $tag_names = $options['tag'];
     $all = $options['all'];
@@ -464,6 +524,24 @@ class MigrateToolsCommands extends DrushCommands {
    * @throws \Exception
    *   If there are not enough parameters to the command.
    */
+  #[CLI\Command(name: 'migrate:rollback', aliases: ['mr', 'migrate-rollback'])]
+  #[CLI\Argument(name: 'migration_names', description: 'Comma-separated list of migration IDs.')]
+  #[CLI\Option(name: 'all', description: 'Process all migrations')]
+  #[CLI\Option(name: 'group', description: 'A comma-separated list of migration groups to rollback')]
+  #[CLI\Option(name: 'tag', description: 'ID of the migration tag to rollback')]
+  #[CLI\Option(name: 'feedback', description: 'Frequency of progress messages, in items processed')]
+  #[CLI\Option(name: 'idlist', description: 'Comma-separated list of IDs to rollback')]
+  #[CLI\Option(name: 'idlist-delimiter', description: 'The delimiter for records')]
+  #[CLI\Option(name: 'continue-on-failure', description: 'When a migration fails, continue processing remaining migrations.')]
+  #[CLI\Option(name: 'skip-progress-bar', description: 'Skip displaying a progress bar.')]
+  #[CLI\Usage(name: 'migrate:rollback --all', description: 'Rollback all migrations')]
+  #[CLI\Usage(name: 'migrate:rollback --group=beer', description: 'Rollback all migrations in the beer group')]
+  #[CLI\Usage(name: 'migrate:rollback --tag=user', description: 'Rollback all migrations tagged with user tag')]
+  #[CLI\Usage(name: 'migrate:rollback --group=beer --tag=user', description: 'Rollback all migrations in the beer group and with the user tag')]
+  #[CLI\Usage(name: 'migrate:rollback beer_term,beer_node', description: 'Rollback terms and nodes imported terms and nodes')]
+  #[CLI\Usage(name: 'migrate:rollback beer_user --idlist=5', description: 'Rollback imported user record with source ID 5')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
   public function rollback($migration_names = '', array $options = [
     'all' => FALSE,
     'group' => self::REQ,
@@ -473,7 +551,7 @@ class MigrateToolsCommands extends DrushCommands {
     'idlist-delimiter' => MigrateTools::DEFAULT_ID_LIST_DELIMITER,
     'skip-progress-bar' => FALSE,
     'continue-on-failure' => FALSE,
-  ]) {
+  ]): void {
     $group_names = $options['group'];
     $tag_names = $options['tag'];
     $all = $options['all'];
@@ -506,8 +584,8 @@ class MigrateToolsCommands extends DrushCommands {
           $this->getMigrateMessage(),
           $options
         );
-        // drush_op() provides --simulate support.
-        $result = drush_op([$executable, 'rollback']);
+        // \drush_op() provides --simulate support.
+        $result = \drush_op([$executable, 'rollback']);
         if ($result == MigrationInterface::RESULT_FAILED) {
           $has_failure = TRUE;
           $errored_migration_id = $migration_id;
@@ -517,7 +595,7 @@ class MigrateToolsCommands extends DrushCommands {
 
     // If any rollbacks failed, throw an exception to generate exit status.
     if ($has_failure) {
-      $error_message = dt('!name migration failed.', ['!name' => $errored_migration_id]);
+      $error_message = \dt('!name migration failed.', ['!name' => $errored_migration_id]);
       if ($options['continue-on-failure']) {
         $this->logger()->error($error_message);
       }
@@ -539,7 +617,11 @@ class MigrateToolsCommands extends DrushCommands {
    * @validate-module-enabled migrate_tools
    * @aliases mst, migrate-stop
    */
-  public function stop($migration_id) {
+  #[CLI\Command(name: 'migrate:stop', aliases: ['mst', 'migrate-stop'])]
+  #[CLI\Argument(name: 'migration_id', description: 'The ID of migration to stop.')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
+  public function stop($migration_id): void {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance(
       $migration_id
@@ -549,32 +631,32 @@ class MigrateToolsCommands extends DrushCommands {
       switch ($status) {
         case MigrationInterface::STATUS_IDLE:
           $this->logger()->warning(
-            dt('Migration @id is idle', ['@id' => $migration_id])
+            \dt('Migration @id is idle', ['@id' => $migration_id])
           );
           break;
 
         case MigrationInterface::STATUS_DISABLED:
           $this->logger()->warning(
-            dt('Migration @id is disabled', ['@id' => $migration_id])
+            \dt('Migration @id is disabled', ['@id' => $migration_id])
           );
           break;
 
         case MigrationInterface::STATUS_STOPPING:
           $this->logger()->warning(
-            dt('Migration @id is already stopping', ['@id' => $migration_id])
+            \dt('Migration @id is already stopping', ['@id' => $migration_id])
           );
           break;
 
         default:
           $migration->interruptMigration(MigrationInterface::RESULT_STOPPED);
           $this->logger()->notice(
-            dt('Migration @id requested to stop', ['@id' => $migration_id])
+            \dt('Migration @id requested to stop', ['@id' => $migration_id])
           );
           break;
       }
     }
     else {
-      $error = dt('Migration @id does not exist', ['@id' => $migration_id]);
+      $error = \dt('Migration @id does not exist', ['@id' => $migration_id]);
       $this->logger()->error($error);
       throw new \Exception($error);
     }
@@ -591,7 +673,11 @@ class MigrateToolsCommands extends DrushCommands {
    * @validate-module-enabled migrate_tools
    * @aliases mrs, migrate-reset-status
    */
-  public function resetStatus($migration_id = '') {
+  #[CLI\Command(name: 'migrate:reset-status', aliases: ['mrs', 'migrate-reset-status'])]
+  #[CLI\Argument(name: 'migration_id', description: 'The ID of migration to reset.')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
+  public function resetStatus($migration_id = ''): void {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance(
       $migration_id
@@ -600,18 +686,18 @@ class MigrateToolsCommands extends DrushCommands {
       $status = $migration->getStatus();
       if ($status == MigrationInterface::STATUS_IDLE) {
         $this->logger()->warning(
-          dt('Migration @id is already Idle', ['@id' => $migration_id])
+          \dt('Migration @id is already Idle', ['@id' => $migration_id])
         );
       }
       else {
         $migration->setStatus(MigrationInterface::STATUS_IDLE);
         $this->logger()->notice(
-          dt('Migration @id reset to Idle', ['@id' => $migration_id])
+          \dt('Migration @id reset to Idle', ['@id' => $migration_id])
         );
       }
     }
     else {
-      $error = dt('Migration @id does not exist', ['@id' => $migration_id]);
+      $error = \dt('Migration @id does not exist', ['@id' => $migration_id]);
       $this->logger()->error($error);
       throw new \Exception($error);
     }
@@ -648,20 +734,31 @@ class MigrateToolsCommands extends DrushCommands {
    *   message: Message
    * @default-fields source_ids_hash,source_ids,destination_ids,level,message
    *
-   * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
    *   Source fields of the given migration formatted as a table.
    */
+  #[CLI\Command(name: 'migrate:messages', aliases: ['mmsg', 'migrate-messages'])]
+  #[CLI\Argument(name: 'migration_id', description: 'The ID of the migration.')]
+  #[CLI\Option(name: 'csv', description: 'Export messages as a CSV (deprecated)')]
+  #[CLI\Option(name: 'idlist', description: 'Comma-separated list of IDs to rollback')]
+  #[CLI\Option(name: 'idlist-delimiter', description: 'The delimiter for records')]
+  #[CLI\Usage(name: 'migrate:messages article', description: 'Show all messages for the <info>article</info> migration')]
+  #[CLI\Usage(name: 'migrate:messages node_revision --idlist=1:2,2:3,3:5', description: 'Show messages related to node revision records with source IDs [1,2], [2,3], and [3,5].')]
+  #[CLI\Usage(name: 'migrate:messages custom_node_revision --idlist=1:"r:1",2:"r:3"', description: 'Show messages related to node revision records with source IDs [1,"r:1"], and [2,"r:3"].')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
+  #[CLI\FieldLabels(labels: ['source_ids_hash' => 'Source IDs Hash', 'source_ids' => 'Source ID(s)', 'destination_ids' => 'Destination ID(s)', 'level' => 'Level', 'message' => 'Message'])]
+  #[CLI\DefaultFields(fields: ['source_ids_hash', 'source_ids', 'destination_ids', 'level', 'message'])]
   public function messages($migration_id, array $options = [
     'csv' => FALSE,
     'idlist' => self::REQ,
     'idlist-delimiter' => MigrateTools::DEFAULT_ID_LIST_DELIMITER,
-  ]) {
+  ]): ?RowsOfFields {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance(
       $migration_id
     );
     if (!$migration) {
-      $error = dt('Migration @id does not exist', ['@id' => $migration_id]);
+      $error = \dt('Migration @id does not exist', ['@id' => $migration_id]);
       $this->logger()->error($error);
       throw new \Exception($error);
     }
@@ -718,18 +815,15 @@ class MigrateToolsCommands extends DrushCommands {
    * @param \Drupal\migrate_tools\IdMapFilter $map
    *   The migration ID map.
    *
-   * @return array
    *   The source ID keys.
    */
-  protected function getSourceIdKeys(IdMapFilter $map) {
+  protected function getSourceIdKeys(IdMapFilter $map): array {
     $map->rewind();
     $columns = $map->currentSource();
     if ($columns === NULL) {
       return $columns;
     }
-    $source_id_keys = array_map(static function ($id) {
-      return 'src_' . $id;
-    }, array_keys($columns));
+    $source_id_keys = array_map(static fn($id): string => 'src_' . $id, array_keys($columns));
     return array_combine($source_id_keys, $source_id_keys);
   }
 
@@ -756,7 +850,13 @@ class MigrateToolsCommands extends DrushCommands {
    * @return \Consolidation\OutputFormatters\StructuredData\RowsOfFields
    *   Source fields of the given migration formatted as a table.
    */
-  public function fieldsSource($migration_id) {
+  #[CLI\Command(name: 'migrate:fields-source', aliases: ['mfs', 'migrate-fields-source'])]
+  #[CLI\Argument(name: 'migration_id', description: 'The ID of the migration.')]
+  #[CLI\Topics(topics: ['migrate'])]
+  #[CLI\ValidateModulesEnabled(modules: ['migrate_tools'])]
+  #[CLI\FieldLabels(labels: ['machine_name' => 'Machine Name', 'description' => 'Description'])]
+  #[CLI\DefaultFields(fields: ['machine_name', 'description'])]
+  public function fieldsSource($migration_id): RowsOfFields {
     /** @var \Drupal\migrate\Plugin\MigrationInterface $migration */
     $migration = $this->migrationPluginManager->createInstance(
       $migration_id
@@ -773,7 +873,7 @@ class MigrateToolsCommands extends DrushCommands {
       return new RowsOfFields($table);
     }
     else {
-      $error = dt('Migration @id does not exist', ['@id' => $migration_id]);
+      $error = \dt('Migration @id does not exist', ['@id' => $migration_id]);
       $this->logger()->error($error);
       throw new \Exception($error);
     }
@@ -794,10 +894,16 @@ class MigrateToolsCommands extends DrushCommands {
    *   An array keyed by migration group, each value containing an array of
    *   migrations or an empty array if no migrations match the input criteria.
    */
-  protected function migrationsList($migration_ids = '', array $options = []) {
+  protected function migrationsList($migration_ids = '', array $options = []): array {
+    $filter = [];
     // Filter keys must match the migration configuration property name.
-    $filter['migration_group'] = explode(',', $options['group']);
-    $filter['migration_tags'] = explode(',', $options['tag']);
+    $filter['migration_group'] = $filter['migration_tags'] = [];
+    if (!empty($options['group'])) {
+      $filter['migration_group'] = explode(',', (string) $options['group']);
+    }
+    if (!empty($options['tag'])) {
+      $filter['migration_tags'] = explode(',', (string) $options['tag']);
+    }
 
     $manager = $this->migrationPluginManager;
 
@@ -819,7 +925,7 @@ class MigrateToolsCommands extends DrushCommands {
           $matched_migrations[$given_migration_id] = $manager->createInstance($given_migration_id);
         }
         else {
-          $error_message = dt('Migration @id does not exist', ['@id' => $given_migration_id]);
+          $error_message = \dt('Migration @id does not exist', ['@id' => $given_migration_id]);
           if ($options['continue-on-failure']) {
             $this->logger()->error($error_message);
           }
@@ -910,16 +1016,14 @@ class MigrateToolsCommands extends DrushCommands {
    * @throws \Exception
    *   If some migrations failed during execution.
    */
-  protected function executeMigration(MigrationInterface $migration, $migration_id, array $options = []) {
+  protected function executeMigration(MigrationInterface $migration, $migration_id, array $options = []): void {
     // Keep track of all migrations run during this command so the same
     // migration is not run multiple times.
     static $executed_migrations = [];
 
     if ($options['execute-dependencies']) {
       $required_migrations = $migration->getRequirements();
-      $required_migrations = array_filter($required_migrations, static function ($value) use ($executed_migrations) {
-        return !isset($executed_migrations[$value]);
-      });
+      $required_migrations = array_filter($required_migrations, static fn($value): bool => !isset($executed_migrations[$value]));
 
       if (!empty($required_migrations)) {
         $manager = $this->migrationPluginManager;
@@ -962,17 +1066,17 @@ class MigrateToolsCommands extends DrushCommands {
     );
 
     $executable = new MigrateExecutable($migration, $this->getMigrateMessage(), $options);
-    // drush_op() provides --simulate support.
-    $result = drush_op([$executable, 'import']);
+    // \drush_op() provides --simulate support.
+    $result = \drush_op([$executable, 'import']);
     $executed_migrations += [$migration_id => $migration_id];
     if ($count = $executable->getFailedCount()) {
-      $error_message = dt(
+      $error_message = \dt(
         '!name Migration - !count failed.',
         ['!name' => $migration_id, '!count' => $count]
       );
     }
     elseif ($result == MigrationInterface::RESULT_FAILED) {
-      $error_message = dt('!name migration failed.', ['!name' => $migration_id]);
+      $error_message = \dt('!name migration failed.', ['!name' => $migration_id]);
     }
     else {
       $error_message = '';
@@ -991,10 +1095,9 @@ class MigrateToolsCommands extends DrushCommands {
   /**
    * Gets the migrate message logger.
    *
-   * @return \Drupal\migrate\MigrateMessageInterface
    *   The migrate message service.
    */
-  protected function getMigrateMessage() {
+  protected function getMigrateMessage(): Drush9LogMigrateMessage {
     if (!isset($this->migrateMessage)) {
       $this->migrateMessage = new Drush9LogMigrateMessage($this->logger());
     }

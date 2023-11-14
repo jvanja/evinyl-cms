@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Drupal\migrate_tools;
 
 use Drupal\migrate\Event\MigrateEvents;
@@ -24,10 +26,9 @@ class MigrateExecutable extends MigrateExecutableBase {
   /**
    * Counters of map statuses.
    *
-   * @var array
    *   Set of counters, keyed by MigrateIdMapInterface::STATUS_* constant.
    */
-  protected $saveCounters = [
+  protected array $saveCounters = [
     MigrateIdMapInterface::STATUS_FAILED => 0,
     MigrateIdMapInterface::STATUS_IGNORED => 0,
     MigrateIdMapInterface::STATUS_IMPORTED => 0,
@@ -43,10 +44,8 @@ class MigrateExecutable extends MigrateExecutableBase {
 
   /**
    * Counter of map deletions.
-   *
-   * @var int
    */
-  protected $deleteCounter = 0;
+  protected int $deleteCounter = 0;
 
   /**
    * Maximum number of items to process in this migration.
@@ -66,10 +65,8 @@ class MigrateExecutable extends MigrateExecutableBase {
 
   /**
    * List of specific source IDs to import.
-   *
-   * @var array
    */
-  protected $idlist = [];
+  protected array $idlist = [];
 
   /**
    * Count of number of items processed so far in this migration.
@@ -80,15 +77,11 @@ class MigrateExecutable extends MigrateExecutableBase {
 
   /**
    * Whether the destination item exists before saving.
-   *
-   * @var bool
    */
-  protected $preExistingItem = FALSE;
+  protected bool $preExistingItem = FALSE;
 
   /**
    * List of event listeners we have registered.
-   *
-   * @var array
    */
   protected $listeners = [];
 
@@ -108,13 +101,36 @@ class MigrateExecutable extends MigrateExecutableBase {
     }
     $this->idlist = MigrateTools::buildIdList($options);
 
-    $this->listeners[MigrateEvents::MAP_SAVE] = [$this, 'onMapSave'];
-    $this->listeners[MigrateEvents::MAP_DELETE] = [$this, 'onMapDelete'];
-    $this->listeners[MigrateEvents::POST_IMPORT] = [$this, 'onPostImport'];
-    $this->listeners[MigrateEvents::POST_ROLLBACK] = [$this, 'onPostRollback'];
-    $this->listeners[MigrateEvents::PRE_ROW_SAVE] = [$this, 'onPreRowSave'];
-    $this->listeners[MigrateEvents::POST_ROW_DELETE] = [$this, 'onPostRowDelete'];
-    $this->listeners[MigratePlusEvents::PREPARE_ROW] = [$this, 'onPrepareRow'];
+    $this->listeners[MigrateEvents::MAP_SAVE] = [
+      $this,
+      'onMapSave',
+    ];
+    $this->listeners[MigrateEvents::MAP_DELETE] = [
+      $this,
+      'onMapDelete',
+    ];
+    $this->listeners[MigrateEvents::POST_IMPORT] = [
+      $this,
+      'onPostImport',
+    ];
+    $this->listeners[MigrateEvents::POST_ROLLBACK] = [
+      $this,
+      'onPostRollback',
+    ];
+    $this->listeners[MigrateEvents::PRE_ROW_SAVE] = [
+      $this,
+      'onPreRowSave',
+    ];
+    $this->listeners[MigrateEvents::POST_ROW_DELETE] = [
+      $this,
+      'onPostRowDelete',
+    ];
+    if (class_exists(MigratePlusEvents::class)) {
+      $this->listeners[MigratePlusEvents::PREPARE_ROW] = [
+        $this,
+        'onPrepareRow',
+      ];
+    }
     foreach ($this->listeners as $event => $listener) {
       $this->resetListeners($event);
       $this->getEventDispatcher()->addListener($event, $listener);
@@ -245,9 +261,7 @@ class MigrateExecutable extends MigrateExecutableBase {
     $unused_ids = $this->getSource()->getRemainingIdList();
     if ($unused_ids) {
       $this->message->display($this->t("The following specified IDs were not found in the source IDs: @idlist.", [
-        '@idlist' => implode(', ', array_map(static function ($ids) {
-          return implode(':', $ids);
-        }, $unused_ids)),
+        '@idlist' => implode(', ', array_map(static fn($ids): string => implode(':', $ids), $unused_ids)),
       ]));
     }
   }
@@ -272,7 +286,10 @@ class MigrateExecutable extends MigrateExecutableBase {
    *   The name of the event to remove.
    */
   protected function resetListeners(string $event_name) {
-    if (in_array($event_name, [MigrateEvents::POST_IMPORT, MigrateEvents::POST_ROLLBACK], TRUE)) {
+    if (in_array($event_name, [
+      MigrateEvents::POST_IMPORT,
+      MigrateEvents::POST_ROLLBACK,
+    ], TRUE)) {
       foreach ($this->getEventDispatcher()->getListeners($event_name) as $registered_listener) {
         if ($registered_listener[0] instanceof self) {
           $this->getEventDispatcher()->removeListener($event_name, $registered_listener);
@@ -426,7 +443,7 @@ class MigrateExecutable extends MigrateExecutableBase {
   /**
    * {@inheritdoc}
    */
-  protected function getIdMap() {
+  protected function getIdMap(): IdMapFilter {
     return new IdMapFilter(parent::getIdMap(), $this->idlist);
   }
 
