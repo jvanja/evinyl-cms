@@ -28,7 +28,7 @@
         "drupal/core-recommended": "^9.3",
         "drupal/ctools": "^3.11",
         "drupal/decoupled_router": "^2.0",
-        "drupal/devel": "^4.0",
+        "drupal/devel": "^5.0",
         "drupal/dropzonejs": "^2.3",
         "drupal/entity_browser": "^2.5",
         "drupal/features": "^3.8",
