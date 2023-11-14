@@ -10,6 +10,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\paragraphs\Entity\Paragraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
+use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Exception\ConnectException;
 
 /**
@@ -17,7 +18,8 @@ use GuzzleHttp\Exception\ConnectException;
  *
  * @package Drupal\evinyl_deezer\Controller
  */
-class EvinylDeezerController extends ControllerBase {
+class EvinylDeezerController extends ControllerBase
+{
 
   /**
    * Guzzle\Client instance.
@@ -29,7 +31,8 @@ class EvinylDeezerController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct() {
+  public function __construct()
+  {
     // $this->httpClient = \Drupal::httpClient();
 
     // $clientFactory = \Drupal::service('http_client_factory');
@@ -39,7 +42,6 @@ class EvinylDeezerController extends ControllerBase {
       // Base URI is used with relative requests
       'base_uri' => 'https://api.deezer.com/album/'
     ]);
-
   }
 
   // /**
@@ -59,7 +61,8 @@ class EvinylDeezerController extends ControllerBase {
    * @return array
    *   A render array used to show the Posts list.
    */
-  public function posts($ids) {
+  public function posts($ids)
+  {
 
     // CONCURRENTLY
     // http://docs.guzzlephp.org/en/latest/quickstart.html#concurrent-requests
@@ -72,8 +75,7 @@ class EvinylDeezerController extends ControllerBase {
     // Wait for the requests to complete; throws a ConnectException
     // if any of the requests fail
     try {
-      $responses = Promise\unwrap($promises);
-      // $responses = Promise\settle($promises)->wait();
+      $responses = Utils::unwrap($promises);
     } catch (ConnectException $e) {
       return false;
     }
@@ -98,7 +100,8 @@ class EvinylDeezerController extends ControllerBase {
   }
 
 
-  protected function createAlbums($albumData) {
+  protected function createAlbums($albumData)
+  {
     $path_parts = pathinfo($albumData->cover_xl);
     $rename_filename = \Drupal::service('pathauto.alias_cleaner')->cleanString($albumData->title) . '.' . $path_parts['extension'];
     $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
@@ -145,16 +148,17 @@ class EvinylDeezerController extends ControllerBase {
    * @return string
    *   Term ID
    */
-  protected function addTaxonomyTerm($voc, $termsArray) {
+  protected function addTaxonomyTerm($voc, $termsArray)
+  {
     $terms = [];
-    foreach($termsArray as $deezerTerm) {
+    foreach ($termsArray as $deezerTerm) {
       $deezerTermName = ($voc == 'labels') ? $deezerTerm : $deezerTerm->name;
       $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $deezerTermName, 'vid' => $voc]);
       $term = reset($term);
       if (empty($term)) {
         $new_term = Term::create([
-            'vid' => $voc,
-            'name' => $deezerTermName,
+          'vid' => $voc,
+          'name' => $deezerTermName,
         ]);
         $new_term->save();
         $terms[] = ['target_id' => $new_term->id()];
@@ -179,9 +183,10 @@ class EvinylDeezerController extends ControllerBase {
    * @return array
    *   List of paragraphs
    */
-  protected function createSongsParagraphs($paragraphName, $tracksArray) {
+  protected function createSongsParagraphs($paragraphName, $tracksArray)
+  {
     $paragraphs = [];
-    foreach($tracksArray as $track) {
+    foreach ($tracksArray as $track) {
       $credits = [];
       $creditsString = '';
       $song_paragraph = Paragraph::create([
@@ -196,7 +201,8 @@ class EvinylDeezerController extends ControllerBase {
     return $paragraphs;
   }
 
-  protected function createAlbumsCredits($albumCredits) {
+  protected function createAlbumsCredits($albumCredits)
+  {
     // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
 
     if (count($albumCredits) > 0) {
@@ -221,7 +227,8 @@ class EvinylDeezerController extends ControllerBase {
     }
   }
 
-  private function hhmmss_to_seconds($str_time = '0:0') {
+  private function hhmmss_to_seconds($str_time = '0:0')
+  {
     $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $str_time);
     sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
     $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;

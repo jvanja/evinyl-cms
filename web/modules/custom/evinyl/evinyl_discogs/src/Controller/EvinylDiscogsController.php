@@ -45,15 +45,6 @@ class EvinylDiscogsController extends ControllerBase
     ]);
   }
 
-  // /**
-  //  * {@inheritdoc}
-  //  */
-  // public static function create(ContainerInterface $container) {
-  //   return new static(
-  //     $container->get('http_client')
-  //   );
-  // }
-
   /**
    * Posts route callback.
    *
@@ -76,7 +67,6 @@ class EvinylDiscogsController extends ControllerBase
     // Wait for the requests to complete; throws a ConnectException
     // if any of the requests fail
     try {
-      // $responses = Promise\unwrap($promises);
       $responses = Utils::unwrap($promises);
     } catch (ConnectException $e) {
       return false;

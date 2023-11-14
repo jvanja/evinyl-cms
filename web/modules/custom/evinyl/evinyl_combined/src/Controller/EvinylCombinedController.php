@@ -10,9 +10,7 @@ use Drupal\taxonomy\Entity\Term;
 use Drupal\paragraphs\Entity\Paragraph;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
-// use GuzzleHttp\Exception\ConnectException;
-// use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Exception\RequestException;
 
 /**
@@ -20,7 +18,8 @@ use GuzzleHttp\Exception\RequestException;
  *
  * @package Drupal\evinyl_combined\Controller
  */
-class EvinylCombinedController extends ControllerBase {
+class EvinylCombinedController extends ControllerBase
+{
 
   /**
    * Guzzle\Client instance.
@@ -39,7 +38,8 @@ class EvinylCombinedController extends ControllerBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->httpClient = new Client();
     $this->importStatus = 'success';
     $this->importMessage = '';
@@ -53,7 +53,8 @@ class EvinylCombinedController extends ControllerBase {
    * @return array
    *   A render array used to show the Posts list.
    */
-  public function posts($ids) {
+  public function posts($ids)
+  {
 
     // CONCURRENTLY
     // http://docs.guzzlephp.org/en/latest/quickstart.html#concurrent-requests
@@ -63,12 +64,10 @@ class EvinylCombinedController extends ControllerBase {
     ];
 
 
-    $requestUris ='https://api.deezer.com/album/' . $ids['deezerId'] . "\r\n" .'https://api.discogs.com/releases/' . $ids['discogsId'];
+    $requestUris = 'https://api.deezer.com/album/' . $ids['deezerId'] . "\r\n" . 'https://api.discogs.com/releases/' . $ids['discogsId'];
 
     try {
-      $responses = Promise\unwrap($promises);
-      // $responses = Promise\settle($promises)->wait();
-
+      $responses = Utils::unwrap($promises);
     } catch (RequestException $e) {
       $response = $e->getResponse();
       $responseBody = json_decode($response->getBody()->getContents());
@@ -80,22 +79,14 @@ class EvinylCombinedController extends ControllerBase {
       ];
     }
 
-    // if ($responses['discogs']->getStatusCode() != 200) {
-    //   return [
-    //   'status' => false,
-    //   '#theme' => 'evinyl_combined',
-    //   '#message' => 'Wrong Discogs ID'
-    //   ];
-    // }
-
     $discogsData = $responses['discogs']->getBody()->getContents();
     $deezerData = $responses['deezer']->getBody()->getContents();
 
-    if ( json_decode($deezerData)->error ) {
+    if (json_decode($deezerData)->error) {
       return [
-      'status' => 'error',
-      'uri' => 'https://api.deezer.com/album/' . $ids['deezerId'],
-      'message' => 'Deezer API returned "Not found".' // json_decode($deezerData)
+        'status' => 'error',
+        'uri' => 'https://api.deezer.com/album/' . $ids['deezerId'],
+        'message' => 'Deezer API returned "Not found".' // json_decode($deezerData)
       ];
     }
 
@@ -105,7 +96,7 @@ class EvinylCombinedController extends ControllerBase {
 
     if (isset($discogsObject->title) && isset($deezerObject->title)) {
 
-      $albumEditLink = $this->createAlbums( $discogsObject, $deezerObject );
+      $albumEditLink = $this->createAlbums($discogsObject, $deezerObject);
 
       // var_dump($albumEditLink->toString());
       // die;
@@ -121,33 +112,32 @@ class EvinylCombinedController extends ControllerBase {
           'message' => $this->importMessage
         ];
       }
-
     } else {
-        return [
-          'status' => 'error',
-          'uri' => $requestUris,
-          'message' => 'Wrong Discogs or Deezer ID'
-        ];
+      return [
+        'status' => 'error',
+        'uri' => $requestUris,
+        'message' => 'Wrong Discogs or Deezer ID'
+      ];
     }
-
   }
 
 
-  protected function createAlbums($albumData, $deezerData) {
+  protected function createAlbums($albumData, $deezerData)
+  {
     $albumCover = system_retrieve_file($deezerData->cover_xl, 'public://covers/', TRUE);
     $artistTerms = $this->addTaxonomyTerm('artists', $albumData->artists);
     $labelTerms = $this->addTaxonomyTerm('labels', $albumData->labels);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres);
-    $aSideTracks = array_filter($albumData->tracklist, function($track) {
+    $aSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'A' || is_numeric($track->position[0]));
     });
-    $bSideTracks = array_filter($albumData->tracklist, function($track) {
+    $bSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'B');
     });
-    $cSideTracks = array_filter($albumData->tracklist, function($track) {
+    $cSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'C');
     });
-    $dSideTracks = array_filter($albumData->tracklist, function($track) {
+    $dSideTracks = array_filter($albumData->tracklist, function ($track) {
       return ($track->position[0] == 'D');
     });
     $deezerTracksData = $deezerData->tracks->data;
@@ -199,16 +189,17 @@ class EvinylCombinedController extends ControllerBase {
    * @return string
    *   Term ID
    */
-  protected function addTaxonomyTerm($voc, $termsArray) {
+  protected function addTaxonomyTerm($voc, $termsArray)
+  {
     $terms = [];
-    foreach($termsArray as $discogsTerm) {
+    foreach ($termsArray as $discogsTerm) {
       $discogsTermName = ($voc == 'genre') ? $discogsTerm : $discogsTerm->name;
       $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => $discogsTermName, 'vid' => $voc]);
       $term = reset($term);
       if (empty($term)) {
         $new_term = Term::create([
-            'vid' => $voc,
-            'name' => $discogsTermName,
+          'vid' => $voc,
+          'name' => $discogsTermName,
         ]);
         $new_term->save();
         $terms[] = ['target_id' => $new_term->id()];
@@ -239,9 +230,10 @@ class EvinylCombinedController extends ControllerBase {
    * @return array
    *   List of paragraphs
    */
-  protected function createSongsParagraphs($paragraphName, $discogsTracksArray, $deezerTracksData) {
+  protected function createSongsParagraphs($paragraphName, $discogsTracksArray, $deezerTracksData)
+  {
     $paragraphs = [];
-    foreach($discogsTracksArray as $track) {
+    foreach ($discogsTracksArray as $track) {
       $credits = [];
       $creditsString = '';
       foreach ($track->extraartists as $extraArtist) {
@@ -259,7 +251,7 @@ class EvinylCombinedController extends ControllerBase {
 
       $deezerTitles = array_map('strtolower', array_column($deezerTracksData, 'title_short'));
       $key = array_search(strtolower($track->title), $deezerTitles);
-      if(is_int($key)){
+      if (is_int($key)) {
         $deezerPreview = $deezerTracksData[$key]->preview;
       } else {
         $this->importStatus = 'warning';
@@ -279,7 +271,8 @@ class EvinylCombinedController extends ControllerBase {
     return $paragraphs;
   }
 
-  protected function createAlbumsCredits($albumCredits) {
+  protected function createAlbumsCredits($albumCredits)
+  {
     // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
 
     if (count($albumCredits) > 0) {
@@ -304,7 +297,8 @@ class EvinylCombinedController extends ControllerBase {
     }
   }
 
-  private function hhmmss_to_seconds($str_time = '0:0') {
+  private function hhmmss_to_seconds($str_time = '0:0')
+  {
     $str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $str_time);
     sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
     $time_seconds = $hours * 3600 + $minutes * 60 + $seconds;
