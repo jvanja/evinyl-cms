@@ -33,6 +33,77 @@ class SimplesitemapTest extends SimplesitemapTestBase {
   }
 
   /**
+   * Tests if a disabled sitemap returns a 404 and has no chunks.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  public function testDisableSitemap() {
+    $this->generator->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(200);
+    $sitemap = SimpleSitemap::load('default');
+    $sitemap->disable()->save();
+    $this->assertEmpty($sitemap->fromPublishedAndUnpublished()->getChunkCount());
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(404);
+  }
+
+  /**
+   * Tests if a deleted sitemap returns a 404.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Drupal\Core\Entity\EntityStorageException
+   */
+  public function testDeleteSitemap() {
+    $this->generator->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(200);
+    $sitemap = SimpleSitemap::load('default');
+    $sitemap->delete();
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(404);
+  }
+
+  /**
+   * Tests if a sitemap with no links returns a 404 and has no chunks.
+   *
+   * @throws \Behat\Mink\Exception\ExpectationException
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   */
+  public function testEmptySitemap() {
+    $this->generator->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(200);
+    $this->generator->customLinkManager()->remove();
+    $this->generator->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+    $this->assertEmpty(SimpleSitemap::load('default')->fromPublishedAndUnpublished()->getChunkCount());
+    $this->drupalGet($this->defaultSitemapUrl);
+    $this->assertSession()->statusCodeEquals(404);
+  }
+
+  /**
+   * Test cached sitemap.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\PluginException
+   * @throws \Behat\Mink\Exception\ExpectationException
+   */
+  public function testCachedSitemap() {
+    $this->generator->customLinkManager()->add(
+      '/node/' . $this->node->id(),
+      ['priority' => 0.2, 'changefreq' => 'monthly']
+    );
+    $this->generator->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+
+    $this->drupalGet($this->defaultSitemapUrl);
+    $assert = $this->assertSession();
+    $assert->statusCodeEquals(200);
+    $assert->responseHeaderContains('X-Drupal-Cache-Tags', 'sitemap');
+  }
+
+  /**
    * Test custom link.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginException
@@ -297,12 +368,21 @@ class SimplesitemapTest extends SimplesitemapTestBase {
    */
   public function testRemoveDuplicatesSetting() {
     $this->generator->entityManager()->setBundleSettings('node', 'page');
-    $this->generator->customLinkManager()->add('/node/1');
+
+    $this->generator->customLinkManager()
+      ->add('/node/1')
+      ->add('/node/2?foo=bar');
+
     $this->generator->saveSetting('remove_duplicates', TRUE)
       ->generate(QueueWorker::GENERATE_TYPE_BACKEND);
 
     $this->drupalGet($this->defaultSitemapUrl);
+
+    // Make sure the duplicate custom link is not included.
     $this->assertUniqueTextWorkaround('node/' . $this->node->id());
+
+    // Make sure a duplicate path with a different query is included.
+    $this->assertNoUniqueTextWorkaround('node/' . $this->node2->id());
 
     $this->generator->saveSetting('remove_duplicates', FALSE)
       ->generate(QueueWorker::GENERATE_TYPE_BACKEND);
@@ -338,7 +418,7 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertSession()->responseNotContains('node/' . $this->node->id());
   }
 
-  // @todo testGenerateDurationSetting
+  // phpcs:ignore @todo testGenerateDurationSetting
 
   /**
    * Test setting the base URL.
@@ -449,15 +529,18 @@ class SimplesitemapTest extends SimplesitemapTestBase {
    *   The entity type ID.
    * @param string $entity_id
    *   The entity ID.
+   * @param string|array $variant
+   *   A particular variant or an array of variants.
    *
    * @return int
    *   The number of overrides for the given entity type ID and entity ID.
    */
-  protected function getOverridesCount($entity_type_id, $entity_id) {
+  protected function getOverridesCount($entity_type_id, $entity_id, $variant = 'default') {
     return $this->database->select('simple_sitemap_entity_overrides', 'o')
       ->fields('o', ['inclusion_settings'])
       ->condition('o.entity_type', $entity_type_id)
       ->condition('o.entity_id', $entity_id)
+      ->condition('o.type', $variant)
       ->countQuery()
       ->execute()
       ->fetchField();
@@ -499,8 +582,8 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertSession()->responseContains('user/' . $user_id);
   }
 
-  // @todo Test indexing menu.
-  // @todo Test deleting a bundle.
+  // phpcs:ignore @todo Test indexing menu.
+  // phpcs:ignore @todo Test deleting a bundle.
 
   /**
    * Test disabling sitemap support for an entity type.
@@ -551,7 +634,7 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertTrue($this->generator->entityManager()->entityTypeIsEnabled('node'));
   }
 
-  // @todo testSitemapLanguages.
+  // phpcs:ignore @todo testSitemapLanguages.
 
   /**
    * Test adding and removing sitemap variants.
@@ -578,7 +661,7 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertSession()->responseNotContains('node/' . $this->node->id());
 
     $this->generator->entityManager()->setBundleSettings('node', 'page');
-    $this->generator->setVariants('test')->generate(QueueWorker::GENERATE_TYPE_BACKEND);
+    $this->generator->setSitemaps('test')->generate(QueueWorker::GENERATE_TYPE_BACKEND);
 
     // Test if bundle settings have been set for correct variant.
     $this->drupalGet($this->defaultSitemapUrl);
@@ -594,7 +677,7 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertSession()->statusCodeEquals(404);
   }
 
-  // @todo Test removeSitemap().
+  // phpcs:ignore @todo Test removeSitemap().
 
   /**
    * Test cases for ::testGenerationResume.
@@ -632,7 +715,8 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->generator
       ->saveSetting('generate_duration', $generate_duration)
       ->saveSetting('max_links', $max_links)
-      ->saveSetting('skip_untranslated', FALSE);
+      ->saveSetting('skip_untranslated', FALSE)
+      ->saveSetting('remove_duplicates', FALSE);
 
     $this->generator->rebuildQueue();
     $generate_count = 0;
@@ -647,10 +731,11 @@ class SimplesitemapTest extends SimplesitemapTestBase {
     $this->assertTrue($generate_duration > $element_count || $generate_count > 1, 'This assertion tests if the sitemap generation is split up into batches due to a low generation time limit setting. The failing of this assertion can mean that the sitemap was wrongfully generated in one go, but it can also mean that the assumed low time setting is still high enough for a one pass generation.');
 
     // Test if correct number of sitemaps have been created.
-    $chunks = $this->database->query('SELECT id FROM {simple_sitemap} WHERE delta != 0 AND status = 1');
-    $chunks->allowRowCount = TRUE;
-    $chunk_count = $chunks->rowCount();
-    $this->assertSame($chunk_count, $expected_sitemap_count);
+    $chunk_count = $this->database->select('simple_sitemap')
+      ->condition('delta', 0, '<>')
+      ->condition('status', TRUE)
+      ->countQuery()->execute()->fetchField();
+    $this->assertEquals((int) $chunk_count, $expected_sitemap_count);
 
     // Test if index has been created when necessary.
     $index = $this->database->query('SELECT id FROM {simple_sitemap} WHERE delta = 0 AND status = 1')

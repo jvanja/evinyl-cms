@@ -37,6 +37,7 @@ use Drupal\simple_sitemap\Exception\SitemapNotExistsException;
  *     "uuid" = "uuid",
  *     "label" = "label",
  *     "weight" = "weight",
+ *     "status" = "status"
  *   },
  *   config_export = {
  *     "id",
@@ -44,6 +45,7 @@ use Drupal\simple_sitemap\Exception\SitemapNotExistsException;
  *     "description",
  *     "type",
  *     "weight",
+ *     "status"
  *   },
  *   links = {
  *     "add-form" = "/admin/config/search/simplesitemap/variants/add",
@@ -211,7 +213,11 @@ class SimpleSitemap extends ConfigEntityBase implements SimpleSitemapInterface {
   }
 
   /**
-   * Returns whether the sitemap is indexable.
+   * Returns whether the sitemap needs a chunk index.
+   *
+   * This is not about indexing sitemap variants, it's about creating an index
+   * of all sitemap chunks. A sitemap needs a chunk index if it consists of more
+   * than one (unpublished) chunk.
    *
    * @return bool
    *   TRUE if the sitemap is indexable and FALSE otherwise.
@@ -239,14 +245,21 @@ class SimpleSitemap extends ConfigEntityBase implements SimpleSitemapInterface {
   /**
    * {@inheritdoc}
    */
-  public function status(): bool {
-    return parent::status() && $this->contentStatus();
+  public function isEnabled(): bool {
+    return parent::status();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function contentStatus(): ?int {
+  public function status(): bool {
+    return $this->isEnabled() && $this->contentStatus();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function contentStatus(): int {
     return $this->entityTypeManager()->getStorage('simple_sitemap')->status($this);
   }
 
@@ -281,7 +294,10 @@ class SimpleSitemap extends ConfigEntityBase implements SimpleSitemapInterface {
       $options['base_url'] = $settings->get('base_url') ?: $GLOBALS['base_url'];
     }
 
-    $options['language'] = $this->languageManager()->getLanguage(LanguageInterface::LANGCODE_NOT_APPLICABLE);
+    // Instead of setting the $options['language'] to LanguageInterface::LANGCODE_NOT_APPLICABLE, we disable path
+    // processing because of a core change introduced in https://www.drupal.org/project/drupal/issues/2883450.
+    // See https://www.drupal.org/project/simple_sitemap/issues/3369919.
+    $options['path_processing'] = FALSE;
 
     return $this->isDefault()
       ? Url::fromRoute(
@@ -345,7 +361,7 @@ class SimpleSitemap extends ConfigEntityBase implements SimpleSitemapInterface {
   /**
    * {@inheritdoc}
    */
-  public static function purgeContent(?array $variants = NULL, ?bool $status = self::FETCH_BY_STATUS_ALL) {
+  public static function purgeContent(?array $variants = NULL, ?int $status = self::FETCH_BY_STATUS_ALL) {
     \Drupal::entityTypeManager()->getStorage('simple_sitemap')->purgeContent($variants, $status);
   }
 

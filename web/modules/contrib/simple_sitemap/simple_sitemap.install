@@ -5,8 +5,8 @@
  * Module install and update procedures.
  */
 
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\simple_sitemap\Entity\SimpleSitemap;
 
 /**
@@ -29,7 +29,7 @@ function simple_sitemap_requirements($phase) {
     case 'runtime':
 
       // @todo Implement for 4.x
-      // @codingStandardsIgnoreStart
+      // phpcs:disable
 //      /** @var \Drupal\simple_sitemap\Simplesitemap $generator */
 //      $generator = \Drupal::service('simple_sitemap.generator');
 //      $generated_ago = $generator->getGeneratedAgo();
@@ -64,7 +64,7 @@ function simple_sitemap_requirements($phase) {
 //        'description' => $description,
 //        'severity' => $severity,
 //      ];
-      // @codingStandardsIgnoreEnd
+      // phpcs:enable
       break;
   }
   return $requirements;
@@ -297,17 +297,17 @@ function simple_sitemap_update_8202() {
  * simple_sitemap.entity_types and simple_sitemap.custom.
  */
 function simple_sitemap_update_8203() {
-  $old_config = $config = \Drupal::config('simple_sitemap.settings');
+  $old_config = \Drupal::config('simple_sitemap.settings');
   foreach (['entity_types', 'custom'] as $config_name) {
-    if (!$config = $old_config->get($config_name)) {
-      continue;
+    if ($config = $old_config->get($config_name)) {
+      \Drupal::service('config.factory')->getEditable("simple_sitemap.$config_name")
+        ->setData($config)->save();
     }
-    \Drupal::service('config.factory')->getEditable("simple_sitemap.$config_name")
-      ->setData($config)->save();
   }
-  $settings = $old_config->get('settings');
-  \Drupal::service('config.factory')->getEditable("simple_sitemap.settings")
-    ->setData($settings)->save();
+  if (NULL !== ($settings = $old_config->get('settings'))) {
+    \Drupal::service('config.factory')->getEditable("simple_sitemap.settings")
+      ->setData($settings)->save();
+  }
 }
 
 /**
@@ -418,7 +418,7 @@ function simple_sitemap_update_8208() {
     ->execute()->fetchAll(\PDO::FETCH_OBJ);
 
   foreach ($results as $row) {
-    $settings = unserialize($row->inclusion_settings);
+    $settings = unserialize($row->inclusion_settings, ['allowed_classes' => FALSE]);
     if (!isset($settings['changefreq'])) {
       \Drupal::database()->update('simple_sitemap_entity_overrides')
         ->fields(['inclusion_settings' => serialize($settings + ['changefreq' => ''])])
@@ -454,7 +454,7 @@ function simple_sitemap_update_8209() {
     ->execute()->fetchAll(\PDO::FETCH_OBJ);
 
   foreach ($results as $row) {
-    $settings = unserialize($row->inclusion_settings);
+    $settings = unserialize($row->inclusion_settings, ['allowed_classes' => FALSE]);
     if (!isset($settings['include_images'])) {
       \Drupal::database()->update('simple_sitemap_entity_overrides')
         ->fields(['inclusion_settings' => serialize($settings + ['include_images' => 0])])
@@ -557,7 +557,7 @@ function simple_sitemap_update_8212() {
     ->execute()->fetchAll(\PDO::FETCH_OBJ);
 
   foreach ($results as $row) {
-    $settings = unserialize($row->inclusion_settings);
+    $settings = unserialize($row->inclusion_settings, ['allowed_classes' => FALSE]);
 
     if (isset($settings['index'])) {
       $settings['index'] = (bool) $settings['index'];
@@ -843,7 +843,7 @@ function simple_sitemap_update_8402() {
  */
 function simple_sitemap_update_8403() {
 
-  // Create default_hreflang sitemap type.
+  // Create the default_hreflang sitemap type.
   $type_storage = \Drupal::entityTypeManager()->getStorage('simple_sitemap_type');
   if ($type_storage->load('default_hreflang') === NULL) {
     $type_storage->create([
@@ -890,4 +890,48 @@ function simple_sitemap_update_8404() {
   foreach (SimpleSitemap::loadMultiple() as $sitemap) {
     $sitemap->save();
   }
+}
+
+/**
+ * Create the index sitemap type.
+ */
+function simple_sitemap_update_8405() {
+  $type_storage = \Drupal::entityTypeManager()->getStorage('simple_sitemap_type');
+  if ($type_storage->load('index') === NULL) {
+    $type_storage->create([
+      'id' => 'index',
+      'label' => 'Sitemap Index',
+      'description' => 'The sitemap index sitemap type. A sitemap of this type lists sitemaps of all other types.',
+      'sitemap_generator' => 'index',
+      'url_generators' => ['index'],
+    ])->save();
+  }
+}
+
+/**
+ * Create the index sitemap.
+ */
+function simple_sitemap_update_8406() {
+  $sitemap_storage = \Drupal::entityTypeManager()->getStorage('simple_sitemap');
+  if ($sitemap_storage->load('index') === NULL) {
+    $sitemap_storage->create([
+      'id' => 'index',
+      'label' => 'Sitemap Index',
+      'description' => 'The sitemap index listing all other sitemaps - useful if there are at least two other sitemaps. In most cases this sitemap should be last in the generation queue and set as the default sitemap.',
+      'type' => 'index',
+      'weight' => 1000,
+      'status' => FALSE,
+    ])->save();
+  }
+
+  return t('A sitemap index which lists all other sitemaps is now available and can be enabled.');
+}
+
+/**
+ * Delete the sitemap queue.
+ */
+function simple_sitemap_update_8407() {
+  \Drupal::service('simple_sitemap.queue_worker')->deleteQueue();
+
+  return t('The sitemaps need to be regenerated.');
 }

@@ -55,7 +55,7 @@
         "drupal/rest_password": "^8.1",
         "drupal/restui": "^1.17",
         "drupal/rules": "3.x-dev@dev",
-        "drupal/simple_sitemap": "4.1",
+        "drupal/simple_sitemap": "^4.1",
         "drupal/smtp": "1.0",
         "drupal/social_auth": "^3.1",
         "drupal/social_auth_facebook": "^3.0",
@@ -85,9 +85,9 @@
     "extra": {
         "enable-patching": true,
         "patches": {
-          "drupal/core": {
-            "Fixes the Decoupled Router serving non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
-          }
+            "drupal/core": {
+                "Fixes the Decoupled Router serving non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
+            }
         },
         "drupal-scaffold": {
             "locations": {
@@ -98,7 +98,6 @@
                     "append": "assets/htaccess-append.txt"
                 }
             }
-
         },
         "installer-paths": {
             "web/core": [

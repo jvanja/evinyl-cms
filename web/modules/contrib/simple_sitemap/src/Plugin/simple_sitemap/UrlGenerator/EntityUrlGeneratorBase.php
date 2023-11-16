@@ -268,13 +268,17 @@ abstract class EntityUrlGeneratorBase extends UrlGeneratorBase {
    */
   protected function getEntityImageData(ContentEntityInterface $entity): array {
     $image_data = [];
+
+    /** @var \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator */
+    $file_url_generator = \Drupal::service('file_url_generator');
+
     foreach ($entity->getFieldDefinitions() as $field) {
       if ($field->getType() === 'image') {
         foreach ($entity->get($field->getName())->getValue() as $value) {
           if (NULL !== ($file = File::load($value['target_id']))) {
             $image_data[] = [
               'path' => $this->replaceBaseUrlWithCustom(
-                file_create_url($file->getFileUri())
+                $file_url_generator->generateAbsoluteString($file->getFileUri())
               ),
               'alt' => $value['alt'],
               'title' => $value['title'],

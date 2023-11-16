@@ -67,16 +67,16 @@ abstract class SimplesitemapTestBase extends BrowserTestBase {
   protected $defaultSitemapUrl = 'sitemap.xml';
 
   /**
-   * Use the classy theme.
+   * Use the stable9 theme.
    *
    * @var string
    */
-  protected $defaultTheme = 'classy';
+  protected $defaultTheme = 'stable9';
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->generator = $this->container->get('simple_sitemap.generator');
