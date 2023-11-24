@@ -37,7 +37,7 @@ class StringDataNormalizer extends PrimitiveDataNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function normalize($object, $format = NULL, array $context = []) {
+  public function normalize($object, $format = NULL, array $context = array()): array|string|int|float|bool|\ArrayObject|NULL {
     $value = parent::normalize($object, $format, $context);
 
     // By default grab the base URL from the configuration settings.
