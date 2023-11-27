@@ -68,7 +68,11 @@ class PersistentToken {
    * @param int $uid
    *   The user id (optional).
    */
-  public function __construct($series, $instance, $uid = self::STATUS_NOT_VALIDATED) {
+  public function __construct(
+    #[\SensitiveParameter] $series,
+    #[\SensitiveParameter] $instance,
+    $uid = self::STATUS_NOT_VALIDATED
+  ) {
     $this->series = $series;
     $this->instance = $instance;
     $this->uid = $uid;
@@ -87,7 +91,9 @@ class PersistentToken {
    * @return static
    *   A new token.
    */
-  public static function createFromString($value) {
+  public static function createFromString(
+    #[\SensitiveParameter] $value
+  ) {
     [$series, $instance] = explode(':', $value);
     return new static($series, $instance);
   }
@@ -98,7 +104,9 @@ class PersistentToken {
    * @param array $values
    *   An array of values to set object properties.
    */
-  public static function createFromArray(array $values) {
+  public static function createFromArray(
+    #[\SensitiveParameter] array $values
+  ) {
     if (empty($values['series'])) {
       throw new \Exception("Required property 'series' not set.");
     }
@@ -209,7 +217,9 @@ class PersistentToken {
    *
    * @return $this
    */
-  public function updateInstance($instance) {
+  public function updateInstance(
+    #[\SensitiveParameter] $instance
+  ) {
     $this->instance = $instance;
 
     return $this->setRefreshed(new \DateTime());

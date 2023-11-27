@@ -146,9 +146,6 @@ class EarlyRenderingControllerWrapperSubscriber implements EventSubscriberInterf
           $response->addCacheableDependency($early_rendering_bubbleable_metadata);
         }
       }
-      elseif ($response instanceof CacheableResponseInterface) {
-        $response->addCacheableDependency($early_rendering_bubbleable_metadata);
-      }
       // If a non-Ajax Response or domain object is returned and it cares about
       // attachments or cacheability, then throw an exception: early rendering
       // is not permitted in that case. It is the developer's responsibility
@@ -169,7 +166,7 @@ class EarlyRenderingControllerWrapperSubscriber implements EventSubscriberInterf
   /**
    * {@inheritdoc}
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events[KernelEvents::CONTROLLER][] = ['onController'];
 
     return $events;

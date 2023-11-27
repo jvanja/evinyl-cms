@@ -24,8 +24,16 @@ services:
       - '@event_dispatcher'
       - '@token'
       - '@file_system'
+      - '@password_generator'
 
   social_auth.data_handler:
     class: Drupal\social_auth\SocialAuthDataHandler
     arguments:
       - '@session'
+
+  paramconverter.network:
+    class: Drupal\social_auth\ParamConverter\NetworkConverter
+    arguments:
+      - '@plugin.network.manager'
+    tags:
+      - { name: paramconverter }

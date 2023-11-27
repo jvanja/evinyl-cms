@@ -16,8 +16,13 @@ services:
       - '@session_configuration'
       - '@entity_type.manager'
       - '@config.factory'
-      - '@current_user'
+      - '@logger.factory'
     tags:
+      - name: authentication_provider
+        provider_id: 'persistent_login'
+        # Higher priority than user.authentication.cookie
+        priority: 1
+        global: TRUE
       - { name: event_subscriber }
   persistent_login.page_cache_request_policy.pending_persistent_login:
     class: Drupal\persistent_login\PageCache\RequestPolicy\PendingPersistentLogin

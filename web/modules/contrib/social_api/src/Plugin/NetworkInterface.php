@@ -16,6 +16,6 @@ interface NetworkInterface extends PluginInspectionInterface, ContainerFactoryPl
    * @return mixed
    *   The SDK client.
    */
-  public function getSdk();
+  public function getSdk(): mixed;
 
 }

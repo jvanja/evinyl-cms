@@ -7,9 +7,7 @@ use Drupal\Tests\social_auth\Functional\SocialAuthTestBase;
 /**
  * Test that path to authentication route exists in Social Auth Login block.
  *
- * @group social_auth
- *
- * @ingroup social_auth_google
+ * @group social_auth_google
  */
 class SocialAuthGoogleLoginBlockTest extends SocialAuthTestBase {
 
@@ -31,8 +29,6 @@ class SocialAuthGoogleLoginBlockTest extends SocialAuthTestBase {
 
   /**
    * Test that the path is included in the login block.
-   *
-   * @throws \Behat\Mink\Exception\ResponseTextException
    */
   public function testLinkExistsInBlock() {
     $this->checkLinkToProviderExists();

@@ -48,8 +48,10 @@ class EnqueueFormTest extends BrowserTestBase {
 
   /**
    * Asserts enqueue form functionality & execution of queued batches via cron.
+   *
+   * @dataProvider enqueueFormData
    */
-  public function testEnqueueForm() {
+  public function testEnqueueForm($publisehd_only, $expected_items) {
     $this->createTestContent();
     // Enable the warming of articles.
     $this->config('warmer.settings')->set('warmers', [
@@ -58,28 +60,26 @@ class EnqueueFormTest extends BrowserTestBase {
         'frequency' => 1,
         'batchSize' => 1,
         'entity_types' => ['node:article' => 'node:article'],
+        'published_only' => $publisehd_only,
       ],
     ])->save();
 
     $this->drupalLogin($this->adminUser);
+    $assertions = $this->assertSession();
     $this->drupalGet(Url::fromRoute('warmer.enqueue'));
 
     $this->submitForm(['warmers[entity]' => TRUE], 'Warm Caches');
     // Check the number of items being reported as enqueued.
-    $elements = $this->cssSelect('div[data-drupal-messages]');
-    $element = reset($elements);
-    $this->assertEquals($element->getText(), 'Status message 1 items enqueued for cache warming.');
+    $assertions->statusMessageContains($expected_items . ' items enqueued for cache warming.', 'status');
     // Ensure there is one batch in the queue.
     $queue = \Drupal::service('queue')->get('warmer');
     assert($queue instanceof QueueInterface);
-    $this->assertSame(1, $queue->numberOfItems(), 'Correct number of batches in the queue.');
+    $this->assertSame($expected_items, $queue->numberOfItems(), 'Correct number of batches in the queue.');
     // Execute cron to clear queued items.
     $this->drupalGet(URL::fromRoute('system.cron_settings'));
     $this->submitForm([], 'edit-run', 'system-cron-settings');
     // Check that cron ran successfully.
-    $elements = $this->cssSelect('div[data-drupal-messages]');
-    $element = reset($elements);
-    $this->assertEquals($element->getText(), 'Status message Cron ran successfully.');
+    $assertions->statusMessageContains('Cron ran successfully.', 'status');
     // Ensure there are no batches in the queue.
     $queue = \Drupal::service('queue')->get('warmer');
     assert($queue instanceof QueueInterface);
@@ -115,6 +115,32 @@ class EnqueueFormTest extends BrowserTestBase {
       'status' => NodeInterface::PUBLISHED,
       'uid' => $this->adminUser->id(),
     ])->save();
+
+    Node::create([
+      'type' => 'article',
+      'title' => 'Test Article 2',
+      'status' => NodeInterface::NOT_PUBLISHED,
+      'uid' => $this->adminUser->id(),
+    ])->save();
+  }
+
+  /**
+   * Test data for testEnqueueForm().
+   *
+   * @return array[]
+   *   The test values.
+   */
+  public function enqueueFormData() {
+    return [
+      [
+        FALSE,
+        2,
+      ],
+      [
+        TRUE,
+        1,
+      ],
+    ];
   }
 
 }

@@ -5,22 +5,6 @@
  * Install, update, and uninstall functions for the Social Auth Google module.
  */
 
-use Drupal\social_auth\Controller\SocialAuthController;
-
-/**
- * Implements hook_install().
- */
-function social_auth_google_install() {
-  SocialAuthController::setLoginButtonSettings('social_auth_google', 'social_auth_google.redirect_to_google', 'img/google_logo.svg');
-}
-
-/**
- * Implements hook_uninstall().
- */
-function social_auth_google_uninstall() {
-  SocialAuthController::deleteLoginButtonSettings('social_auth_google');
-}
-
 /**
  * Implements hook_update_N().
  *

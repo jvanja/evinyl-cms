@@ -2,6 +2,7 @@
 
 namespace Drupal\social_api\User;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
@@ -15,65 +16,67 @@ abstract class UserAuthenticator {
   /**
    * The Drupal Entity Manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|null
+   *
+   * @todo Determine if this used/needed.
    */
-  protected $entityTypeManager;
+  protected ?EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The current Drupal user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
-  protected $currentUser;
+  protected AccountProxyInterface $currentUser;
 
   /**
    * The Messenger service.
    *
    * @var \Drupal\Core\Messenger\MessengerInterface
    */
-  protected $messenger;
+  protected MessengerInterface $messenger;
 
   /**
    * The Drupal logger factory.
    *
    * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
    */
-  protected $loggerFactory;
+  protected LoggerChannelFactoryInterface $loggerFactory;
 
   /**
    * The entity type.
    *
    * @var string
    */
-  protected $entityType;
+  protected string $entityType;
 
   /**
    * The Social API user manager.
    *
    * @var \Drupal\social_api\User\UserManagerInterface
    */
-  protected $userManager;
+  protected UserManagerInterface $userManager;
 
   /**
    * The Social API data handler.
    *
    * @var \Drupal\social_api\SocialApiDataHandler
    */
-  protected $dataHandler;
+  protected SocialApiDataHandler $dataHandler;
 
   /**
    * Session keys to nullify is user could not be logged in.
    *
    * @var array
    */
-  protected $sessionKeys;
+  protected array $sessionKeys;
 
   /**
    * The implementer plugin id.
    *
    * @var string
    */
-  protected $pluginId;
+  protected string $pluginId;
 
   /**
    * Constructor.
@@ -111,9 +114,8 @@ abstract class UserAuthenticator {
    * @param string $plugin_id
    *   The plugin id.
    */
-  public function setPluginId($plugin_id) {
+  public function setPluginId(string $plugin_id): void {
     $this->pluginId = $plugin_id;
-
     $this->userManager->setPluginId($plugin_id);
   }
 
@@ -123,24 +125,24 @@ abstract class UserAuthenticator {
    * @return string
    *   The plugin id.
    */
-  public function getPluginId() {
+  public function getPluginId(): string {
     return $this->pluginId;
   }
 
   /**
-   * Sets the session keys to nullify if user could not logged in.
+   * Sets the session keys to nullify if user could not be logged in.
    *
    * @param array $session_keys
    *   The session keys to nullify.
    */
-  public function setSessionKeysToNullify(array $session_keys) {
+  public function setSessionKeysToNullify(array $session_keys): void {
     $this->sessionKeys = $session_keys;
   }
 
   /**
-   * Nullifies session keys if user could not logged in.
+   * Nullifies session keys if user could not be logged in.
    */
-  public function nullifySessionKeys() {
+  public function nullifySessionKeys(): void {
     if (!empty($this->sessionKeys)) {
       array_walk($this->sessionKeys, function ($session_key) {
         $this->dataHandler->set($this->dataHandler->getSessionPrefix() . $session_key, NULL);
@@ -154,7 +156,7 @@ abstract class UserAuthenticator {
    * @return \Drupal\Core\Session\AccountProxyInterface
    *   The current Drupal user.
    */
-  public function currentUser() {
+  public function currentUser(): AccountProxyInterface {
     return $this->currentUser;
   }
 

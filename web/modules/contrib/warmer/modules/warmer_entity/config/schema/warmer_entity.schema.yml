@@ -11,3 +11,5 @@ warmer.settings.warmer_plugin.entity:
       type: sequence
       sequence:
         type: string
+    published_only:
+      type: boolean

@@ -2,7 +2,11 @@
 
 namespace Drupal\Tests\social_auth\Functional;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\social_auth\SocialAuthDataHandler;
+use Drupal\social_auth\User\UserAuthenticator;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\user\UserInterface;
 
 /**
  * Tests Social Auth user related tasks.
@@ -14,7 +18,7 @@ class UserTest extends BrowserTestBase {
   /**
    * The default theme.
    *
-   * @var string
+   * @var mixed
    */
   protected $defaultTheme = 'stark';
 
@@ -30,33 +34,38 @@ class UserTest extends BrowserTestBase {
    *
    * @var \Drupal\user\UserInterface
    */
-  protected $user;
+  protected UserInterface $user;
 
   /**
    * The Social Auth user authenticator.
    *
    * @var \Drupal\social_auth\User\UserAuthenticator
    */
-  protected $userAuthenticator;
+  protected UserAuthenticator $userAuthenticator;
 
   /**
    * The Drupal entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityTypeManager;
+  protected EntityTypeManagerInterface $entityTypeManager;
+
+  /**
+   * Social Auth data handler.
+   *
+   * @var \Drupal\social_auth\SocialAuthDataHandler
+   */
+  protected SocialAuthDataHandler $dataHandler;
 
   /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
-
-    $this->user = $this->drupalCreateUser();
-
-    $this->userAuthenticator = \Drupal::getContainer()->get('social_auth.user_authenticator');
-
+    $this->dataHandler = \Drupal::getContainer()->get('social_auth.data_handler');
     $this->entityTypeManager = \Drupal::entityTypeManager();
+    $this->user = $this->drupalCreateUser();
+    $this->userAuthenticator = \Drupal::getContainer()->get('social_auth.user_authenticator');
   }
 
   /**
@@ -66,18 +75,19 @@ class UserTest extends BrowserTestBase {
    * also be removed.
    */
   public function testUserDeletion() {
-
     $this->drupalLogin($this->user);
 
     $uid = $this->user->id();
 
     // Associates a provider.
     $this->userAuthenticator->setPluginId('social_auth_provider1');
-    $this->userAuthenticator->associateNewProvider('provider_id_123', 'token123', NULL);
+    $this->dataHandler->setSessionPrefix('social_auth_provider1');
+    $this->userAuthenticator->associateNewProvider('provider_id_123', 'token123');
 
     // Associates another provider.
     $this->userAuthenticator->setPluginId('social_auth_provider2');
-    $this->userAuthenticator->associateNewProvider('provider_id_123', 'token123', NULL);
+    $this->dataHandler->setSessionPrefix('social_auth_provider2');
+    $this->userAuthenticator->associateNewProvider('provider_id_123', 'token123');
 
     try {
       $social_auth_storage = $this->entityTypeManager->getStorage('social_auth');

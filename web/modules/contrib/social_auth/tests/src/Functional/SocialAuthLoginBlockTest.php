@@ -14,8 +14,6 @@ class SocialAuthLoginBlockTest extends SocialAuthTestBase {
    *
    * No need to specify a provider since it is by default NULL and Social Auth
    * does not have any authentication route by itself.
-   *
-   * @throws \Behat\Mink\Exception\ResponseTextException
    */
   public function testBlockExists() {
     parent::checkLinkToProviderExists();

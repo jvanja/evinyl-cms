@@ -2,11 +2,27 @@
 
 namespace Drupal\social_auth\Settings;
 
-use Drupal\social_api\Settings\SettingsInterface as SettingsInterfaceBase;
-
 /**
  * Defines an interface for Social Auth provider settings.
  *
  * @package Drupal\social_auth\Settings
  */
-interface SettingsInterface extends SettingsInterfaceBase {}
+interface SettingsInterface {
+
+  /**
+   * Gets the client ID.
+   *
+   * @return string|null
+   *   The client ID.
+   */
+  public function getClientId(): ?string;
+
+  /**
+   * Gets the client secret.
+   *
+   * @return string|null
+   *   The client secret.
+   */
+  public function getClientSecret(): ?string;
+
+}

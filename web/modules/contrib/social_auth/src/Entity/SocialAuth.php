@@ -2,10 +2,10 @@
 
 namespace Drupal\social_auth\Entity;
 
-use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\social_api\Entity\SocialApi;
 
 /**
@@ -15,7 +15,20 @@ use Drupal\social_api\Entity\SocialApi;
  *
  * @ContentEntityType(
  *   id = "social_auth",
- *   label = @Translation("SocialAuth"),
+ *   label = @Translation("Social Auth"),
+ *   label_collection = @Translation("Social Auth profiles"),
+ *   handlers = {
+ *     "access" = "Drupal\social_auth\Entity\SocialAuthAccessControlHandler",
+ *     "list_builder" = "Drupal\social_auth\SocialAuthListBuilder",
+ *     "views_data" = "Drupal\social_auth\SocialAuthViewsData",
+ *     "route_provider" = {
+ *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
+ *     },
+ *     "form" = {
+ *       "default" = "Drupal\Core\Entity\ContentEntityForm",
+ *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
+ *     },
+ *   },
  *   base_table = "social_auth",
  *   entity_keys = {
  *     "id" = "id",
@@ -23,6 +36,11 @@ use Drupal\social_api\Entity\SocialApi;
  *     "user_id" = "user_id",
  *     "plugin_id" = "plugin_id",
  *     "provider_user_id" = "provider_user_id"
+ *   },
+ *   admin_permission = "administer social auth profiles",
+ *   links = {
+ *     "collection" = "/admin/social-auth/profiles",
+ *     "delete-form" = "/admin/social-auth/profiles/{social_auth}/delete",
  *   },
  * )
  */
@@ -41,16 +59,6 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
   }
 
   /**
-   * Returns the Drupal user id.
-   *
-   * @return string
-   *   The user id.
-   */
-  public function getUserId() {
-    return $this->get('user_id')->target_id;
-  }
-
-  /**
    * Sets the additional data.
    *
    * @param array $data
@@ -59,9 +67,8 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return \Drupal\social_auth\Entity\SocialAuth
    *   Drupal Social Auth Entity.
    */
-  public function setAdditionalData(array $data) {
+  public function setAdditionalData(array $data): static {
     $this->set('additional_data', $this->encode($data));
-
     return $this;
   }
 
@@ -71,7 +78,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return array
    *   The additional data.
    */
-  public function getAdditionalData() {
+  public function getAdditionalData(): array {
     return $this->hasField('additional_data') && !$this->get('additional_data')->isEmpty()
       ? $this->decode($this->get('additional_data')->value)
       : [];
@@ -86,7 +93,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return \Drupal\social_auth\Entity\SocialAuth
    *   Drupal Social Auth Entity.
    */
-  public function setCreatedTime($timestamp) {
+  public function setCreatedTime(int $timestamp): static {
     $this->set('created', $timestamp);
     return $this;
   }
@@ -97,7 +104,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return int
    *   Creation timestamp Social Auth entity.
    */
-  public function getCreatedTime() {
+  public function getCreatedTime(): int {
     return $this->get('created')->value;
   }
 
@@ -110,7 +117,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return \Drupal\social_auth\Entity\SocialAuth
    *   Drupal Social Auth Entity.
    */
-  public function setChangedTime($timestamp) {
+  public function setChangedTime(int $timestamp): static {
     $this->set('changed', $timestamp);
     return $this;
   }
@@ -121,14 +128,14 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return int
    *   Changed timestamp Social Auth entity.
    */
-  public function getChangedTime() {
+  public function getChangedTime(): int {
     return $this->get('changed')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+  public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
 
     $fields['id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('ID'))
@@ -189,7 +196,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return string
    *   The serialized data.
    */
-  protected static function encode(array $data) {
+  protected static function encode(array $data): string {
     return json_encode($data);
   }
 
@@ -202,7 +209,7 @@ class SocialAuth extends SocialApi implements ContentEntityInterface {
    * @return array
    *   The decoded data.
    */
-  protected function decode(string $data) {
+  protected function decode(string $data): array {
     return json_decode($data, TRUE);
   }
 

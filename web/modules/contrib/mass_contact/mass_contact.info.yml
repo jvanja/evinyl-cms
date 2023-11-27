@@ -10,3 +10,8 @@ dependencies:
 test_dependencies:
   - swiftmailer:swiftmailer
 type: module
+
+# Information added by Drupal.org packaging script on 2022-12-16
+version: '8.x-1.0'
+project: 'mass_contact'
+datestamp: 1671214691

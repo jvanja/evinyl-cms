@@ -7,7 +7,7 @@
     "homepage": "https://www.drupal.org/project/social_auth",
     "support": {
         "issues": "https://www.drupal.org/project/issues/social_auth",
-        "source": "http://cgit.drupalcode.org/social_auth"
+        "source": "https://git.drupalcode.org/project/social_auth"
     },
     "authors": [
         {
@@ -30,14 +30,18 @@
         }
     ],
     "require": {
-        "drupal/social_api": "^3",
-        "drupal/core": "^9.3 || ^10"
+        "drupal/core": "^9.3 || ^10",
+        "drupal/social_api": "^4"
     },
     "require-dev": {
-        "drupal/coder": "^8.3"
+        "drupal/coder": "^8.3",
+        "phpcompatibility/php-compatibility": "^9.3"
     },
     "minimum-stability": "dev",
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
