@@ -1,0 +1,13 @@
+diff --git a/nodejs_watchdog/src/Logger/NodejsLogger.php b/nodejs_watchdog/src/Logger/NodejsLogger.php
+index c611e1b..122873b 100644
+--- a/nodejs_watchdog/src/Logger/NodejsLogger.php
++++ b/nodejs_watchdog/src/Logger/NodejsLogger.php
+@@ -39,7 +39,7 @@ class NodejsLogger implements LoggerInterface, ContainerAwareInterface {
+     // DbLogController:overview.
+     $parser = $this->container->get('logger.log_message_parser');
+     $date_formatter = $this->container->get('date.formatter');
+-    $entity_manager = $this->container->get('entity.manager');
++    $entity_manager = $this->container->get('entity_type.manager');
+     $user_storage = $entity_manager->getStorage('user');
+ 
+     $variables = $parser->parseMessagePlaceholders($message, $context);
