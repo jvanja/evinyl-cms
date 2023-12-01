@@ -5,11 +5,58 @@
  */
 namespace Drupal\evinyl_search\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
-use Drupal\media\Entity\Media;
 use Drupal\file\Entity\File;
+use Drupal\media\Entity\Media;
+use Symfony\Component\HttpFoundation\Response;
 
 class SearchController {
+
+  public function buildNodesArray($nodes) {
+    $output = ['albums' => [], 'artists' => []];
+    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
+
+    foreach ($nodes as $node) {
+      // set default image (fid=137) if one is not found.
+      $node->image_id = $node->image_id === NULL ? 137 : $node->image_id;
+      // $file = File::load($node->image_id);
+
+      $media = Media::load($node->image_id);
+
+      if ($media) {
+        $fid = $media->field_media_image->target_id;
+        $file = File::load($fid);
+      }
+      else {
+        $file = File::load($node->image_id);
+      }
+
+      $thumb = $thumb_style->buildUrl($file->uri->value);
+
+      if ($node->type === 'album') {
+        $path_base = '/node/';
+        $output['albums'][] = [
+          'name' => $node->title,
+          'id' => $node->nid,
+          'type' => $node->type,
+          'thumb' => $thumb,
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
+        ];
+      }
+      else {
+        $path_base = '/taxonomy/term/';
+        $output['artists'][] = [
+          'name' => $node->title,
+          'id' => $node->nid,
+          'type' => $node->type,
+          'thumb' => $thumb,
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
+        ];
+      }
+    }
+
+    return $output;
+  }
+
   public function content($needle) {
     $database = \Drupal::database();
     $query = $database->query("
@@ -38,7 +85,7 @@ class SearchController {
 
     $return_object = [
       'results' => $results,
-      'search' => $needle
+      'search' => $needle,
     ];
 
     $serializer = \Drupal::service('serializer');
@@ -46,47 +93,8 @@ class SearchController {
     $response = new Response();
     $response->setContent($json_data);
     $response->headers->set('Content-Type', 'application/json');
+
     return $response;
   }
 
-  public function buildNodesArray($nodes) {
-    $output = ['albums' => [], 'artists' => []];
-    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
-    foreach($nodes as $node) {
-      // set default image (fid=137) if one is not found.
-      $node->image_id = $node->image_id == null ? 137 : $node->image_id;
-      // $file = File::load($node->image_id);
-
-      $media = Media::load($node->image_id);
-      if ($media) {
-        $fid = $media->field_media_image->target_id;
-        $file = File::load($fid);
-      } else {
-        $file = File::load($node->image_id);
-      }
-
-      $thumb = $thumb_style->buildUrl($file->uri->value);
-
-      if ($node->type == 'album') {
-        $path_base = '/node/';
-        array_push($output['albums'], array(
-          'name' => $node->title,
-          'id' => $node->nid,
-          'type' => $node->type,
-          'thumb' => $thumb,
-          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
-        ));
-      } else {
-        $path_base = '/taxonomy/term/';
-        array_push($output['artists'], array(
-          'name' => $node->title,
-          'id' => $node->nid,
-          'type' => $node->type,
-          'thumb' => $thumb,
-          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
-        ));
-      }
-    }
-    return $output;
-  }
 }

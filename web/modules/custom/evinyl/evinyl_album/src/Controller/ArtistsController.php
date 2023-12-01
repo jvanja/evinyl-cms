@@ -4,14 +4,60 @@
  * Contains \Drupal\evinyl_album\Controller\ArtistsController.
  */
 namespace Drupal\evinyl_album\Controller;
+
 // use Drupal\node\Entity\Node;
-use Symfony\Component\HttpFoundation\Response;
 use Drupal\file\Entity\File;
+use Symfony\Component\HttpFoundation\Response;
+
 // use Drupal\paragraphs\Entity\Paragraph;
 
 class ArtistsController {
-  public function content() {
 
+  public function buildArtistsArray($terms, $vid) {
+    $output = [];
+    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
+    $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
+
+    foreach ($terms as $term) {
+      if ($term->vid === $vid) {
+        $term->image_id = $term->image_id === NULL ? 137 : $term->image_id;
+        $file = File::load($term->image_id);
+        $thumb = $thumb_style->buildUrl($file->uri->value);
+        $medium = $medium_style->buildUrl($file->uri->value);
+        $image_url = $file->uri;
+        $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
+        $output[] = [
+          'id' => $term->uuid,
+          'tid' => $term->tid,
+          'name' => $term->name,
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/' . $term->tid),
+          'band_members' => $term->band_members,
+          'cover' => $cover,
+        ];
+      }
+    }
+
+    return $output;
+  }
+
+  public function buildGenresArray($terms, $vid) {
+    $output = [];
+
+    foreach ($terms as $term) {
+      if ($term->vid === $vid) {
+        $output[] = [
+          'id' => $term->uuid,
+          'tid' => $term->tid,
+          'name' => $term->name,
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/' . $term->tid),
+        ];
+      }
+    }
+
+    return $output;
+  }
+
+  public function content() {
     $database = \Drupal::database();
 
     $terms_query = $database->query("
@@ -35,7 +81,7 @@ class ArtistsController {
     $genres = $this->buildGenresArray($terms, 'genre');
 
     $return_object = [
-      'count' => count($artists),
+      'count' => \count($artists),
       'artists' => $artists,
       'genres' => $genres,
     ];
@@ -45,48 +91,9 @@ class ArtistsController {
     $response = new Response();
     $response->setContent($json_data);
     $response->headers->set('Content-Type', 'application/json');
+
     // $response->setCache($cache_options);
     return $response;
-  }
-
-  public function buildArtistsArray($terms, $vid) {
-    $output = [];
-    $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
-    $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');
-    foreach($terms as $term) {
-      if ($term->vid == $vid) {
-        $term->image_id = $term->image_id == null ? 137 : $term->image_id;
-        $file = File::load($term->image_id);
-        $thumb = $thumb_style->buildUrl($file->uri->value);
-        $medium = $medium_style->buildUrl($file->uri->value);
-        $image_url = $file->uri;
-        $cover = ['thumb' => $thumb, 'medium' => $medium, 'image' => $image_url];
-        array_push($output, array(
-          'id' => $term->uuid,
-          'tid' => $term->tid,
-          'name' => $term->name,
-          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/'.$term->tid),
-          'band_members' => $term->band_members,
-          'cover' => $cover,
-        ));
-      }
-    }
-    return $output;
-  }
-
-  public function buildGenresArray($terms, $vid) {
-    $output = [];
-    foreach($terms as $term) {
-      if ($term->vid == $vid) {
-        array_push($output, array(
-          'id' => $term->uuid,
-          'tid' => $term->tid,
-          'name' => $term->name,
-          'path' => \Drupal::service('path_alias.manager')->getAliasByPath('/taxonomy/term/'.$term->tid),
-        ));
-      }
-    }
-    return $output;
   }
 
 }

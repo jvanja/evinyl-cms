@@ -1,12 +1,9 @@
 <?php
 
 // use getID3;
-use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
-use Symfony\Component\HttpFoundation;
-
+use Drupal\user\Entity\User;
 
 /* ==========================================================================
   HOOKS
@@ -15,20 +12,23 @@ use Symfony\Component\HttpFoundation;
 /**
  * Implements hook_entity_presave().
  */
-function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
-{
+function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
   // die;
   switch ($entity->bundle()) {
     case 'album':
       // update_json_output();
       break;
+
     case 'a_side_songs':
     case 'b_side_songs':
       // calculate_song_duration($entity);
       break;
+
     case 'comment':
       sendNodeJsMessageToAll($entity);
+
       break;
+
     case 'article':
       // // dpm($entity);
       // $nid = $entity->id();
@@ -54,8 +54,7 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
 /**
  * Implements hook_entity_delete().
  */
-function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity)
-{
+function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
   switch ($entity->bundle()) {
     case 'album':
       // update_json_output();
@@ -63,8 +62,7 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity)
   }
 }
 
-function evinyl_album_preprocess_node(&$variables)
-{
+function evinyl_album_preprocess_node(&$variables) {
   // dpm($variables);
   // $node = Drupal::request()->attributes->get('node');
   // $node = \Drupal::routeMatch()->getParameter('node');
@@ -73,25 +71,31 @@ function evinyl_album_preprocess_node(&$variables)
   if (isset($parameters['node'])) {
     // $type = $node->getType();
     $type = $parameters['node']->getType();
+
     // if($type == 'album' && $node->isPublished() == true){
-    if ($type == 'album') {
+    if ($type === 'album') {
       $current_path = \Drupal::service('path.current')->getPath();
       $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
       $host = \Drupal::request()->getHost();
-      if ($host == 'localhost') {
+
+      if ($host === 'localhost') {
         $redirect = 'http://localhost:3000' . $node_alias;
-      } elseif ($host == 'cms.evinyl.net') {
+      }
+      elseif ($host === 'cms.evinyl.net') {
         $redirect = 'http://evinyl.net' . $node_alias;
-      } else {
+      }
+      else {
         $redirect = 'https://dev.evinyl.net' . $node_alias;
       }
 
       $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
       $response->send();
       Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
+
       return;
     }
-  } else if (isset($parameters['taxonomy_term'])) {
+  }
+  elseif (isset($parameters['taxonomy_term'])) {
     $term = $parameters['taxonomy_term'];
 
     // dpm($term->getVocabularyId()); // this returns 'artist' or 'genre'
@@ -99,17 +103,21 @@ function evinyl_album_preprocess_node(&$variables)
     $current_path = \Drupal::service('path.current')->getPath();
     $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
     $host = \Drupal::request()->getHost();
-    if ($host == 'localhost') {
+
+    if ($host === 'localhost') {
       $redirect = 'http://localhost:3000' . $node_alias;
-    } elseif ($host == 'cms.evinyl.net') {
+    }
+    elseif ($host === 'cms.evinyl.net') {
       $redirect = 'http://evinyl.net' . $node_alias;
-    } else {
+    }
+    else {
       $redirect = 'https://dev.evinyl.net' . $node_alias;
     }
 
     $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
     $response->send();
     Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
+
     return;
   }
 }
@@ -117,9 +125,7 @@ function evinyl_album_preprocess_node(&$variables)
 /* ==========================================================================
   CUSTOM METHODS
   ========================================================================== */
-function sendNodeJsMessageToAll($entity)
-{
-
+function sendNodeJsMessageToAll($entity) {
   $channel = 'nodejs_ajax_broadcast';
   $uuid = $entity->uuid->getValue()[0]['value'];
   $uid = $entity->uid->getValue()[0]['target_id'];
@@ -135,41 +141,42 @@ function sendNodeJsMessageToAll($entity)
   if ($userPhoto) {
     $userPhotoUri = $userPhoto->getFileUri();
     $userPhotoUrl = $style->buildUrl($userPhotoUri);
-  } else {
+  }
+  else {
     $userPhotoUrl = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
   }
 
-  $message = (object) array(
-    'data' => (object) array(
+  $message = (object) [
+    'data' => (object) [
       'id' => $uuid,
       'uid' => $uid,
       'created' => $created,
       'subject' => '',
       'body' => $body,
-      'user' => (object) array(
+      'user' => (object) [
         'name' => $user->name->getValue()[0]['value'],
         'id' => $user->uuid->getValue()[0]['value'],
         'field_is_artist' => (bool) $user->field_is_artist->getValue()[0]['value'],
         'field_user_photo' => $userPhotoUrl,
-      )
-    ),
+      ],
+    ],
     'channel' => $channel,
-  );
+  ];
   // var_dump($message);
   // die;
   nodejs_enqueue_message($message);
 }
 
-function calculate_song_duration($entity)
-{
+function calculate_song_duration($entity) {
   $getID3 = new getID3();
   $id3 = $getID3->version();
   $file_id = $entity->field_song->getValue()[0]['target_id'];
   $database = \Drupal::database();
-  $query = $database->query("SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id", [
-    ':entity_id' => $file_id
+  $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
+    ':entity_id' => $file_id,
   ]);
   $result = $query->fetchAll();
+
   if (count($result) > 0) {
     $final_file_id = $result[0]->field_media_audio_file_target_id;
     $file = \Drupal\file\Entity\File::load($final_file_id);
@@ -180,14 +187,14 @@ function calculate_song_duration($entity)
   }
 }
 
-function update_json_output()
-{
+function update_json_output() {
   \Drupal::logger('evinyl_album')->notice('POST SAVE!!!');
 
-  if ($_SERVER['SERVER_NAME'] == 'localhost') {
+  if ($_SERVER['SERVER_NAME'] === 'localhost') {
     $wget = '/usr/local/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "http://localhost/evinyl8/web/jsonapi/node/album';
-  } else {
+  }
+  else {
     $wget = '/usr/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "https://lab.evinyl.net/jsonapi/node/album';
   }
@@ -205,17 +212,17 @@ function update_json_output()
   HELPER FUNCTIONS
   ========================================================================== */
 /**
- * Returns seconds from MIN:SEC time format
+ * Returns seconds from MIN:SEC time format.
+ *
  * @param $duration
  *   track duracion string
  */
-function min_sec_to_sec($duration)
-{
+function min_sec_to_sec($duration) {
   $time_array = explode(':', $duration);
   $minutes = $time_array[0];
   $seconds = $time_array[1];
-  $totalSeconds = $minutes * 60 + $seconds;
-  return $totalSeconds;
+
+  return $minutes * 60 + $seconds;
 }
 
 /**
@@ -224,31 +231,33 @@ function min_sec_to_sec($duration)
  * @param $variables
  *   Array with 'duration' key.
  */
-function theme_getid3_duration($variables)
-{
+function theme_getid3_duration($variables) {
   $duration = $variables['duration'];
   $seconds = round((($duration / 60) - floor($duration / 60)) * 60);
   $minutes = floor($duration / 60);
+
   if ($seconds >= 60) {
     $seconds -= 60;
-    $minutes++;
+    ++$minutes;
   }
-  return ((int) $minutes) . ':' . str_pad($seconds, 2, 0, STR_PAD_LEFT);
+
+  return ((int) $minutes) . ':' . str_pad($seconds, 2, 0, \STR_PAD_LEFT);
 }
 
 /**
- * Helper function for finding if node field has a value
+ * Helper function for finding if node field has a value.
  */
-function hasValue($fieldArray, $value)
-{
+function hasValue($fieldArray, $value) {
   $counter = 0;
+
   foreach ($fieldArray as $field) {
-    if ($field["value"] == $value) {
-      return array(TRUE, $counter);
+    if ($field['value'] === $value) {
+      return [TRUE, $counter];
     }
-    $counter++;
+    ++$counter;
   }
-  if ($counter == 0) {
-    return array(FALSE, -1);
+
+  if ($counter === 0) {
+    return [FALSE, -1];
   }
 }

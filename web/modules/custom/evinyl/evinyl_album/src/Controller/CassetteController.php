@@ -4,13 +4,13 @@
  * Contains \Drupal\evinyl_album\Controller\CassetteController.
  */
 namespace Drupal\evinyl_album\Controller;
+
 // use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\Response;
-use Drupal\file\Entity\File;
 
 class CassetteController extends AlbumController {
-  public function content() {
 
+  public function content() {
     $database = \Drupal::database();
     $query = $database->query("
       SELECT `node`.`nid` AS nid,
@@ -53,7 +53,7 @@ class CassetteController extends AlbumController {
     $genres = $this->buildTermsArray($terms, 'genre');
 
     $return_object = [
-      'count' => count($albums),
+      'count' => \count($albums),
       'albums' => $albums,
       'artists' => $artists,
       'genres' => $genres,
@@ -61,7 +61,7 @@ class CassetteController extends AlbumController {
 
     $cache_options = [
       'public' => TRUE,
-      'max_age' => '31536000'
+      'max_age' => '31536000',
     ];
 
     $serializer = \Drupal::service('serializer');
@@ -69,6 +69,7 @@ class CassetteController extends AlbumController {
     $response = new Response();
     $response->setContent($json_data);
     $response->headers->set('Content-Type', 'application/json');
+
     // $response->setCache($cache_options);
     return $response;
   }

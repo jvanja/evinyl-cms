@@ -1,4 +1,5 @@
 <?php
+
 namespace Drupal\evinyl_deezer\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -15,25 +16,17 @@ class EvinylDeezerForm extends FormBase {
    *
    * @var string
    */
-  const SETTINGS = 'deezer.settings';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormId() {
-    return 'evinyl_deezer_import';
-  }
+  public const SETTINGS = 'deezer.settings';
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
     $form['ids'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Deezer IDs'),
       '#default_value' => '',
-      '#description' => 'Enter Deezer IDs. One per line.'
+      '#description' => 'Enter Deezer IDs. One per line.',
     ];
 
     $form['actions']['#type'] = 'actions';
@@ -47,14 +40,11 @@ class EvinylDeezerForm extends FormBase {
     return $form;
   }
 
-
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (strlen($form_state->getValue('ids')) < 1) {
-      $form_state->setErrorByName('ids', $this->t('Need at least one ID.'));
-    }
+  public function getFormId() {
+    return 'evinyl_deezer_import';
   }
 
   /**
@@ -65,17 +55,27 @@ class EvinylDeezerForm extends FormBase {
     $edit_unpublish_url = $base_url . '/admin/content?type=album&status=2';
 
     $cleanIds = trim($form_state->getValue('ids'));
-    $ids = explode(PHP_EOL, $cleanIds);
+    $ids = explode(\PHP_EOL, $cleanIds);
 
-    $importController = new EvinylDeezerController;
+    $importController = new EvinylDeezerController();
     $releases = $importController->posts($ids);
 
     if ($releases) {
-      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <b><a href="'.$edit_unpublish_url.'">new content</a></b>. '));
-    } else {
+      $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the <b><a href="' . $edit_unpublish_url . '">new content</a></b>. '));
+    }
+    else {
       $this->messenger()->addWarning($this->t('Your import FAILED. Probably you put a wrong Deezer release ID'));
     }
     // $this->messenger()->addStatus($this->t('Your import is completed. Please moderate the new content. @albums', ['@albums' => $releases]));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->getValue('ids') === '') {
+      $form_state->setErrorByName('ids', $this->t('Need at least one ID.'));
+    }
   }
 
 }
