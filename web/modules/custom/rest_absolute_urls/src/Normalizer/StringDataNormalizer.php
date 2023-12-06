@@ -37,8 +37,8 @@ class StringDataNormalizer extends PrimitiveDataNormalizer {
   /**
    * {@inheritdoc}
    */
-  public function normalize($object, $format = NULL, array $context = array()): array|string|int|float|bool|\ArrayObject|NULL {
-  // public function normalize($object, $format = NULL, array $context = []) {
+  public function normalize($object, $format = NULL, array $context = []): null|array|\ArrayObject|bool|float|int|string {
+    // public function normalize($object, $format = NULL, array $context = []) {
 
     $value = parent::normalize($object, $format, $context);
 
@@ -53,5 +53,4 @@ class StringDataNormalizer extends PrimitiveDataNormalizer {
     // Convert the whole message body. Returns string.
     return Html::transformRootRelativeUrlsToAbsolute($value, $base_url);
   }
-
 }
