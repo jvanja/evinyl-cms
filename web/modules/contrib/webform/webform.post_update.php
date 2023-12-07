@@ -5,6 +5,8 @@
  * Post update functions for Webform module.
  */
 
+use Drupal\filter\Entity\FilterFormat;
+use Drupal\user\Entity\Role;
 use Drupal\webform\Element\WebformHtmlEditor;
 use Drupal\webform\Utility\WebformYaml;
 
@@ -137,5 +139,11 @@ function webform_post_update_multiple_categories() {
  * Issue #3404493: webform_default permission.
  */
 function webform_post_update_authenticated_user_permission() {
-  user_role_grant_permissions('authenticated', ['use text format webform_default']);
+  // This fixes sites that already have the webform_default format but do not
+  // yet have the necessary permissions, which affects sites that were using 6.2
+  // beta releases. Sites that don't have the format yet will get it from the
+  // improved webform_post_update_ckeditor()/_webform_update_html_editor().
+  if (FilterFormat::load('webform_default') && !Role::load('authenticated')->hasPermission('use text format webform_default')) {
+    user_role_grant_permissions('authenticated', ['use text format webform_default']);
+  }
 }
