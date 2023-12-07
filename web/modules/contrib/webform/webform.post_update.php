@@ -132,3 +132,10 @@ function webform_post_update_multiple_categories() {
   _webform_update_admin_settings();
   _webform_update_webform_settings();
 }
+
+/**
+ * Issue #3404493: webform_default permission.
+ */
+function webform_post_update_authenticated_user_permission() {
+  user_role_grant_permissions('authenticated', ['use text format webform_default']);
+}

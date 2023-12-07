@@ -2,7 +2,7 @@ name: REST Absolute URLs
 description: Replaces relative URLs with absolute URLs for all content exposed via any REST service.
 
 type: module
-core_version_requirement: ^9 || ^10
+core_version_requirement: ^8 || ^9 || ^10
 
 dependencies:
   - drupal:serialization
