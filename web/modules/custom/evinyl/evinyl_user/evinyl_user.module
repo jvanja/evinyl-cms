@@ -10,15 +10,15 @@ function evinyl_user_preprocess_user(&$variables) {
 
   if ($host === 'localhost') {
     $redirect = 'http://localhost:3000' . $node_alias;
-  }
-  elseif ($host === 'cms.evinyl.net') {
+  } elseif ($host === 'cms.evinyl.net') {
     $redirect = 'http://evinyl.net' . $node_alias;
-  }
-  else {
+  } else {
     $redirect = 'https://dev.evinyl.net' . $node_alias;
   }
 
-  $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
+  \Drupal::logger('evinyl_user')->notice('Redirecting user page ' . $redirect);
+
+  $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect, 301);
   $response->send();
   Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
 }
