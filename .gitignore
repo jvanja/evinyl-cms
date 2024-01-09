@@ -32,3 +32,5 @@ node_modules
 # tools
 tools/
 .php-cs-fixer*
+
+.DS_Store
