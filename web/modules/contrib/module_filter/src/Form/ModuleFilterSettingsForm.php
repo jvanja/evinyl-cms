@@ -44,6 +44,20 @@ class ModuleFilterSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('path'),
     ];
 
+    $form['filters'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Filters'),
+      '#description' => $this->t('Enable filters for use around the administration pages.'),
+      '#collapsible' => FALSE,
+    ];
+
+    $form['filters']['permissions'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Permissions'),
+      '#description' => $this->t('Enable the filter on the permissions page.'),
+      '#default_value' => $config->get('enabled_filters.permissions'),
+    ];
+
     return $form;
   }
 
@@ -54,6 +68,7 @@ class ModuleFilterSettingsForm extends ConfigFormBase {
     $values = $form_state->getValues();
     $this->config('module_filter.settings')
       ->set('tabs', $values['tabs'])
+      ->set('enabled_filters.permissions', $values['permissions'])
       ->set('path', $values['path'])
       ->save();
 
