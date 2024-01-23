@@ -13,7 +13,7 @@ use Drupal\migrate_plus\DataParserPluginManager;
  *
  * @group migrate_plus
  */
-abstract class BaseXmlTest extends KernelTestBase {
+abstract class BaseXml extends KernelTestBase {
 
   /**
    * {@inheritdoc}

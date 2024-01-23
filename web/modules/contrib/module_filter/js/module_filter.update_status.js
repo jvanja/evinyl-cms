@@ -114,8 +114,8 @@
           );
         });
 
-        $show.change(() => {
-          show = $(this).val();
+        $show.change((event) => {
+          show = $(event.currentTarget).val();
           Drupal.ModuleFilter.localStorage.setItem('updateStatus.show', show);
           Drupal.ModuleFilter.winnow.filter();
         });

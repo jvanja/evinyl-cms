@@ -44,6 +44,19 @@ use Drupal\migrate\Row;
  * The above example will skip further processing of the input property if
  * the content_type source field equals "blog".
  *
+ * Example usage with a FieldAPI value:
+ * @code
+ *   field_fruit:
+ *     plugin: skip_on_value
+ *     source: field_fruit/0/value
+ *     method: row
+ *     value: apple
+ * @endcode
+ * The above example will skip the entire row if the "fruit" field is set to
+ * "apple". When attempting to access values from a simple Field API-based value
+ * the "0/value" suffix must be used, otherwise it will fail with an "Array to
+ * string conversion" error.
+ *
  * Example usage with full configuration:
  * @code
  *   type:

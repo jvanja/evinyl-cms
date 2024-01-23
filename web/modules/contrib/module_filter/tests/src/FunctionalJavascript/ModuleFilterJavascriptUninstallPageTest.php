@@ -27,13 +27,15 @@ class ModuleFilterJavascriptUninstallPageTest extends ModuleFilterJavascriptTest
 
     // Enter 'red' as the filter and check that the Red Roses module is
     // displayed but the other modules are not. This shows that filtering works
-    // on the module's internal machine name.
-    $page->fillField('edit-text', 'red');
-    $this->waitForNoText('Banana');
-    $assert->pageTextContains('Roses');
-    $assert->pageTextContains('Say it with flowers');
-    $assert->pageTextNotContains('Banana');
-    $assert->pageTextNotContains('Ridge');
+    // on the module's internal machine name. Available on Core 10 and above.
+    if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
+      $page->fillField('edit-text', 'red');
+      $this->waitForNoText('Banana');
+      $assert->pageTextContains('Roses');
+      $assert->pageTextContains('Say it with flowers');
+      $assert->pageTextNotContains('Banana');
+      $assert->pageTextNotContains('Ridge');
+    }
 
     // Enter 'nana' as the filter and check that the Yellow Banana module is
     // displayed but the others modules are not. This shows that filtering works
@@ -65,7 +67,9 @@ class ModuleFilterJavascriptUninstallPageTest extends ModuleFilterJavascriptTest
     $page->fillField('edit-text', 'low');
     $assert->waitForText('Roses');
     $assert->pageTextContains('Roses');
-    $assert->pageTextContains('Banana');
+    if (version_compare(\Drupal::VERSION, '10.0', '>=')) {
+      $assert->pageTextContains('Banana');
+    }
     $assert->pageTextNotContains('Ridge');
     $assert->pageTextNotContains('Mountains of Virginia');
 

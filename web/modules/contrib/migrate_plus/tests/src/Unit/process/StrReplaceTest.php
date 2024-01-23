@@ -29,8 +29,66 @@ final class StrReplaceTest extends MigrateProcessTestCase {
 
   }
 
+   /**
+   * Test for a simple str_replace given NULL.
+   */
+  public function testStrReplaceNull(): void {
+    $configuration = [];
+    $value = NULL;
+    $configuration['search'] = '';
+    $configuration['replace'] = 'that';
+    $plugin = new StrReplace($configuration, 'str_replace', []);
+    $actual = $plugin->transform($value, $this->migrateExecutable, $this->row, 'destinationproperty');
+    $this->assertSame('', $actual);
+
+  }
+
+   /**
+   * Test for a simple str_replace given int 1.
+   */
+  public function testStrReplaceInt(): void {
+    $configuration = [];
+    $value = 1;
+    $configuration['search'] = '1';
+    $configuration['replace'] = 'that';
+    $plugin = new StrReplace($configuration, 'str_replace', []);
+    $actual = $plugin->transform($value, $this->migrateExecutable, $this->row, 'destinationproperty');
+    $this->assertSame('that', $actual);
+
+  }
+
+
+   /**
+   * Test for a simple str_replace given TRUE.
+   */
+  public function testStrReplaceTrue(): void {
+    $configuration = [];
+    $value = TRUE;
+    $configuration['search'] = '1';
+    $configuration['replace'] = 'that';
+    $plugin = new StrReplace($configuration, 'str_replace', []);
+    $actual = $plugin->transform($value, $this->migrateExecutable, $this->row, 'destinationproperty');
+    $this->assertSame('that', $actual);
+
+  }
+
+
+   /**
+   * Test for a simple str_replace given FALSE.
+   */
+  public function testStrReplaceFalse(): void {
+    $configuration = [];
+    $value = FALSE;
+    $configuration['search'] = '';
+    $configuration['replace'] = 'that';
+    $plugin = new StrReplace($configuration, 'str_replace', []);
+    $actual = $plugin->transform($value, $this->migrateExecutable, $this->row, 'destinationproperty');
+    $this->assertSame('', $actual);
+
+  }
+
   /**
-   * Test for case insensitive searches.
+   * Test for case-insensitive searches.
    */
   public function testStrIreplace(): void {
     $configuration = [];

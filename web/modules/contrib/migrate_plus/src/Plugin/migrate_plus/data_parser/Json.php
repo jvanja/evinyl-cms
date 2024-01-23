@@ -39,7 +39,7 @@ class Json extends DataParserPluginBase implements ContainerFactoryPluginInterfa
     // If json_decode() has returned NULL, it might be that the data isn't
     // valid utf8 - see http://php.net/manual/en/function.json-decode.php#86997.
     if (is_null($source_data)) {
-      $utf8response = utf8_encode($response);
+      $utf8response = mb_convert_encoding($response, 'UTF-8');
       $source_data = json_decode($utf8response, TRUE, 512, JSON_THROW_ON_ERROR);
     }
 

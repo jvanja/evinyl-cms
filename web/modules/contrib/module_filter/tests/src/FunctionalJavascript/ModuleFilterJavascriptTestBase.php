@@ -49,9 +49,13 @@ abstract class ModuleFilterJavascriptTestBase extends WebDriverTestBase {
     parent::setUp();
 
     // Create an administrator user with the required permissions.
+    // 'administer modules' is needed for admin/modules
+    // 'administer permissions' is needed for admin/people/permissions
+    // 'administer site configuration' is needed for admin/reports/updates.
     $this->adminUser = $this->drupalCreateUser([
       'administer modules',
       'administer permissions',
+      'administer site configuration',
     ]);
     $this->adminUser->set('name', 'Minnie the Admin')->save();
   }

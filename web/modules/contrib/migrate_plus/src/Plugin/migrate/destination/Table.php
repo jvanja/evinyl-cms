@@ -183,11 +183,8 @@ class Table extends DestinationBase implements ContainerFactoryPluginInterface, 
       elseif ($batch_inserts && $fieldInfo['use_auto_increment']) {
         if (count($this->rowsToInsert) === 0) {
           // Get the highest existing ID, so we will create IDs above it.
-          $this->lastId = $this->dbConnection->query("SELECT MAX($field) AS MaxId FROM {{$this->tableName}}")
+          $this->lastId = (int) $this->dbConnection->query("SELECT MAX($field) AS MaxId FROM {{$this->tableName}}")
             ->fetchField();
-          if (!$this->lastId) {
-            $this->lastId = 0;
-          }
         }
         $id = ++$this->lastId;
         $ids[$field] = $id;

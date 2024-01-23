@@ -10,7 +10,7 @@ dependencies:
   - drupal:menu_ui
   - drupal:path
 
-# Information added by Drupal.org packaging script on 2022-12-30
-version: '6.0.1'
+# Information added by Drupal.org packaging script on 2024-01-16
+version: '6.0.2'
 project: 'migrate_plus'
-datestamp: 1672428005
+datestamp: 1705424642
