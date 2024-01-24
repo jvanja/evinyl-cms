@@ -10,10 +10,10 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Drupal\social_api\User\UserAuthenticator as SocialApiUserAuthenticator;
+use Drupal\social_api\User\UserManagerInterface;
 use Drupal\social_auth\Event\BeforeRedirectEvent;
 use Drupal\social_auth\Event\FailedAuthenticationEvent;
 use Drupal\social_auth\Event\SocialAuthEvents;
-use Drupal\social_auth\Event\UserEvent;
 use Drupal\social_auth\SettingsTrait;
 use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\user\UserInterface;
@@ -33,21 +33,21 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    *
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
-  protected $eventDispatcher;
+  protected EventDispatcherInterface $eventDispatcher;
 
   /**
    * The Social Auth user manager.
    *
-   * @var \Drupal\social_auth\User\UserManager
+   * @var \Drupal\social_api\User\UserManagerInterface
    */
-  protected $userManager;
+  protected UserManagerInterface $userManager;
 
   /**
    * The redirection response to be returned.
    *
    * @var \Symfony\Component\HttpFoundation\RedirectResponse
    */
-  protected $response;
+  protected RedirectResponse $response;
 
   /**
    * Constructor.
@@ -91,41 +91,29 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param string $destination
    *   The path to redirect to.
    */
-  public function setDestination($destination) {
+  public function setDestination(string $destination): void {
     $this->dataHandler->set('login_destination', $destination);
   }
 
   /**
-   * Creates and/or authenticates an user.
+   * Authenticates a user.
    *
-   * @param string $name
-   *   The user's name.
-   * @param string $email
-   *   The user's email address.
-   * @param string $provider_user_id
-   *   The unique id returned by the user.
-   * @param string $token
-   *   The access token for making additional API calls.
-   * @param string|null $picture_url
-   *   The user's picture.
-   * @param array|null $data
-   *   The additional user data to be stored in database.
+   * @param \Drupal\social_auth\User\SocialAuthUserInterface $user
+   *   Social Auth user instance.
    *
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
-   *   A redirect response.
+   *   Post-authentication redirect.
    */
-  public function authenticateUser($name, $email, $provider_user_id, $token, $picture_url = NULL, $data = NULL) {
-
+  public function authenticateUser(SocialAuthUserInterface $user): RedirectResponse {
     // Checks for record in Social Auth entity.
-    $user_id = $this->userManager->getDrupalUserId($provider_user_id);
+    $user_id = $this->userManager->getDrupalUserId($user->getProviderId());
 
     // If user is already authenticated.
     if ($this->currentUser->isAuthenticated()) {
 
       // If no record for provider exists.
       if ($user_id === FALSE) {
-        $this->associateNewProvider($provider_user_id, $token, $data);
-
+        $this->associateNewProvider($user->getProviderId(), $user->getToken(), $user->getAdditionalData());
         return $this->response;
       }
       // User is authenticated and provider is already associated.
@@ -137,25 +125,21 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
     // If user previously authorized the provider, load user through provider.
     if ($user_id) {
       $this->authenticateWithProvider($user_id);
-
       return $this->response;
     }
 
     // Try to authenticate user using email address.
-    if ($email) {
+    if ($user->getEmail()) {
       // If authentication with email was successful.
-      if ($this->authenticateWithEmail($email, $provider_user_id, $token, $data)) {
+      if ($this->authenticateWithEmail($user->getEmail(), $user->getProviderId(), $user->getToken(), $user->getAdditionalData())) {
         return $this->response;
       }
     }
-
-    $user = new SocialAuthUser($name, $email, $provider_user_id, $token, $picture_url, $data);
 
     // At this point, create a new user.
     $drupal_user = $this->userManager->createNewUser($user);
 
     $this->authenticateNewUser($drupal_user);
-
     return $this->response;
   }
 
@@ -169,10 +153,9 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param array|null $data
    *   The additional user_data to be stored in database.
    */
-  public function associateNewProvider($provider_user_id, $token, $data) {
+  public function associateNewProvider(string $provider_user_id, string $token, ?array $data = NULL): void {
     if ($this->userManager->addUserRecord($this->currentUser->id(), $provider_user_id, $token, $data)) {
       $this->response = $this->getPostLoginRedirection();
-
       return;
     }
 
@@ -190,7 +173,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    *   True is user provider could be associated.
    *   False otherwise.
    */
-  public function authenticateWithProvider($user_id) {
+  public function authenticateWithProvider(int $user_id): bool {
     try {
       // Load the user by their Drupal user id.
       $drupal_user = $this->userManager->loadUserByProperty('uid', $user_id);
@@ -198,16 +181,17 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
       if ($drupal_user) {
         // Authenticates and redirect existing user.
         $this->authenticateExistingUser($drupal_user);
-
         return TRUE;
       }
 
       return FALSE;
     }
-    catch (\Exception $ex) {
+    catch (\Exception $e) {
       $this->loggerFactory
         ->get($this->getPluginId())
-        ->error('Failed to authenticate user. Exception: @message', ['@message' => $ex->getMessage()]);
+        ->error('Failed to authenticate user. Exception: @message', [
+          '@message' => $e->getMessage(),
+        ]);
 
       return FALSE;
     }
@@ -229,7 +213,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    *   True if user could be authenticated with email.
    *   False otherwise.
    */
-  public function authenticateWithEmail($email, $provider_user_id, $token, $data) {
+  public function authenticateWithEmail(string $email, string $provider_user_id, string $token, ?array $data): bool {
     try {
       // Load user by email.
       $drupal_user = $this->userManager->loadUserByProperty('mail', $email);
@@ -245,10 +229,12 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
         return TRUE;
       }
     }
-    catch (\Exception $ex) {
+    catch (\Exception $e) {
       $this->loggerFactory
         ->get($this->getPluginId())
-        ->error('Failed to authenticate user. Exception: @message', ['@message' => $ex->getMessage()]);
+        ->error('Failed to authenticate user. Exception: @message', [
+          '@message' => $e->getMessage(),
+        ]);
     }
 
     return FALSE;
@@ -260,24 +246,20 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param \Drupal\user\UserInterface $drupal_user
    *   User object to authenticate.
    */
-  public function authenticateExistingUser(UserInterface $drupal_user) {
+  public function authenticateExistingUser(UserInterface $drupal_user): void {
     // If Admin (user 1) can not authenticate.
     if ($this->isAdminDisabled($drupal_user)) {
       $this->nullifySessionKeys();
       $this->messenger->addError($this->t('Authentication for Admin (user 1) is disabled.'));
-
       $this->response = $this->getLoginFormRedirection();
-
       return;
     }
 
-    // If user can not login because of their role.
+    // If user can not log in because of their role.
     $disabled_role = $this->isUserRoleDisabled($drupal_user);
     if ($disabled_role) {
       $this->messenger->addError($this->t("Authentication for '@role' role is disabled.", ['@role' => $disabled_role]));
-
       $this->response = $this->getLoginFormRedirection();
-
       return;
     }
 
@@ -288,7 +270,6 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
     else {
       $this->nullifySessionKeys();
       $this->messenger->addError($this->t('Your account has not been approved yet or might have been canceled, please contact the administrator.'));
-
       $this->response = $this->getLoginFormRedirection();
     }
   }
@@ -297,9 +278,9 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * Authenticates and redirects new users in authentication process.
    *
    * @param \Drupal\user\UserInterface|null $drupal_user
-   *   User object to login.
+   *   User object to log in.
    */
-  public function authenticateNewUser(UserInterface $drupal_user = NULL) {
+  public function authenticateNewUser(?UserInterface $drupal_user = NULL): void {
 
     // If it's a valid Drupal user.
     if ($drupal_user) {
@@ -308,9 +289,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
       if ($this->isApprovalRequired()) {
         $this->messenger->addWarning($this->t("Your account was created, but it needs administrator's approval."));
         $this->nullifySessionKeys();
-
         $this->response = $this->getLoginFormRedirection();
-
         return;
       }
 
@@ -321,12 +300,10 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
 
         if ($redirect) {
           $this->response = $redirect;
-
           return;
         }
 
         $this->response = $this->getPostLoginRedirection();
-
         return;
       }
 
@@ -336,7 +313,6 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
     }
 
     $this->nullifySessionKeys();
-
     $this->response = $this->getLoginFormRedirection();
   }
 
@@ -350,15 +326,10 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    *   True if login was successful
    *   False if the login was blocked
    */
-  public function loginUser(UserInterface $drupal_user) {
+  public function loginUser(UserInterface $drupal_user): bool {
     // Check that the account is active and log the user in.
     if ($drupal_user->isActive()) {
       $this->userLoginFinalize($drupal_user);
-
-      // Dispatches SocialAuthEvents::USER_LOGIN event.
-      $event = new UserEvent($drupal_user, $this->getPluginId());
-      $this->eventDispatcher->dispatch($event, SocialAuthEvents::USER_LOGIN);
-
       return TRUE;
     }
 
@@ -379,7 +350,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    *   The Drupal user id if it exists.
    *   False otherwise.
    */
-  public function checkProviderIsAssociated($provider_user_id) {
+  public function checkProviderIsAssociated(string $provider_user_id): int|false {
     return $this->userManager->getDrupalUserId($provider_user_id);
   }
 
@@ -389,7 +360,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @return \Symfony\Component\HttpFoundation\RedirectResponse
    *   The redirection response.
    */
-  protected function getLoginFormRedirection() {
+  protected function getLoginFormRedirection(): RedirectResponse {
     return new RedirectResponse(Url::fromRoute('user.login')->toString());
   }
 
@@ -400,12 +371,12 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * not using them directly in our own methods. This way we can unit test our
    * own methods.
    *
-   * @param \Drupal\user\UserInterface $account
+   * @param \Drupal\User\UserInterface $account
    *   The Drupal user.
    *
    * @see user_password
    */
-  protected function userLoginFinalize(UserInterface $account) {
+  protected function userLoginFinalize(UserInterface $account): void {
     user_login_finalize($account);
   }
 
@@ -415,10 +386,10 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param string|null $error
    *   The error string/code from provider.
    *
-   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse|null
    *   Return redirect response.
    */
-  public function dispatchAuthenticationError($error = NULL) {
+  public function dispatchAuthenticationError(?string $error = NULL): ?RedirectResponse {
     $event = new FailedAuthenticationEvent($this->dataHandler, $this->getPluginId(), $error ?? NULL);
     $this->eventDispatcher->dispatch($event, SocialAuthEvents::FAILED_AUTH);
 
@@ -435,7 +406,7 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param string|null $destination
    *   The destination url.
    */
-  public function dispatchBeforeRedirect($destination = NULL) {
+  public function dispatchBeforeRedirect(?string $destination = NULL): void {
     $event = new BeforeRedirectEvent($this->dataHandler, $this->getPluginId(), $destination);
     $this->eventDispatcher->dispatch($event, SocialAuthEvents::BEFORE_REDIRECT);
   }

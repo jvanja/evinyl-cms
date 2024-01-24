@@ -23,14 +23,14 @@ class SocialAuthLoginBlock extends BlockBase implements ContainerFactoryPluginIn
    *
    * @var \Drupal\social_api\Plugin\NetworkManager
    */
-  private $networkManager;
+  private NetworkManager $networkManager;
 
   /**
    * Immutable configuration for social_auth.settings.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
-  private $socialAuthConfig;
+  private ImmutableConfig $socialAuthConfig;
 
   /**
    * SocialAuthLoginBlock constructor.
@@ -61,7 +61,7 @@ class SocialAuthLoginBlock extends BlockBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
     return new static(
       $configuration,
       $plugin_id,
@@ -74,20 +74,16 @@ class SocialAuthLoginBlock extends BlockBase implements ContainerFactoryPluginIn
   /**
    * {@inheritdoc}
    */
-  public function build() {
-    // Add social network name to data passed to template.
-    // @todo Move `route` and `img_path` settings to the Network declaration.
-    $networks = $this->networkManager->getDefinitions();
-    $social_networks = $this->socialAuthConfig->get('auth');
-    foreach ($social_networks as $id => &$social_network) {
-      $social_network['name'] = NULL;
-      if (isset($networks[$id]) && isset($networks[$id]['social_network'])) {
-        $social_network['name'] = $networks[$id]['social_network'];
-      }
+  public function build(): array {
+    $networks = [];
+    foreach ($this->networkManager->getDefinitions() as $definition) {
+      $networks[] = $this->networkManager->createInstance($definition['id']);
     }
+
+    // Add social network name to data passed to template.
     return [
       '#theme' => 'login_with',
-      '#social_networks' => $social_networks,
+      '#networks' => $networks,
     ];
   }
 

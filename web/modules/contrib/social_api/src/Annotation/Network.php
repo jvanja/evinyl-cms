@@ -3,6 +3,7 @@
 namespace Drupal\social_api\Annotation;
 
 use Drupal\Component\Annotation\Plugin;
+use Drupal\Core\Annotation\Translation;
 
 /**
  * Defines a Social Network item annotation object.
@@ -19,23 +20,30 @@ class Network extends Plugin {
    *
    * @var string
    */
-  public $id;
+  public string $id;
 
   /**
    * The social network service implemented by the plugin.
    *
-   * @var \Drupal\Core\Annotation\Translation
+   * @var \Drupal\Core\Annotation\Translation|string
    *
    * @ingroup plugin_translatable
    */
-  public $socialNetwork;
+  public Translation|string $socialNetwork;
 
   /**
    * The type of the plugin.
    *
    * @var string
    */
-  public $type;
+  public string $type;
+
+  /**
+   * Fully qualified Class name of the plugin SDK.
+   *
+   * @var string
+   */
+  public string $className;
 
   /**
    * A list of extra handlers.
@@ -44,6 +52,6 @@ class Network extends Plugin {
    *
    * @todo Check the entity type plugins to copy from.
    */
-  public $handlers = [];
+  public array $handlers = [];
 
 }

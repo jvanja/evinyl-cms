@@ -32,13 +32,14 @@
     ],
     "require" : {
         "ext-openssl": "*",
-        "league/oauth2-client": "^2.0",
-        "drupal/core": "^9.1 || ^10"
+        "drupal/core": "^9.1 || ^10",
+        "league/oauth2-client": "^2.0"
     },
     "require-dev": {
         "drupal/coder": "^8.3",
         "phpcompatibility/php-compatibility": "^9.3"
     },
+    "minimum-stability": "dev",
     "config": {
         "sort-packages": true,
         "allow-plugins": {

@@ -1,7 +1,7 @@
 name: Social Auth Google
 type: module
 description: 'Social Auth integration for Google.'
-core_version_requirement: ^8.8 || ^9 || ^10
+core_version_requirement: ^9 || ^10
 package: Social
 
 configure: social_auth_google.settings_form
@@ -9,7 +9,7 @@ configure: social_auth_google.settings_form
 dependencies:
   - social_auth:social_auth
 
-# Information added by Drupal.org packaging script on 2022-08-12
-version: '3.0.0'
+# Information added by Drupal.org packaging script on 2023-06-26
+version: '4.0.1'
 project: 'social_auth_google'
-datestamp: 1660311385
+datestamp: 1687791407

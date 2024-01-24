@@ -9,22 +9,6 @@
         "issues": "https://www.drupal.org/project/issues/social_auth_google",
         "source": "https://git.drupalcode.org/project/social_auth_google"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "composer",
-            "url":  "https://packages.drupal.org/8"
-        }
-    ],
-    "require": {
-        "league/oauth2-google": "^3.0",
-        "drupal/social_auth": "^3.0",
-        "drupal/core": "^8.8 || ^9 || ^10"
-    },
-    "require-dev": {
-        "drupal/coder": "^8.3"
-    },
     "authors": [
         {
             "name": "Getulio Valentin Sánchez (gvso)",
@@ -36,7 +20,29 @@
         },
         {
             "name": "Christopher C. Wells (wells)",
-            "email": "chris@chrxs.net"
+            "email": "drupal.org@chris-wells.net"
         }
-    ]
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url":  "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "league/oauth2-google": "^4.0",
+        "drupal/social_auth": "^4.0",
+        "drupal/core": "^9 || ^10"
+    },
+    "require-dev": {
+        "drupal/coder": "^8.3",
+        "phpcompatibility/php-compatibility": "^9.3"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
 }

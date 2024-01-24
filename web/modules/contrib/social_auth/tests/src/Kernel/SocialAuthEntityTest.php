@@ -2,6 +2,8 @@
 
 namespace Drupal\Tests\social_auth\Kernel;
 
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\KernelTests\Core\Entity\EntityKernelTestBase;
 use Drupal\social_auth\Entity\SocialAuth;
 
@@ -15,23 +17,23 @@ class SocialAuthEntityTest extends EntityKernelTestBase {
   /**
    * The social_auth entity.
    *
-   * @var \Drupal\social_auth\Entity\SocialAuth
+   * @var \Drupal\Core\Entity\EntityInterface
    */
-  protected $entity;
+  private EntityInterface $entity;
 
   /**
    * The entity storage.
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected $entityStorage;
+  private EntityStorageInterface $entityStorage;
 
   /**
    * The entity values to creation.
    *
    * @var array
    */
-  protected $values = [];
+  private array $values = [];
 
   /**
    * Modules to enable.

@@ -1,0 +1,13 @@
+diff --git a/modules/contrib/rest_absolute_urls/src/Normalizer/StringDataNormalizer.php b/modules/contrib/rest_absolute_urls/src/Normalizer/StringDataNormalizer.php
+index c3a6611af..e5ac18117 100755
+--- a/modules/contrib/rest_absolute_urls/src/Normalizer/StringDataNormalizer.php
++++ b/modules/contrib/rest_absolute_urls/src/Normalizer/StringDataNormalizer.php
+@@ -37,7 +37,7 @@ public function __construct(ConfigFactoryInterface $config_factory) {
+   /**
+    * {@inheritdoc}
+    */
+-  public function normalize($object, $format = NULL, array $context = []) {
++  public function normalize($object, $format = NULL, array $context = array()): array|string|int|float|bool|\ArrayObject|NULL {
+     $value = parent::normalize($object, $format, $context);
+
+     // By default grab the base URL from the configuration settings.

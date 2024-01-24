@@ -29,6 +29,8 @@ composer.lock
 
 node_modules
 
-.DS_Store
+# tools
+tools/
+.php-cs-fixer*
 
-*.cache
+.DS_Store

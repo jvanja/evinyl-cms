@@ -12,98 +12,97 @@ class SocialAuthUser implements SocialAuthUserInterface {
    *
    * @var string|null
    */
-  protected $firstName;
+  protected ?string $firstName = NULL;
 
   /**
    * Last name.
    *
    * @var string|null
    */
-  protected $lastName;
+  protected ?string $lastName = NULL;
 
   /**
    * Used to create the username in Drupal: first + last most of the time.
    *
    * @var string
    */
-  protected $name;
+  protected string $name;
 
   /**
    * Email address.
    *
    * @var string|null
    */
-  protected $email;
+  protected ?string $email = NULL;
 
   /**
    * ID in provider.
    *
    * @var string
    */
-  protected $providerUserID;
+  protected string $providerUserID;
 
   /**
    * Token used for authentication in provider.
    *
    * @var string|mixed
    */
-  protected $token;
+  protected mixed $token;
 
   /**
    * URL to get profile picture.
    *
-   * @var string
+   * @var string|null
    */
-  protected $pictureUrl = NULL;
+  protected ?string $pictureUrl = NULL;
 
   /**
    * Profile picture file.
    *
    * @var string|int|null
    */
-  protected $picture = NULL;
+  protected mixed $picture = NULL;
 
   /**
    * User's extra data. Store in additional_data field in social_auth entity.
    *
    * @var array|null
    */
-  protected $additionalData;
+  protected ?array $additionalData;
 
   /**
    * Other data added through external modules (e.g. event subscribers)
    *
    * @var array
    */
-  protected $customData;
+  protected array $customData = [];
 
   /**
    * User constructor.
    *
    * @param string $name
    *   The user's name.
-   * @param string $email
-   *   The user's email address.
    * @param string $provider_user_id
    *   The unique ID in provider.
    * @param string $token
    *   The access token for making API calls.
-   * @param string|bool $picture_url
+   * @param string|null $email
+   *   The user's email address.
+   * @param string|null $picture_url
    *   The user's picture.
    * @param array|null $additional_data
    *   The additional user data to be stored in database.
    */
-  public function __construct($name,
-                              $email,
-                              $provider_user_id,
-                              $token,
-                              $picture_url = NULL,
-                              $additional_data = NULL) {
-
+  public function __construct(string $name,
+                              string $provider_user_id,
+                              string $token,
+                              ?string $email = NULL,
+                              ?string $picture_url = NULL,
+                              ?array $additional_data = NULL) {
     $this->name = $name;
-    $this->email = $email;
     $this->providerUserID = $provider_user_id;
     $this->token = $token;
+    $this->email = $email;
     $this->pictureUrl = $picture_url;
     $this->additionalData = $additional_data;
   }
@@ -111,142 +110,141 @@ class SocialAuthUser implements SocialAuthUserInterface {
   /**
    * {@inheritdoc}
    */
-  public function getFirstName() {
+  public function getFirstName(): ?string {
     return $this->firstName;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setFirstName($first_name) {
+  public function setFirstName(?string $first_name): void {
     $this->firstName = $first_name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getLastName() {
+  public function getLastName(): ?string {
     return $this->lastName;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setLastName($last_name) {
+  public function setLastName(?string $last_name): void {
     $this->lastName = $last_name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getName() {
+  public function getName(): string {
     return $this->name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setName($name) {
+  public function setName(string $name): void {
     $this->name = $name;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getEmail() {
+  public function getEmail(): ?string {
     return $this->email;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setEmail($email) {
+  public function setEmail(?string $email): void {
     $this->email = $email;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getProviderId() {
+  public function getProviderId(): string {
     return $this->providerUserID;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setProviderId($provider_id) {
+  public function setProviderId(string $provider_id): void {
     $this->providerUserID = $provider_id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getToken() {
+  public function getToken(): string {
     return $this->token;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setToken($token) {
+  public function setToken(string $token): void {
     $this->token = $token;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPictureUrl() {
+  public function getPictureUrl(): ?string {
     return $this->pictureUrl;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPictureUrl($picture_url) {
+  public function setPictureUrl(?string $picture_url): void {
     $this->pictureUrl = $picture_url;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getPicture() {
+  public function getPicture(): mixed {
     return $this->picture;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setPicture($file_id) {
+  public function setPicture(mixed $file_id) {
     $this->picture = $file_id;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getAdditionalData() {
+  public function getAdditionalData(): ?array {
     return $this->additionalData;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setAdditionalData($additional_data) {
+  public function setAdditionalData(?array $additional_data): void {
     $this->additionalData = $additional_data;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function addData($key, $value) {
+  public function addData(string $key, mixed $value): static {
     $this->customData[$key] = $value;
-
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getData($key) {
+  public function getData($key): mixed {
     return $this->customData[$key] ?? NULL;
   }
 

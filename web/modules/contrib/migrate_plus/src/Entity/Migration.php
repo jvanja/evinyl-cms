@@ -56,6 +56,9 @@ class Migration extends ConfigEntityBase implements MigrationInterface {
    */
   protected function invalidateTagsOnSave($update): void {
     parent::invalidateTagsOnSave($update);
+    \Drupal::service('plugin.manager.migration')->clearCachedDefinitions();
+
+    // TODO: remove after 10.1 and earlier support sunsets.
     Cache::invalidateTags(['migration_plugins']);
   }
 
@@ -64,6 +67,9 @@ class Migration extends ConfigEntityBase implements MigrationInterface {
    */
   protected static function invalidateTagsOnDelete(EntityTypeInterface $entity_type, array $entities): void {
     parent::invalidateTagsOnDelete($entity_type, $entities);
+    \Drupal::service('plugin.manager.migration')->clearCachedDefinitions();
+
+    // TODO: remove after 10.1 and earlier support sunsets.
     Cache::invalidateTags(['migration_plugins']);
   }
 

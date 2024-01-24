@@ -48,8 +48,8 @@ final class MigrateExampleTest extends MigrateDrupalTestBase {
     $this->installConfig(['migrate_example_setup']);
 
     // Execute "beer" migrations from 'migrate_example' module.
+    $this->executeMigration('beer_user');
     $this->executeMigrations([
-      'beer_user',
       'beer_term',
       'beer_node',
       'beer_comment',

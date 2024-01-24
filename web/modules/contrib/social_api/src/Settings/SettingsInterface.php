@@ -17,7 +17,7 @@ interface SettingsInterface {
    * @return \Drupal\Core\Config\ImmutableConfig
    *   The configuration object associated with the settings.
    */
-  public function getConfig();
+  public function getConfig(): ImmutableConfig;
 
   /**
    * Factory method to create a new settings object.
@@ -25,6 +25,6 @@ interface SettingsInterface {
    * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The configuration object.
    */
-  public static function factory(ImmutableConfig $config);
+  public static function factory(ImmutableConfig $config): static;
 
 }

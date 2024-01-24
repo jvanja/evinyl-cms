@@ -4,4 +4,4 @@ social_api.admin_config:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'Social API'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer social api configuration'

@@ -16,26 +16,26 @@ abstract class OAuth2Manager extends BaseOAuth2Manager implements OAuth2ManagerI
    *
    * @var string|null
    */
-  protected $scopes;
+  protected ?string $scopes = NULL;
 
   /**
    * The end points to be requested.
    *
    * @var string|null
    */
-  protected $endPoints;
+  protected ?string $endPoints = NULL;
 
   /**
    * The user returned by the provider.
    *
-   * @var \League\OAuth2\Client\Provider\GenericResourceOwner|array|mixed
+   * @var mixed
    */
-  protected $user;
+  protected mixed $user = NULL;
 
   /**
    * {@inheritdoc}
    */
-  public function getExtraDetails($method = 'GET', $domain = NULL) {
+  public function getExtraDetails(string $method = 'GET', ?string $domain = NULL): ?array {
     $endpoints = $this->getEndPoints();
 
     // Stores the data mapped with endpoints define in settings.
@@ -59,7 +59,7 @@ abstract class OAuth2Manager extends BaseOAuth2Manager implements OAuth2ManagerI
   /**
    * {@inheritdoc}
    */
-  public function getScopes() {
+  public function getScopes(): string {
     if ($this->scopes === NULL) {
       $this->scopes = $this->settings->get('scopes');
     }
@@ -70,7 +70,7 @@ abstract class OAuth2Manager extends BaseOAuth2Manager implements OAuth2ManagerI
   /**
    * {@inheritdoc}
    */
-  public function getEndPoints() {
+  public function getEndPoints(): string {
     if ($this->endPoints === NULL) {
       $this->endPoints = $this->settings->get('endpoints');
     }

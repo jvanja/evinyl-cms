@@ -3,36 +3,34 @@
 /**
  * Implements hook_hook_ENTITY_TYPE_update() for user.
  */
-function evinyl_artist_entity_update(Drupal\Core\Entity\EntityInterface $entity){
-  if ($entity->bundle() == 'artists') {
+function evinyl_artist_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->bundle() === 'artists') {
     \Drupal::logger('evinyl_artist')->notice($entity->bundle() . ' update');
     updateArtistsJson();
   }
-  return;
 }
 
-function evinyl_artist_entity_delete(Drupal\Core\Entity\EntityInterface $entity){
-  if ($entity->bundle() == 'artists') {
+function evinyl_artist_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->bundle() === 'artists') {
     \Drupal::logger('evinyl_artist')->notice($entity->bundle() . ' deleted');
     updateArtistsJson();
   }
-  return;
 }
 
-function evinyl_artist_entity_insert(Drupal\Core\Entity\EntityInterface $entity){
-  if ($entity->bundle() == 'artists') {
+function evinyl_artist_entity_insert(Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->bundle() === 'artists') {
     \Drupal::logger('evinyl_artist')->notice($entity->bundle() . ' created');
     updateArtistsJson();
   }
-  return;
 }
-
 
 function updateArtistsJson() {
   $json_string = file_get_contents('https://cms.evinyl.net/jsonapi/taxonomy_term/artists?include=field_user_photo.field_media_image&sort=name');
-  if(file_put_contents('/Applications/MAMP/htdocs/evinyl-cms/web/sites/default/files/_cache.json', $json_string)) {
+
+  if (file_put_contents('/Applications/MAMP/htdocs/evinyl-cms/web/sites/default/files/_cache.json', $json_string)) {
     \Drupal::logger('evinyl_artist')->notice('Successfully updated Artists JSON file');
-  } else {
+  }
+  else {
     \Drupal::logger('evinyl_artist')->error('Failed to write to the Artists JSON file');
   }
 }

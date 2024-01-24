@@ -5,9 +5,11 @@
  * Provides a filtering mechanism to various admin pages.
  */
 
-use Drupal\Core\Render\Element;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_help().
@@ -42,7 +44,7 @@ function module_filter_form_system_modules_alter(&$form, FormStateInterface $for
   }
   $form['#attached']['library'][] = $config->get('tabs') ? 'module_filter/modules.tabs' : 'module_filter/modules.bare';
   unset($form['filters']['text']['#description']);
-  $form['filters']['text']['#placeholder'] = t('Filter by module');
+  $form['filters']['text']['#placeholder'] = t('Filter by module name or description');
   if (!empty($request_object->query->get('filter'))) {
     $form['filters']['text']['#default_value'] = $request_object->query->get('filter');
   }
@@ -102,6 +104,20 @@ function module_filter_form_system_modules_alter(&$form, FormStateInterface $for
         }
       }
     }
+    foreach (array_keys($module->requires) as $requires_name) {
+      // If the required name is not in $modules then that module is missing, so
+      // change the name into a link to assist admins to get the project. We
+      // assume that the project at least has a page on drupal.org even if the
+      // primary source repo is hosted somewhere else.
+      if (empty($modules[$requires_name])) {
+        $package = $module->info['package'];
+        if (isset($form['modules'][$package][$name]['#requires'][$requires_name])) {
+          $project = Link::fromTextAndUrl($requires_name, Url::fromUri('https://www.drupal.org/project/' . $requires_name));
+          $missing_link = t('<strong>@module_name</strong> (<span class="admin-missing">missing</span>)', ['@module_name' => $project->toString()]);
+          $form['modules'][$package][$name]['#requires'][$requires_name] = $missing_link;
+        }
+      }
+    }
   }
 
   $form['#submit'][] = 'module_filter_system_modules_recent_enabled_submit';
@@ -125,13 +141,17 @@ function module_filter_form_system_modules_confirm_form_alter(&$form, FormStateI
  */
 function module_filter_form_system_modules_uninstall_alter(&$form, FormStateInterface $form_state, $form_id) {
   $request_object = \Drupal::request();
+  // Remove the 'system/drupal.system.modules' library if it is attached, and
+  // replace it with this module's 'module_filter/modules.uninstall' library.
   $key = array_search('system/drupal.system.modules', $form['#attached']['library']);
   if ($key !== FALSE) {
     unset($form['#attached']['library'][$key]);
   }
   $form['#attached']['library'][] = 'module_filter/modules.uninstall';
   unset($form['filters']['text']['#description']);
-  $form['filters']['text']['#placeholder'] = t('Filter by module');
+  $form['filters']['text']['#placeholder'] = t('Filter by module name, description or machine name');
+  // Increase the input field size to cater for longer placeholder.
+  $form['filters']['text']['#size'] = 50;
   if (!empty($request_object->query->get('filter'))) {
     $form['filters']['text']['#default_value'] = $request_object->query->get('filter');
   }
@@ -141,6 +161,11 @@ function module_filter_form_system_modules_uninstall_alter(&$form, FormStateInte
  * Implements hook_form_FORM_ID_alter().
  */
 function module_filter_form_user_admin_permissions_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('module_filter.settings');
+  if (!$config->get('enabled_filters.permissions')) {
+    return;
+  }
+
   $request_object = \Drupal::request();
   $form['filters'] = [
     '#type' => 'container',
@@ -153,7 +178,7 @@ function module_filter_form_user_admin_permissions_alter(&$form, FormStateInterf
     '#title' => t('Filter modules'),
     '#title_display' => 'invisible',
     '#size' => 30,
-    '#placeholder' => t('Filter by module'),
+    '#placeholder' => t('Filter by module or permission'),
     '#attributes' => [
       'class' => ['table-filter-text'],
       'data-table' => '#permissions',

@@ -5,8 +5,8 @@ namespace Drupal\warmer_entity\Plugin\warmer;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Core\Cache\MemoryCache\MemoryCacheInterface;
 use Drupal\Core\Database\DatabaseExceptionWrapper;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\SubformStateInterface;
 use Drupal\warmer\Plugin\WarmerPluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -144,7 +144,8 @@ final class EntityWarmer extends WarmerPluginBase {
     if (empty($this->iids) && !empty($configuration['entity_types'])) {
       $entity_bundle_pairs = array_filter(array_values($configuration['entity_types']));
       sort($entity_bundle_pairs);
-      $this->iids = array_reduce($entity_bundle_pairs, function ($iids, $entity_bundle_pair) {
+      $published_only = $configuration['published_only'] ?? FALSE;
+      $this->iids = array_reduce($entity_bundle_pairs, function ($iids, $entity_bundle_pair) use ($published_only) {
         [$entity_type_id, $bundle] = explode(':', $entity_bundle_pair);
         $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
         $bundle_key = $entity_type->getKey('bundle');
@@ -152,12 +153,19 @@ final class EntityWarmer extends WarmerPluginBase {
         $query = $this->entityTypeManager
           ->getStorage($entity_type_id)
           ->getQuery()
-          ->accessCheck(TRUE);
+          ->accessCheck(FALSE);
         if (!empty($id_key)) {
           $query->sort($id_key);
         }
         if (!empty($bundle_key)) {
           $query->condition($bundle_key, $bundle);
+        }
+        if ($published_only) {
+          $query->accessCheck(TRUE);
+          if ($entity_type->hasKey('published')) {
+            $published_key = $entity_type->getKey('published');
+            $query->condition($published_key, TRUE);
+          }
         }
         $results = $query->execute();
         $entity_ids = array_filter((array) array_values($results));
@@ -202,6 +210,13 @@ final class EntityWarmer extends WarmerPluginBase {
       '#default_value' => empty($configuration['entity_types']) ? [] : $configuration['entity_types'],
       '#multiple' => TRUE,
       '#attributes' => ['style' => 'min-height: 60em;'],
+    ];
+
+    $form['published_only'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Warm only published entities'),
+      '#description' => $this->t('Will check publishing status for entities that implement EntityPublishedInterface'),
+      '#default_value' => $configuration['published_only'] ?? FALSE,
     ];
 
     return $form;

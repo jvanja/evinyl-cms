@@ -22,7 +22,7 @@ interface OAuth2ManagerInterface extends BaseOAuth2ManagerInterface {
    * @return array|null
    *   The extra details gotten from provider.
    */
-  public function getExtraDetails($method = 'GET', $domain = NULL);
+  public function getExtraDetails(string $method = 'GET', ?string $domain = NULL): ?array;
 
   /**
    * Request and end point.
@@ -39,7 +39,7 @@ interface OAuth2ManagerInterface extends BaseOAuth2ManagerInterface {
    * @return array|mixed
    *   Data returned by provider.
    */
-  public function requestEndPoint($method, $path, $domain = NULL, array $options = []);
+  public function requestEndPoint(string $method, string $path, ?string $domain = NULL, array $options = []): mixed;
 
   /**
    * Gets the scopes defined in the settings form.
@@ -47,7 +47,7 @@ interface OAuth2ManagerInterface extends BaseOAuth2ManagerInterface {
    * @return string
    *   Data points separated by comma.
    */
-  public function getScopes();
+  public function getScopes(): string;
 
   /**
    * Gets the API endpoints to be requested.
@@ -55,6 +55,6 @@ interface OAuth2ManagerInterface extends BaseOAuth2ManagerInterface {
    * @return string
    *   API endpoints separated in different lines.
    */
-  public function getEndPoints();
+  public function getEndPoints(): string;
 
 }

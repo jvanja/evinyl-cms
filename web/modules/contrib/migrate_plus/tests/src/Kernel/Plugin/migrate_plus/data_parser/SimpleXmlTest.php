@@ -12,7 +12,7 @@ use Drupal\migrate_plus\DataParserPluginInterface;
  *
  * @group migrate_plus
  */
-class SimpleXmlTest extends BaseXmlTest {
+class SimpleXmlTest extends BaseXml {
 
   /**
    * Test reading non-standard conforming XML.

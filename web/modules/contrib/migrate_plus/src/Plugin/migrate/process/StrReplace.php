@@ -125,6 +125,14 @@ class StrReplace extends ProcessPluginBase {
     if ($this->configuration['regex']) {
       $function = 'preg_replace';
     }
+    if($this->multiple) {
+      foreach($value as $key => $item) {
+        $item = (string) $item;
+        $value[$key] = $function($this->configuration['search'], $this->configuration['replace'], $item);
+      }
+      return $value;
+    }
+    $value = (string) $value;
     return $function($this->configuration['search'], $this->configuration['replace'], $value);
   }
 

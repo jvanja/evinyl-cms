@@ -6,15 +6,24 @@
 namespace Drupal\evinyl_album\Controller;
 
 // use Drupal\jsonapi\Routing\Routes;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class GetJsonController {
-  public function content() {
 
-    if($_SERVER['SERVER_NAME'] == 'localhost') {
+  public function album() {
+    // $routes = Routes->routes();
+
+    return [
+      '#type' => 'markup',
+      '#markup' => t('New albums.json generated'),
+    ];
+  }
+
+  public function content() {
+    if ($_SERVER['SERVER_NAME'] === 'localhost') {
       $wget = '/usr/local/bin/wget --header="Accept: application/vnd.api+json"';
       $api = ' -O album.json "http://localhost/evinyl8/web/jsonapi/node/album';
-    } else {
+    }
+    else {
       $wget = '/usr/bin/wget --header="Accept: application/vnd.api+json"';
       $api = ' -O album.json "https://lab.evinyl.net/jsonapi/node/album';
     }
@@ -22,18 +31,11 @@ class GetJsonController {
     $command = $wget . $api . $include;
 
     $result = exec($command . ' > /dev/null &', $response, $return_code);
-    return array(
+
+    return [
       '#type' => 'markup',
       '#markup' => t('New albums.json generated'),
-    );
+    ];
   }
 
-  public function album() {
-    // $routes = Routes->routes();
-
-    return array(
-      '#type' => 'markup',
-      '#markup' => t('New albums.json generated'),
-    );
-  }
 }

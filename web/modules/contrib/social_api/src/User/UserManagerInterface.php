@@ -13,7 +13,7 @@ interface UserManagerInterface {
    * @return string
    *   The plugin id.
    */
-  public function getPluginId();
+  public function getPluginId(): string;
 
   /**
    * Sets the implementer plugin id.
@@ -21,7 +21,7 @@ interface UserManagerInterface {
    * @param string $plugin_id
    *   The plugin id.
    */
-  public function setPluginId($plugin_id);
+  public function setPluginId(string $plugin_id): void;
 
   /**
    * Gets the Drupal user id based on the provider user id.
@@ -33,6 +33,6 @@ interface UserManagerInterface {
    *   The Drupal user id if it exists.
    *   False otherwise.
    */
-  public function getDrupalUserId($provider_user_id);
+  public function getDrupalUserId(string $provider_user_id): int|false;
 
 }

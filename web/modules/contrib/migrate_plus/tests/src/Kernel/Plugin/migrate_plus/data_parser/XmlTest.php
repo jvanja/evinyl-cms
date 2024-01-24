@@ -11,7 +11,7 @@ use Drupal\migrate_plus\DataParserPluginInterface;
  *
  * @group migrate_plus
  */
-final class XmlTest extends BaseXmlTest {
+final class XmlTest extends BaseXml {
 
   /**
    * {@inheritdoc}

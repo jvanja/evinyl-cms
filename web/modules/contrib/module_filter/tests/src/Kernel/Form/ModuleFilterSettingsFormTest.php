@@ -27,7 +27,8 @@ class ModuleFilterSettingsFormTest extends KernelTestBase {
     parent::setUp();
 
     $this->moduleFilterSettingsForm = new ModuleFilterSettingsForm(
-      $this->container->get('config.factory')
+      $this->container->get('config.factory'),
+      $this->container->get('config.typed')
     );
   }
 

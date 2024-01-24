@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\social_auth\Functional;
 
+use Drupal\block\Entity\Block;
 use Drupal\Core\Url;
 use Drupal\Tests\social_api\Functional\SocialApiTestBase;
 
@@ -9,13 +10,6 @@ use Drupal\Tests\social_api\Functional\SocialApiTestBase;
  * Defines a base class for testing Social Auth implementers.
  */
 abstract class SocialAuthTestBase extends SocialApiTestBase {
-
-  /**
-   * The default theme.
-   *
-   * @var string
-   */
-  protected $defaultTheme = 'stark';
 
   /**
    * Modules to enable.
@@ -29,14 +23,14 @@ abstract class SocialAuthTestBase extends SocialApiTestBase {
    *
    * @var \Drupal\block\Entity\Block
    */
-  protected $socialAuthLoginBlock;
+  protected Block $socialAuthLoginBlock;
 
   /**
    * The root of the path of the authentication route.
    *
    * @var string
    */
-  protected $authRootPath = '/user/login/';
+  protected string $authRootPath = '/user/login/';
 
   /**
    * {@inheritdoc}
@@ -60,8 +54,6 @@ abstract class SocialAuthTestBase extends SocialApiTestBase {
 
   /**
    * Test if link to provider exists in login block.
-   *
-   * @throws \Behat\Mink\Exception\ResponseTextException
    */
   protected function checkLinkToProviderExists() {
     // Test for a non-authenticated user.
@@ -88,7 +80,7 @@ abstract class SocialAuthTestBase extends SocialApiTestBase {
    * @param string $path
    *   The path to the start of the authentication process.
    */
-  protected function checkPathInBlock($path) {
+  protected function checkPathInBlock(string $path) {
     $links = $this->xpath('//a[contains(@href, :href)]', [':href' => $path]);
 
     $this->assertGreaterThanOrEqual(1, count($links));

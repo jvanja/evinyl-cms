@@ -2,9 +2,9 @@
 
 namespace Drupal\social_api\Plugin;
 
-use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Plugin\DefaultPluginManager;
 
 /**
  * Provides the Social Network plugin manager.
@@ -27,6 +27,16 @@ class NetworkManager extends DefaultPluginManager {
 
     $this->alterInfo('social_api_network_info');
     $this->setCacheBackend($cache_backend, 'social_api_network_plugins');
+  }
+
+  /**
+   * Gets the module handler.
+   *
+   * @return \Drupal\Core\Extension\ModuleHandlerInterface
+   *   Module handler.
+   */
+  public function getModuleHandler(): ModuleHandlerInterface {
+    return $this->moduleHandler;
   }
 
 }

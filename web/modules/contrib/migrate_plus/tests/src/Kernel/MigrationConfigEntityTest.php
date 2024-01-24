@@ -64,11 +64,6 @@ final class MigrationConfigEntityTest extends MigrateTestBase {
     $this->assertNotEmpty($this->pluginManager->getDefinition('test'));
     $this->assertSame('Label A', $this->pluginManager->getDefinition('test')['label']);
 
-    // Clear static cache in the plugin manager, the cache tag take care of the
-    // persistent cache.
-    $this->pluginManager->useCaches(FALSE);
-    $this->pluginManager->useCaches(TRUE);
-
     $config->set('label', 'Label B');
     $config->save();
 

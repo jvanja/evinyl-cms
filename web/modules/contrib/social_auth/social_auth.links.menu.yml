@@ -4,3 +4,9 @@ social_auth.integrations:
   route_name: social_auth.integrations
   parent: social_api.admin_config
   weight: -10
+
+social_auth.profiles:
+  title: Social Auth Profiles
+  description: Manage Social Auth Profiles
+  parent: entity.user.collection
+  route_name: entity.social_auth.collection

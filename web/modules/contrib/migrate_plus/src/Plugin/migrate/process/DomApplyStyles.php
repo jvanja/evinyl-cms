@@ -126,12 +126,21 @@ class DomApplyStyles extends DomProcessBase implements ContainerFactoryPluginInt
       $message = 'The "format" option must be a non-empty string.';
       throw new InvalidPluginDefinitionException($this->getPluginId(), $message);
     }
-    $editor_styles = $this->configFactory
-      ->get("editor.editor.$format")
-      ->get('settings.plugins.stylescombo.styles');
-    foreach (explode("\r\n", $editor_styles) as $rule) {
-      if (preg_match('/(.*)\|(.*)/', $rule, $matches)) {
-        $this->styles[$matches[2]] = $matches[1];
+    $editor_config = $this->configFactory->get("editor.editor.$format");
+    if ($editor_config->get('editor') === 'ckeditor') {
+      $editor_styles = $editor_config->get('settings.plugins.stylescombo.styles') ?? '';
+      foreach (explode("\r\n", $editor_styles) as $rule) {
+        if (preg_match('/(.*)\|(.*)/', $rule, $matches)) {
+          $this->styles[$matches[2]] = $matches[1];
+        }
+      }
+    }
+    else if ($editor_config->get('editor') === 'ckeditor5') {
+      $editor_styles = $editor_config->get('settings.plugins.ckeditor5_style.styles') ?? [];
+      foreach ($editor_styles as $editor_style) {
+        if (preg_match('/<(.*) class="(.*)">/', $editor_style['element'], $matches)) {
+          $this->styles[$editor_style['label']] = $matches[1] . '.' . $matches[2];
+        }
       }
     }
   }

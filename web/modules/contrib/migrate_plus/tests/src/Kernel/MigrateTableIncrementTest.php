@@ -28,6 +28,13 @@ class MigrateTableIncrementTest extends MigrateTestBase {
   protected static $modules = ['migrate_plus'];
 
   /**
+   * The batch size to configure.
+   *
+   * @var int
+   */
+  protected int $batchSize = 1;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp(): void {
@@ -98,6 +105,7 @@ class MigrateTableIncrementTest extends MigrateTestBase {
           'destination' => [
             'plugin' => 'table',
             'table_name' => static::TABLE_NAME,
+            'batch_size' => $this->batchSize,
             'id_fields' => [
               'id' => [
                 'type' => 'integer',
@@ -140,6 +148,42 @@ class MigrateTableIncrementTest extends MigrateTestBase {
     $this->assertEquals(3, $values['dummy1 value3']->id);
     $this->assertEquals('dummy2 value3', $values['dummy1 value3']->data2);
     $this->assertCount(3, $values);
+  }
+
+  /**
+   * Tests table destination with data already in the table.
+   *
+   * @param array $definition
+   *   The migration definition.
+   *
+   * @dataProvider tableDestinationMigration
+   *
+   * @throws \Drupal\migrate\MigrateException
+   */
+  public function testTableDestinationWithExistingData(array $definition) {
+    $this->connection->insert(static::TABLE_NAME)
+      ->fields([
+        'id' => 5,
+        'data1' => 'Dummy initial value',
+        'data2' => 'Dummy initial value2',
+      ])
+      ->execute();
+    $migration = \Drupal::service('plugin.manager.migration')->createStubMigration($definition);
+
+    $executable = new MigrateExecutable($migration, $this);
+    $executable->import();
+
+    $values = $this->connection->select(static::TABLE_NAME)
+      ->fields(static::TABLE_NAME)
+      ->execute()
+      ->fetchAllAssoc('data1');
+
+    $this->assertEquals(5, $values['Dummy initial value']->id);
+    $this->assertEquals(6, $values['dummy1 value1']->id);
+    $this->assertEquals(7, $values['dummy1 value2']->id);
+    $this->assertEquals(8, $values['dummy1 value3']->id);
+    $this->assertEquals('dummy2 value3', $values['dummy1 value3']->data2);
+    $this->assertCount(4, $values);
   }
 
 }

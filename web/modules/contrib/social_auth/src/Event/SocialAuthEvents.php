@@ -30,7 +30,7 @@ final class SocialAuthEvents {
   const USER_CREATED = 'social_auth.user.created';
 
   /**
-   * Dispatched event when a new user login using social auth.
+   * Dispatched event when user logs in using social auth.
    *
    * @Event
    *

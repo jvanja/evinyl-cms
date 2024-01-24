@@ -2,14 +2,15 @@
 
 {{ attach_library('social_auth/auth-icons') }}
 
-{% for social_network in social_networks %}
+{% for id, network in networks %}
   {% if destination %}
-    <a class="{{ module }} auth-link" href="{{ path(social_network.route) }}?destination={{ destination | url_encode }}">
+    {% set options = {'query': {'destination': destination}} %}
   {% else %}
-    <a class="{{ module }} auth-link" href="{{ path(social_network.route) }}">
+    {% set options = {} %}
   {% endif %}
+  <a class="{{ module }} auth-link" href="{{ network.getRedirectUrl(options).toString }}">
     <img class="{{ module }} auth-icon"
-         src="{{ base_path }}{{ social_network.img_path }}"
-         alt="{{ 'Authenticate through @social_network_name' | t({'@social_network_name': social_network.name}) }}">
+       src="{{ network.getProviderLogoPath }}"
+       alt="{{ 'Authenticate through @social_network_name' | t({'@social_network_name': network.getPluginDefinition.social_network}) }}">
   </a>
 {% endfor %}

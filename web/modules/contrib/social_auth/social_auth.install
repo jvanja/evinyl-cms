@@ -6,6 +6,8 @@
  */
 
 use Drupal\Core\Database\Database;
+use Drupal\views\Entity\View;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Add 'social_auth' table when the module is updated from 1.x to 2.x.
@@ -117,4 +119,23 @@ function social_auth_update_8202() {
     $schema->changeField('social_auth', $field, $field, $spec);
   }
 
+}
+
+/**
+ * Import view to list social auths.
+ */
+function social_auth_update_8203() {
+  $message = NULL;
+  // Only create if the social auth profiles view doesn't exists
+  // and views is enabled.
+  if (\Drupal::moduleHandler()->moduleExists('views') && !View::load('social_auth_profiles')) {
+    $config_path = \Drupal::service('extension.list.module')->getPath('social_auth') . '/config/optional/views.view.social_auth_profiles.yml';
+    $data = Yaml::parseFile($config_path);
+    \Drupal::configFactory()->getEditable('views.view.social_auth_profiles')->setData($data)->save(TRUE);
+    $message = 'The new social auth profiles view has been created.';
+  }
+  else {
+    $message = 'Not creating a social auth profiles view since it already exists.';
+  }
+  return $message;
 }

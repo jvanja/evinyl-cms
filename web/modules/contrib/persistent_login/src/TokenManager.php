@@ -92,7 +92,9 @@ class TokenManager {
    * @return \Drupal\persistent_login\PersistentToken
    *   A validated token.
    */
-  public function validateToken(PersistentToken $token) {
+  public function validateToken(
+    #[\SensitiveParameter] PersistentToken $token
+  ) {
 
     $selectResult = $this->connection->select('persistent_login', 'pl')
       ->fields('pl', ['instance', 'uid', 'created', 'refreshed', 'expires'])
@@ -100,19 +102,23 @@ class TokenManager {
       ->condition('series', Crypt::hashBase64($token->getSeries()))
       ->execute();
 
-    if (
-      ($storedToken = $selectResult->fetchObject())
-      &&
-      $storedToken->instance === Crypt::hashBase64($token->getInstance())
-    ) {
+    $storedToken = $selectResult->fetchObject();
+    if (!$storedToken) {
+      return $token->setInvalid();
+    }
+    elseif ($storedToken->instance !== Crypt::hashBase64($token->getInstance())) {
+      $this->logger->warning('Invalid instance value provided in token for user %uid', [
+        '%uid' => $storedToken->uid,
+      ]);
+      return $token->setInvalid();
+    }
+    else {
       return $token
         ->setUid($storedToken->uid)
         ->setCreated(new \DateTime('@' . $storedToken->created))
         ->setRefreshed(new \DateTime('@' . $storedToken->refreshed))
         ->setExpiry(new \DateTime('@' . $storedToken->expires));
     }
-
-    return $token->setInvalid();
   }
 
   /**
@@ -193,7 +199,9 @@ class TokenManager {
    * @return \Drupal\persistent_login\PersistentToken
    *   An updated token.
    */
-  public function updateToken(PersistentToken $token) {
+  public function updateToken(
+    #[\SensitiveParameter] PersistentToken $token
+  ) {
     $originalInstance = $token->getInstance();
     $token = $token->updateInstance($this->generateTokenValue());
 
@@ -223,7 +231,9 @@ class TokenManager {
    * @return \Drupal\persistent_login\PersistentToken
    *   An invalidated token.
    */
-  public function deleteToken(PersistentToken $token) {
+  public function deleteToken(
+    #[\SensitiveParameter] PersistentToken $token
+  ) {
     try {
       $this->connection->delete('persistent_login')
         ->condition('series', Crypt::hashBase64($token->getSeries()))

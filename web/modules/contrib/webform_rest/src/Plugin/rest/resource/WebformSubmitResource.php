@@ -9,6 +9,8 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ModifiedResourceResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\webform_rest\Event\WebformSubmitReturnEvent;
 
 /**
  * Creates a resource for submitting a webform.
@@ -22,6 +24,13 @@ use Drupal\Core\Config\ConfigFactoryInterface;
  * )
  */
 class WebformSubmitResource extends ResourceBase {
+
+  /**
+   * The entity type manager object.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManager
+   */
+  protected $entityTypeManager;
 
   /**
    * The renderer service.
@@ -45,6 +54,21 @@ class WebformSubmitResource extends ResourceBase {
   protected $configFactory;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+
+  protected $currentUser;
+
+  /**
+   * An event dispatcher instance to use for configuration events.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
@@ -53,6 +77,8 @@ class WebformSubmitResource extends ResourceBase {
     $instance->request = $container->get('request_stack');
     $instance->renderer = $container->get('renderer');
     $instance->configFactory = $container->get('config.factory');
+    $instance->currentUser = $container->get('current_user');
+    $instance->eventDispatcher = $container->get('event_dispatcher');
     return $instance;
   }
 
@@ -73,7 +99,7 @@ class WebformSubmitResource extends ResourceBase {
           'message' => $this->t('No data has been submitted.'),
         ],
       ];
-      return new ModifiedResourceResponse($errors, 400);
+      return $this->dispatchReturnEvent([], $errors, 'error', 400);
     }
     $webform_data = json_decode($webform_data, TRUE);
 
@@ -84,7 +110,7 @@ class WebformSubmitResource extends ResourceBase {
           'message' => $this->t('Missing required webform_id value.'),
         ],
       ];
-      return new ModifiedResourceResponse($errors, 400);
+      return $this->dispatchReturnEvent([], $errors, 'error', 400);
     }
 
     // Convert to webform values format.
@@ -103,6 +129,15 @@ class WebformSubmitResource extends ResourceBase {
     // Check for a valid webform.
     $webform = Webform::load($values['webform_id']);
 
+    if (!$webform) {
+      $errors = [
+        'error' => [
+          'message' => $this->t('Invalid webform_id value.'),
+        ],
+      ];
+      return $this->dispatchReturnEvent([], $errors, 'error', 400);
+    }
+
     //Check if webform allows drafts
     $allow_draft = $webform->getSetting('draft');
       if(isset($webform_data['draft']) && $allow_draft === 'none' && $webform_data['draft'] === TRUE){
@@ -111,39 +146,39 @@ class WebformSubmitResource extends ResourceBase {
             'message' => $this->t('This webform does not allow draft submissions.'),
           ],
         ];
-      return new ModifiedResourceResponse($errors, 400);
+      return $this->dispatchReturnEvent($values, $errors, 'error', 400);
     }
     
     if (isset($webform_data['draft'])) {
       $values['in_draft'] = $webform_data['draft'] !== TRUE ? FALSE : TRUE;
     }
 
-    if (!$webform) {
+    //Check if user have permission to submit a webform submission
+    if (!$webform->access('submission_create', $this->currentUser, FALSE)) {
       $errors = [
         'error' => [
-          'message' => $this->t('Invalid webform_id value.'),
+          'message' => $this->t('Permission denied.'),
         ],
       ];
-      return new ModifiedResourceResponse($errors, 400);
+      return $this->dispatchReturnEvent([], $errors, 'error', 400);
     }
 
     // Check webform is open.
     $is_open = WebformSubmissionForm::isOpen($webform);
 
     if ($is_open === TRUE) {
-      // Validate submission.
-      $errors = WebformSubmissionForm::validateFormValues($values);
+      // Since validateFormValues also fires submitFormValues we only ran the latter to avoid calling handlers and hooks twice
+      $webform_submission = WebformSubmissionForm::submitFormValues($values);
 
       // Check there are no validation errors.
-      if (!empty($errors)) {
-        return new ModifiedResourceResponse([
+      if (is_array($webform_submission)) {  
+        $data_error = [
           'message' => $this->t('Submitted Data contains validation errors.'),
-          'error'   => $errors,
-        ], 400);
+          'error'   => $webform_submission,
+        ];
+        return $this->dispatchReturnEvent($values, $data_error, 'error', 400);
       }
       else {
-        // Return submission UUID.
-        $webform_submission = WebformSubmissionForm::submitFormValues($values);
         // Prepare response
         $response = ['sid' => $webform_submission->uuid()];
         $send_confirmation_settings = $this->configFactory->get('webform_rest.settings')->get('confirmation_settings');
@@ -153,9 +188,14 @@ class WebformSubmitResource extends ResourceBase {
             'confirmation_url' => $webform->getSetting('confirmation_url'),
             'confirmation_message' => $webform->getSetting('confirmation_message'),
             'confirmation_title' => $webform->getSetting('confirmation_title'),
+            'confirmation_attributes' => $webform->getSetting('confirmation_attributes'),
+            'confirmation_back' => $webform->getSetting('confirmation_back'),
+            'confirmation_back_label' => $webform->getSetting('confirmation_back_label'),
+            'confirmation_back_attributes' => $webform->getSetting('confirmation_back_attributes'),
           ];
         }
-        return new ModifiedResourceResponse($response);
+        //return new ModifiedResourceResponse($response);
+        return $this->dispatchReturnEvent($values,$response);
       }
     }
     else {
@@ -164,8 +204,21 @@ class WebformSubmitResource extends ResourceBase {
           'message' => $this->renderer->renderPlain($is_open),
         ],
       ];
-      return new ModifiedResourceResponse($errors, 400);
+      return $this->dispatchReturnEvent($values, $errors, 'error', 400);
     }
+  }
+
+  /**
+   * Dispatch event to manipulate the data and the Response return.
+   *
+   * @return \Drupal\rest\ResourceResponse
+   *   The HTTP response object.
+   */
+  protected function dispatchReturnEvent(array $submissionValues, $data = NULL, string $type_name = 'success', int $http_code = 200): ModifiedResourceResponse {
+    // Dispatch event
+    $this->eventDispatcher->dispatch(new WebformSubmitReturnEvent($type_name, $submissionValues, $data, $http_code), WebformSubmitReturnEvent::WEBFORM_SUBMIT_RETURN);
+
+    return new ModifiedResourceResponse($data, $http_code);
   }
 
 }
