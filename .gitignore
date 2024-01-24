@@ -28,3 +28,5 @@ web/album.json
 composer.lock
 
 node_modules
+
+.DS_Store
