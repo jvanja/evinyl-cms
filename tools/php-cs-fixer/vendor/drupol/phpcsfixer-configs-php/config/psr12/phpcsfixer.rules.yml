@@ -1,0 +1,4 @@
+parameters:
+    rules:
+        '@PSR12': true
+        '@PSR12:risky': true

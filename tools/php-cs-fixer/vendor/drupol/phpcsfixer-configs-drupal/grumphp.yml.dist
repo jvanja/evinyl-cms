@@ -1,0 +1,26 @@
+grumphp:
+    tasks:
+        # PHP Unit
+        phpunit:
+            config_file: ~
+            testsuite: ~
+            group: []
+            exclude_group: []
+            always_execute: false
+            order: null
+
+        # PHP CS Fixer
+        phpcsfixer:
+            config: .php-cs-fixer.dist.php
+
+        # Composer checks
+        composer: ~
+
+        # Composer checks
+        composer_normalize: ~
+
+        # Composer require checker
+        composer_require_checker: ~
+
+        # YAML Lint
+        yamllint: ~

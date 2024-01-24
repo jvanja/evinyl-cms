@@ -1,0 +1,9 @@
+parameters:
+    rules:
+        list_syntax:
+            syntax: short
+        visibility_required:
+            elements:
+                - method
+                - property
+                - const

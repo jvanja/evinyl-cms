@@ -1,0 +1,6 @@
+parameters:
+  rules:
+    array_syntax:
+      syntax: short
+    declare_strict_types: false
+    blank_lines_before_namespace: false
