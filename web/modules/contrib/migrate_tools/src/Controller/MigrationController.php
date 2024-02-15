@@ -149,32 +149,6 @@ class MigrationController extends ControllerBase implements ContainerInjectionIn
   }
 
   /**
-   * Run a migration.
-   *
-   * @param \Drupal\migrate_plus\Entity\MigrationGroupInterface $migration_group
-   *   The migration group.
-   * @param \Drupal\migrate_plus\Entity\MigrationInterface $migration
-   *   The $migration.
-   *
-   * @return \Symfony\Component\HttpFoundation\RedirectResponse|null
-   *   A redirect response if the batch is progressive. Else no return value.
-   */
-  public function run(MigrationGroupInterface $migration_group, MigrationInterface $migration): ?RedirectResponse {
-    $migrateMessage = new MigrateMessage();
-    $options = [];
-
-    $migration_plugin = $this->migrationPluginManager->createInstance($migration->id(), $migration->toArray());
-    $executable = new MigrateBatchExecutable($migration_plugin, $migrateMessage, $options);
-    $executable->batchImport();
-
-    $route_parameters = [
-      'migration_group' => $migration_group,
-      'migration' => $migration->id(),
-    ];
-    return batch_process(Url::fromRoute('entity.migration.process', $route_parameters));
-  }
-
-  /**
    * Display process information of a migration entity.
    *
    * @param \Drupal\migrate_plus\Entity\MigrationGroupInterface $migration_group
@@ -238,15 +212,6 @@ class MigrationController extends ControllerBase implements ContainerInjectionIn
       '#header' => $header,
       '#rows' => $rows,
       '#empty' => $this->t('No process defined.'),
-    ];
-
-    $build['process']['run'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Run'),
-      '#url' => Url::fromRoute('entity.migration.process.run', [
-        'migration_group' => $migration_group->id(),
-        'migration' => $migration->id(),
-      ]),
     ];
 
     return $build;

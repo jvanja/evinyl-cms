@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file Module file for Migrate Tools.
+ */
+
 declare(strict_types = 1);
 
 /**
@@ -8,6 +12,9 @@ declare(strict_types = 1);
  */
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\migrate\Plugin\MigrateSourceInterface;
+use Drupal\migrate\Plugin\MigrationInterface;
+use Drupal\migrate\Row;
 use Drupal\migrate_tools\Controller\MigrationGroupListBuilder;
 use Drupal\migrate_tools\Controller\MigrationListBuilder;
 use Drupal\migrate_tools\Form\MigrationDeleteForm;
@@ -15,9 +22,6 @@ use Drupal\migrate_tools\Form\MigrationEditForm;
 use Drupal\migrate_tools\Form\MigrationGroupAddForm;
 use Drupal\migrate_tools\Form\MigrationGroupDeleteForm;
 use Drupal\migrate_tools\Form\MigrationGroupEditForm;
-use Drupal\migrate\Plugin\MigrateSourceInterface;
-use Drupal\migrate\Plugin\MigrationInterface;
-use Drupal\migrate\Row;
 
 /**
  * Implements hook_entity_type_build().

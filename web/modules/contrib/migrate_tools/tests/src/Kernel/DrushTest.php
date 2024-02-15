@@ -6,7 +6,7 @@ namespace Drupal\Tests\migrate_tools\Kernel {
 
   use Drupal\migrate\Plugin\MigrationInterface;
   use Drupal\migrate\Plugin\MigrationPluginManagerInterface;
-  use Drupal\migrate_tools\Drush\MigrateToolsCommands;
+  use Drupal\migrate_tools\Drush\Commands\MigrateToolsCommands;
   use Drupal\migrate_tools\MigrateTools;
   use Drupal\Tests\migrate\Kernel\MigrateTestBase;
   use Drush\Log\DrushLoggerManager;

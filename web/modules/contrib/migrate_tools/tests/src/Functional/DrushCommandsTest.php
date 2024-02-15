@@ -40,11 +40,9 @@ final class DrushCommandsTest extends BrowserTestBase {
    */
   public function testFeedback(): void {
     $this->drush('mim', ['fruit_terms'], ['feedback' => 2]);
-    $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 2 items (2 created, 0 updated, 0 failed, 0 ignored) - continuing with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringContainsString('3/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 1 item (1 created, 0 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('4', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/1\/3[^\n]+\[notice\][^\n]+Processed 2 items \(2 created, 0 updated, 0 failed, 0 ignored\) - continuing with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/3\/3[^\n]+\[notice\][^\n]+Processed 1 item \(1 created, 0 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 4 items', $this->getErrorOutput());
   }
 
   /**
@@ -52,7 +50,7 @@ final class DrushCommandsTest extends BrowserTestBase {
    */
   public function testLimit(): void {
     $this->drush('mim', ['fruit_terms'], ['limit' => 2]);
-    $this->assertStringContainsString('[notice] Processed 2 items (2 created, 0 updated, 0 failed, 0 ignored)', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/\[notice\][^\n]+Processed 2 items \(2 created, 0 updated, 0 failed, 0 ignored\)/', $this->getErrorOutput());
     $this->assertStringContainsString('done with \'fruit_terms\'', $this->getErrorOutput());
     $this->assertStringNotContainsString('Processed 3 items', $this->getErrorOutput());
   }
@@ -81,7 +79,7 @@ final class DrushCommandsTest extends BrowserTestBase {
     $this->assertStringNotContainsString('fruit_terms    Idle     3', $this->getOutput());
     // Option set, fruit_terms should display.
     $this->drush('ms', ['invalid_plugin,fruit_terms'], ['continue-on-failure' => NULL]);
-    $this->assertStringContainsString('[error]  The "does_not_exist" plugin does not exist', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/\[error\][^\n]+The "does_not_exist" plugin does not exist/', $this->getErrorOutput());
     $this->assertStringContainsString('fruit_terms    Idle     3', $this->getOutput());
   }
 
@@ -120,20 +118,18 @@ final class DrushCommandsTest extends BrowserTestBase {
     $this->assertEquals($expected, $this->getOutputFromJSON());
     $this->drush('mim', ['fruit_terms']);
     $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('3/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 3 items (3 created, 0 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('4', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/3\/3[^\n]+\[notice\][^\n]+Processed 3 items \(3 created, 0 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 4 items', $this->getErrorOutput());
     $this->drush('mim', ['fruit_terms'], [
       'update' => NULL,
       'force' => NULL,
       'execute-dependencies' => NULL,
     ]);
     $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('3/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 3 items (0 created, 3 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('4', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/3\/3[^\n]+\[notice\][^\n]+Processed 3 items \(0 created, 3 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 4 items', $this->getErrorOutput());
     $this->drush('mrs', ['fruit_terms']);
-    $this->assertErrorOutputEquals('[warning] Migration fruit_terms is already Idle');
+    $this->assertStringContainsString('Migration fruit_terms is already Idle', $this->getErrorOutput());
     $this->drush('mfs', ['fruit_terms'], ['format' => 'json']);
     $expected = [
       [
@@ -144,16 +140,15 @@ final class DrushCommandsTest extends BrowserTestBase {
     $this->assertEquals($expected, $this->getOutputFromJSON());
     $this->drush('mr', ['fruit_terms']);
     $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('3/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Rolled back 3 items - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('4', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/3\/3[^\n]+\[notice\][^\n]+Rolled back 3 items - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 4 items', $this->getErrorOutput());
     $this->drush('migrate:stop', ['fruit_terms']);
-    $this->assertErrorOutputEquals('[warning] Migration fruit_terms is idle');
+    $this->assertMatchesRegularExpression('/warning\][^\n]+Migration fruit_terms is idle/', $this->getErrorOutput());
 
     $this->drush('mim', ['fruit_terms'], ['skip-progress-bar' => NULL]);
-    $this->assertErrorOutputEquals('[notice] Processed 3 items (3 created, 0 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'');
+    $this->assertMatchesRegularExpression('/\[notice\][^\n]+Processed 3 items \(3 created, 0 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
     $this->drush('mr', ['fruit_terms'], ['skip-progress-bar' => NULL]);
-    $this->assertErrorOutputEquals('[notice] Rolled back 3 items - done with \'fruit_terms\'');
+    $this->assertMatchesRegularExpression('/\[notice\][^\n]+Rolled back 3 items - done with \'fruit_terms\'/', $this->getErrorOutput());
   }
 
   /**
@@ -162,7 +157,7 @@ final class DrushCommandsTest extends BrowserTestBase {
   public function testMessages(): void {
     $this->drush('mim', ['fruit_terms']);
     $this->drush('mmsg', ['fruit_terms']);
-    $this->assertErrorOutputEquals('[notice] No messages for this migration');
+    $this->assertMatchesRegularExpression('/\[notice\][^\n]+No messages for this migration/', $this->getErrorOutput());
     /** @var \Drupal\migrate\Plugin\MigrateIdMapInterface $id_map */
     $id_map = $this->container->get('plugin.manager.migration')->createInstance('fruit_terms')->getIdMap();
     $id_map->saveMessage(['name' => 'Apple'], 'You picked a bad one.');
@@ -191,8 +186,8 @@ EOT;
     $this->drush('mim', ['fruit_terms']);
     $this->assertStringContainsString('1/3', $this->getErrorOutput());
     $this->assertStringContainsString('3/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 3 items (3 created, 0 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('4', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/3\/3[^\n]+\[notice\][^\n]+Processed 3 items \(3 created, 0 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 4 items', $this->getErrorOutput());
     $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load(2);
     $this->assertEquals('Banana', $term->label());
     $this->assertEquals(3, \Drupal::entityTypeManager()->getStorage('taxonomy_term')->getQuery()->accessCheck(TRUE)->count()->execute());
@@ -204,9 +199,8 @@ EOT;
     drupal_flush_all_caches();
     $this->drush('mim', ['fruit_terms'], ['sync' => NULL, 'update' => NULL]);
     $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('4/4', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 3 items (1 created, 2 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
-    $this->assertStringNotContainsString('5', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/4\/4[^\n]+\[notice\][^\n]+Processed 3 items \(1 created, 2 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertStringNotContainsString('Processed 5 items', $this->getErrorOutput());
     $this->assertEquals(3, \Drupal::entityTypeManager()->getStorage('taxonomy_term')->getQuery()->accessCheck(TRUE)->count()->execute());
     $this->assertEmpty(\Drupal::entityTypeManager()->getStorage('taxonomy_term')->load(2));
 
@@ -216,8 +210,8 @@ EOT;
     // Flush cache so the recently changed migration can be refreshed.
     drupal_flush_all_caches();
     $this->drush('mim', ['fruit_terms'], ['sync' => NULL]);
-    $this->assertStringContainsString('1/3', $this->getErrorOutput());
-    $this->assertStringContainsString('[notice] Processed 1 item (1 created, 0 updated, 0 failed, 0 ignored) - done with \'fruit_terms\'', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/1\/3[^\n]+\[notice\][^\n]+Rolled back 1 item - done with \'fruit_terms\'/', $this->getErrorOutput());
+    $this->assertMatchesRegularExpression('/\[notice\][^\n]+Processed 1 item \(1 created, 0 updated, 0 failed, 0 ignored\) - done with \'fruit_terms\'/', $this->getErrorOutput());
     $this->assertStringNotContainsString('2 updated', $this->getErrorOutput());
     $this->assertStringNotContainsString('5', $this->getErrorOutput());
     $this->assertEquals(3, \Drupal::entityTypeManager()->getStorage('taxonomy_term')->getQuery()->accessCheck(TRUE)->count()->execute());

@@ -2,6 +2,7 @@ id: test_stub_multiple_includes_migration
 label: Test stub multiple includes migration
 include:
   - my_default_configuration
+  - my_single_file_default_configuration
   - one_off_configuration
 source:
   plugin: embedded_data

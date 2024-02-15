@@ -117,7 +117,7 @@ class MigrateBatchExecutable extends MigrateExecutable {
         'init_message' => $this->t('Start migrating %migrate', ['%migrate' => $this->migration->label()]),
         'progress_message' => $this->t('Migrating %migrate', ['%migrate' => $this->migration->label()]),
         'error_message' => $this->t('An error occurred while migrating %migrate.', ['%migrate' => $this->migration->label()]),
-        'finished' => '\Drupal\migrate_tools\MigrateBatchExecutable::batchFinishedImport',
+        'finished' => [static::class, 'batchFinishedImport'],
       ];
 
       batch_set($batch);
@@ -172,7 +172,7 @@ class MigrateBatchExecutable extends MigrateExecutable {
       }
 
       $operations[] = [
-        sprintf('%s::%s', self::class, 'batchProcessImport'),
+        sprintf('%s::%s', static::class, 'batchProcessImport'),
         [$migration->id(), $options],
       ];
     }
@@ -211,7 +211,7 @@ class MigrateBatchExecutable extends MigrateExecutable {
       $options['limit'] -= $context['results'][$migration->id()]['@numitems'];
     }
 
-    $executable = new MigrateBatchExecutable($migration, $message, $options);
+    $executable = new static($migration, $message, $options);
 
     if (empty($context['sandbox']['total'])) {
       $context['sandbox']['total'] = $executable->getSource()->count();

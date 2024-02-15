@@ -89,15 +89,16 @@ class MigrationImportSync implements EventSubscriberInterface {
           }
         }
 
-        $destination_ids = $id_map->currentDestination();
-
-        if ($destination_ids !== NULL && $destination_ids !== [] && !in_array($map_source_id, $source_id_values, TRUE)) {
-          $this->dispatchRowDeleteEvent(MigrateEvents::PRE_ROW_DELETE, $migration, $destination_ids);
-          if (class_exists(MigratePlusEvents::class)) {
-            $this->dispatchRowDeleteEvent(MigratePlusEvents::MISSING_SOURCE_ITEM, $migration, $destination_ids);
+        if (!in_array($map_source_id, $source_id_values, TRUE)) {
+          $destination_ids = $id_map->currentDestination();
+          if ($destination_ids !== NULL) {
+            $this->dispatchRowDeleteEvent(MigrateEvents::PRE_ROW_DELETE, $migration, $destination_ids);
+            if (class_exists(MigratePlusEvents::class)) {
+              $this->dispatchRowDeleteEvent(MigratePlusEvents::MISSING_SOURCE_ITEM, $migration, $destination_ids);
+            }
+            $destination->rollback($destination_ids);
+            $this->dispatchRowDeleteEvent(MigrateEvents::POST_ROW_DELETE, $migration, $destination_ids);
           }
-          $destination->rollback($destination_ids);
-          $this->dispatchRowDeleteEvent(MigrateEvents::POST_ROW_DELETE, $migration, $destination_ids);
           $id_map->delete($map_source_id);
         }
         $id_map->next();

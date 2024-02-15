@@ -80,20 +80,6 @@ entity.migration.process:
         type: entity:migration
       migration_group:
         type: entity:migration_group
-entity.migration.process.run:
-  path: '/admin/structure/migrate/manage/{migration_group}/migrations/{migration}/process/run'
-  defaults:
-    _controller: '\Drupal\migrate_tools\Controller\MigrationController::run'
-    _title: 'Run'
-    _migrate_group: true
-  requirements:
-    _permission: 'administer migrations'
-  options:
-    parameters:
-      migration:
-        type: entity:migration
-      migration_group:
-        type: entity:migration_group
 entity.migration.destination:
   path: '/admin/structure/migrate/manage/{migration_group}/migrations/{migration}/destination'
   defaults:
