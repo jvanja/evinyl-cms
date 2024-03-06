@@ -2,6 +2,7 @@
 
 namespace Drupal\coffee\Controller;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Access\AccessManagerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
@@ -116,7 +117,7 @@ class CoffeeController extends ControllerBase {
             'value' => $link->getUrlObject()
               ->setUrlGenerator($this->urlGenerator)
               ->toString(),
-            'label' => $link->getTitle(),
+            'label' => Html::escape($link->getTitle()),
             'command' => $commands_group,
           ];
 
@@ -127,7 +128,7 @@ class CoffeeController extends ControllerBase {
               $output[$route_name] = [
                 'value' => $task['url']->setUrlGenerator($this->urlGenerator)
                   ->toString(),
-                'label' => $link->getTitle() . ' - ' . $task['title'],
+                'label' => Html::escape($link->getTitle() . ' - ' . $task['title']),
                 'command' => NULL,
               ];
             }

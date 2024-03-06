@@ -5,6 +5,7 @@ namespace Drupal\warmer\Drush\Commands;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\CommandError;
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
+use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Consolidation\SiteAlias\SiteAliasManagerAwareTrait;
 use Drupal\Component\DependencyInjection\ContainerInterface;
 use Drupal\warmer\HookImplementations;
@@ -17,7 +18,7 @@ use Drush\Utils\StringUtils;
 /**
  * Drush commands for the Warmer module.
  */
-class WarmerCommands extends DrushCommands {
+class WarmerCommands extends DrushCommands implements SiteAliasManagerAwareInterface {
   use SiteAliasManagerAwareTrait;
 
   private const VERY_HIGH_NUMBER = 99999999;
