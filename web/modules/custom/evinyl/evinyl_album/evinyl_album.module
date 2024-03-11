@@ -24,9 +24,12 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
       // calculate_song_duration($entity);
       break;
 
+    case 'podcast':
+      calculate_podcast_duration($entity);
+      break;
+
     case 'comment':
       sendNodeJsMessageToAll($entity);
-
       break;
 
     case 'article':
@@ -169,14 +172,12 @@ function sendNodeJsMessageToAll($entity) {
 
 function calculate_song_duration($entity) {
   $getID3 = new getID3();
-  $id3 = $getID3->version();
   $file_id = $entity->field_song->getValue()[0]['target_id'];
   $database = \Drupal::database();
   $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
     ':entity_id' => $file_id,
   ]);
   $result = $query->fetchAll();
-
   if (count($result) > 0) {
     $final_file_id = $result[0]->field_media_audio_file_target_id;
     $file = \Drupal\file\Entity\File::load($final_file_id);
@@ -185,6 +186,11 @@ function calculate_song_duration($entity) {
     $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
     $entity->set('field_song_duration', $song_duration);
   }
+}
+
+function calculate_podcast_duration($entity) {
+  $getID3 = new getID3();
+  $file_id = $entity->field_audio->getValue()[0]['target_id'];
 }
 
 function update_json_output() {
