@@ -59,8 +59,7 @@
         "drupal/social_auth_google": "^4.0",
         "drupal/webform_rest": "^4.0",
         "drupal/yoast_seo": "^1.8",
-        "drush/drush": "^12.4",
-        "james-heinrich/getid3": "*"
+        "drush/drush": "^12.4"
     },
     "conflict": {
         "drupal/drupal": "*"

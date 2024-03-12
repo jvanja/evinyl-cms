@@ -1,6 +1,5 @@
 <?php
 
-// use getID3;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\user\Entity\User;
@@ -170,27 +169,36 @@ function sendNodeJsMessageToAll($entity) {
   nodejs_enqueue_message($message);
 }
 
-function calculate_song_duration($entity) {
-  $getID3 = new getID3();
-  $file_id = $entity->field_song->getValue()[0]['target_id'];
-  $database = \Drupal::database();
-  $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
-    ':entity_id' => $file_id,
-  ]);
-  $result = $query->fetchAll();
-  if (count($result) > 0) {
-    $final_file_id = $result[0]->field_media_audio_file_target_id;
-    $file = \Drupal\file\Entity\File::load($final_file_id);
-    $uri = $file->getFileUri();
-    $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
-    $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
-    $entity->set('field_song_duration', $song_duration);
-  }
-}
+// function calculate_song_duration($entity) {
+//   $getID3 = new getID3();
+//   $file_id = $entity->field_song->getValue()[0]['target_id'];
+//   $database = \Drupal::database();
+//   $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
+//     ':entity_id' => $file_id,
+//   ]);
+//   $result = $query->fetchAll();
+//   if (count($result) > 0) {
+//     $final_file_id = $result[0]->field_media_audio_file_target_id;
+//     $file = \Drupal\file\Entity\File::load($final_file_id);
+//     $uri = $file->getFileUri();
+//     $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
+//     $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
+//     $entity->set('field_song_duration', $song_duration);
+//   }
+// }
 
 function calculate_podcast_duration($entity) {
-  $getID3 = new getID3();
+
+  require_once(__DIR__ . '/getid3/getid3.php');
+  $getID3 = new getID3;
+
   $file_id = $entity->field_audio->getValue()[0]['target_id'];
+  $file = \Drupal\file\Entity\File::load($file_id);
+  $uri = $file->getFileUri();
+  $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
+
+  $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
+  $entity->set('field_audio_duration', $song_duration);
 }
 
 function update_json_output() {
