@@ -88,6 +88,9 @@
                 "extra": {
                     "issue-tracker-url": "https://www.drupal.org/project/smtp/issues/3323386"
                 }
+            },
+            "drupal/entity_browser": {
+                "Fixes the image browser 500 error for when entity_brower is selected": "https://www.drupal.org/files/issues/2024-04-15/entity_browser-3440973.patch"
             }
         },
         "drupal-scaffold": {
