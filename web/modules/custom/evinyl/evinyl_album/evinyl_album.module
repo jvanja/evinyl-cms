@@ -3,6 +3,7 @@
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\user\Entity\User;
+use Drupal\Core\Form\FormStateInterface;
 
 /* ==========================================================================
   HOOKS
@@ -51,6 +52,23 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
 
       break;
   }
+}
+
+/**
+ * Force sorting direction for search by date
+ *
+ */
+function evinyl_album_form_alter(&$form, &$form_state, $form_id) {
+  if (strstr($form_id, '_node_form')) {
+    $form['actions']['submit']['#submit'][] = 'evinyl_album_node_form_submit';
+  }
+}
+/**
+ * Custom submit handler to redirect to the node edit page.
+ */
+function evinyl_album_node_form_submit(array &$form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  $form_state->setRedirect('entity.node.edit_form', ['node' => $node->id()]);
 }
 
 /**
@@ -141,8 +159,7 @@ function sendNodeJsMessageToAll($entity) {
   if ($userPhoto) {
     $userPhotoUri = $userPhoto->getFileUri();
     $userPhotoUrl = $style->buildUrl($userPhotoUri);
-  }
-  else {
+  } else {
     $userPhotoUrl = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
   }
 
@@ -205,8 +222,7 @@ function update_json_output() {
   if ($_SERVER['SERVER_NAME'] === 'localhost') {
     $wget = '/usr/local/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "http://localhost/evinyl8/web/jsonapi/node/album';
-  }
-  else {
+  } else {
     $wget = '/usr/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "https://lab.evinyl.net/jsonapi/node/album';
   }
