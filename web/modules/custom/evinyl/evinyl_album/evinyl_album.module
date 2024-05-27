@@ -3,7 +3,10 @@
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\user\Entity\User;
-use Drupal\Core\Form\FormStateInterface;
+// use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 
 /* ==========================================================================
   HOOKS
@@ -15,9 +18,6 @@ use Drupal\Core\Form\FormStateInterface;
 function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
   // die;
   switch ($entity->bundle()) {
-    case 'album':
-      // update_json_output();
-      break;
 
     case 'a_side_songs':
     case 'b_side_songs':
@@ -31,26 +31,6 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
     case 'comment':
       sendNodeJsMessageToAll($entity);
       break;
-
-    case 'article':
-      // // dpm($entity);
-      // $nid = $entity->id();
-      // $current_path = \Drupal::service('path.current')->getPath();
-      // $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $nid);
-      // // dpm($node_alias);
-      // $host = \Drupal::request()->getHost();
-      // if ($host == 'localhost') {
-      //   $redirect = 'http://localhost:3000' . $node_alias;
-      // } elseif ($host == 'cms.evinyl.net') {
-      //   $redirect = 'http://evinyl.net' . $node_alias;
-      // } else {
-      //   $redirect = 'https://dev.evinyl.net' . $node_alias;
-      // }
-      //
-      // $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-      // $response->send();
-
-      break;
   }
 }
 
@@ -58,18 +38,18 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
  * Force sorting direction for search by date
  *
  */
-function evinyl_album_form_alter(&$form, &$form_state, $form_id) {
-  if (strstr($form_id, '_node_form')) {
-    $form['actions']['submit']['#submit'][] = 'evinyl_album_node_form_submit';
-  }
-}
+// function evinyl_album_form_alter(&$form, &$form_state, $form_id) {
+//   if (strstr($form_id, 'node_')) {
+//     $form['actions']['submit']['#submit'][] = 'evinyl_album_node_form_submit';
+//   }
+// }
 /**
  * Custom submit handler to redirect to the node edit page.
  */
-function evinyl_album_node_form_submit(array &$form, FormStateInterface $form_state) {
-  $node = $form_state->getFormObject()->getEntity();
-  $form_state->setRedirect('entity.node.edit_form', ['node' => $node->id()]);
-}
+// function evinyl_album_node_form_submit(array &$form, FormStateInterface $form_state) {
+//   $node = $form_state->getFormObject()->getEntity();
+//   $form_state->setRedirect('entity.node.edit_form', ['node' => $node->id()]);
+// }
 
 /**
  * Implements hook_entity_delete().
@@ -82,63 +62,28 @@ function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) 
   }
 }
 
-// function evinyl_album_preprocess_node(&$variables) {
-//   // dpm($variables);
-//   // $node = Drupal::request()->attributes->get('node');
-//   // $node = \Drupal::routeMatch()->getParameter('node');
-//   $parameters = \Drupal::routeMatch()->getParameters()->all();
-//
-//   if (isset($parameters['node'])) {
-//     // $type = $node->getType();
-//     $type = $parameters['node']->getType();
-//
-//     // if($type == 'album' && $node->isPublished() == true){
-//     if ($type === 'album') {
-//       $current_path = \Drupal::service('path.current')->getPath();
-//       $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-//       $host = \Drupal::request()->getHost();
-//
-//       if ($host === 'localhost') {
-//         $redirect = 'http://localhost:3000' . $node_alias;
-//       }
-//       elseif ($host === 'cms.evinyl.net') {
-//         $redirect = 'http://evinyl.net' . $node_alias;
-//       }
-//       else {
-//         $redirect = 'https://dev.evinyl.net' . $node_alias;
-//       }
-//
-//       $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-//       $response->send();
-//       Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
-//
-//       return;
-//     }
-//   } elseif (isset($parameters['taxonomy_term'])) {
-//     // $term = $parameters['taxonomy_term'];
-//     // dpm($term->getVocabularyId()); // this returns 'artist' or 'genre'
-//
-//     $current_path = \Drupal::service('path.current')->getPath();
-//     $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-//     $host = \Drupal::request()->getHost();
-//
-//     if ($host === 'localhost') {
-//       $redirect = 'http://localhost:3000' . $node_alias;
-//     }
-//     elseif ($host === 'cms.evinyl.net') {
-//       $redirect = 'http://evinyl.net' . $node_alias;
-//     }
-//     else {
-//       $redirect = 'https://dev.evinyl.net' . $node_alias;
-//     }
-//
-//     $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-//     $response->send();
-//     Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
-//
-//     return;
-//   }
-// }
+function evinyl_album_preprocess_node(&$variables) {
+  $parameters = \Drupal::routeMatch()->getParameters()->all();
+
+  if (isset($parameters['node'])) {
+    // $node = Drupal::request()->attributes->get('node');
+    $node = $parameters['node'];
+    $id = $node->id();
+    $url = Url::fromRoute('entity.node.edit_form', ['node' => $node->id()])->toString();
+    // Redirecting to edit.
+    $response = new RedirectResponse($url);
+    $response->send();
+
+  } elseif (isset($parameters['taxonomy_term'])) {
+
+    $term = $parameters['taxonomy_term'];
+    $id = $term->id();
+    $url = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $id])->toString();
+    // Redirecting to edit.
+    $response = new RedirectResponse($url);
+    $response->send();
+  }
+}
 
 /* ==========================================================================
   CUSTOM METHODS
