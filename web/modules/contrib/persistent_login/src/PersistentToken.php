@@ -3,7 +3,7 @@
 namespace Drupal\persistent_login;
 
 /**
- * Class PersistentToken.
+ * A Persistent Token.
  *
  * @package Drupal\persistent_login
  */
@@ -71,7 +71,7 @@ class PersistentToken {
   public function __construct(
     #[\SensitiveParameter] $series,
     #[\SensitiveParameter] $instance,
-    $uid = self::STATUS_NOT_VALIDATED
+    $uid = self::STATUS_NOT_VALIDATED,
   ) {
     $this->series = $series;
     $this->instance = $instance;
@@ -92,7 +92,7 @@ class PersistentToken {
    *   A new token.
    */
   public static function createFromString(
-    #[\SensitiveParameter] $value
+    #[\SensitiveParameter] $value,
   ) {
     [$series, $instance] = explode(':', $value);
     return new static($series, $instance);
@@ -105,7 +105,7 @@ class PersistentToken {
    *   An array of values to set object properties.
    */
   public static function createFromArray(
-    #[\SensitiveParameter] array $values
+    #[\SensitiveParameter] array $values,
   ) {
     if (empty($values['series'])) {
       throw new \Exception("Required property 'series' not set.");
@@ -218,7 +218,7 @@ class PersistentToken {
    * @return $this
    */
   public function updateInstance(
-    #[\SensitiveParameter] $instance
+    #[\SensitiveParameter] $instance,
   ) {
     $this->instance = $instance;
 

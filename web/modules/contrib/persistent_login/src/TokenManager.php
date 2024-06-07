@@ -71,7 +71,7 @@ class TokenManager {
     ConfigFactoryInterface $configFactory,
     CsrfTokenGenerator $csrfToken,
     LoggerInterface $logger,
-    TimeInterface $time
+    TimeInterface $time,
   ) {
     $this->configFactory = $configFactory;
     $this->connection = $connection;
@@ -93,7 +93,7 @@ class TokenManager {
    *   A validated token.
    */
   public function validateToken(
-    #[\SensitiveParameter] PersistentToken $token
+    #[\SensitiveParameter] PersistentToken $token,
   ) {
 
     $selectResult = $this->connection->select('persistent_login', 'pl')
@@ -200,7 +200,7 @@ class TokenManager {
    *   An updated token.
    */
   public function updateToken(
-    #[\SensitiveParameter] PersistentToken $token
+    #[\SensitiveParameter] PersistentToken $token,
   ) {
     $originalInstance = $token->getInstance();
     $token = $token->updateInstance($this->generateTokenValue());
@@ -232,7 +232,7 @@ class TokenManager {
    *   An invalidated token.
    */
   public function deleteToken(
-    #[\SensitiveParameter] PersistentToken $token
+    #[\SensitiveParameter] PersistentToken $token,
   ) {
     try {
       $this->connection->delete('persistent_login')

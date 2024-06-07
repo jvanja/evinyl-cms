@@ -4,6 +4,8 @@ namespace Drupal\Tests\persistent_login\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 
+// cspell:ignore Tyrell
+
 /**
  * Test a persistent login with a session that has expired from inactivity.
  *
@@ -61,13 +63,14 @@ class InactiveSessionTest extends BrowserTestBase {
       'name' => $this->user->getAccountName(),
       'pass' => $this->user->passRaw,
       'persistent_login' => TRUE,
-    ], t('Log in'));
+    ], 'Log in');
 
     $this->assertFalse($this->homepageHasLoginForm(), 'The login form should not be present on the page.');
 
     // Remove the session from the database.
-    $this->getDatabaseConnection()
-      ->truncate($this->databasePrefix . 'sessions')
+    $this->container->get('database')
+      ->delete('sessions')
+      ->condition('uid', $this->user->id())
       ->execute();
 
     $this->assertFalse($this->homepageHasLoginForm(), 'Persistent Login should initiate a new session.');

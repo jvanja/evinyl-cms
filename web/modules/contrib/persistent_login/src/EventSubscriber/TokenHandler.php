@@ -97,7 +97,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
     SessionConfigurationInterface $session_configuration,
     EntityTypeManagerInterface $entity_type_manager,
     ConfigFactoryInterface $config_factory,
-    $logger_channel_factory = NULL
+    $logger_channel_factory = NULL,
   ) {
     $this->tokenManager = $token_manager;
     $this->cookieHelper = $cookie_helper;
@@ -118,7 +118,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
    * @return array
    *   The subscribed events.
    */
-  public static function getSubscribedEvents() {
+  public static function getSubscribedEvents(): array {
     $events = [];
 
     $events[KernelEvents::RESPONSE][] = ['setTokenOnResponseEvent'];
@@ -169,6 +169,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
         $session = $request->getSession();
         $session->migrate();
         $session->set('uid', $user->id());
+
         // @todo tag session as opened by PL.
 
         $this->loggerChannelFactory->get('user')

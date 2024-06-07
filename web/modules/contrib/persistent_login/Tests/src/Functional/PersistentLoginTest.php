@@ -4,6 +4,8 @@ namespace Drupal\Tests\persistent_login\Functional;
 
 use Drupal\Tests\BrowserTestBase;
 
+// cspell:ignore Tyrell
+
 /**
  * Tests the persistent login functionality.
  *
@@ -74,7 +76,7 @@ class PersistentLoginTest extends BrowserTestBase {
       'name' => $this->user->getAccountName(),
       'pass' => $this->user->passRaw,
       'persistent_login' => $remember_me,
-    ], t('Log in'));
+    ], 'Log in');
 
     // Check that the homepage now doesn't show the "Log in" link any more.
     $this->assertFalse($this->homepageHasLoginForm(), 'The login form should not be present on the page.');
@@ -143,7 +145,7 @@ class PersistentLoginTest extends BrowserTestBase {
    *   that indicates whether or not the "Remember me" option should be checked
    *   when logging in and a message for the assertion.
    */
-  public function loginProvider() {
+  public static function loginProvider(): array {
     return [
       [
         // When the "Remember me" functionality is not enabled, the user should

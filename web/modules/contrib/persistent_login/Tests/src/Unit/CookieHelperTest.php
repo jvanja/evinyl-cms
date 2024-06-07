@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Cookie Helper Tests.
+ *
+ * @group persistent_login
  */
 class CookieHelperTest extends UnitTestCase {
 
