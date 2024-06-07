@@ -1,0 +1,29 @@
+<?php
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
+/* ==========================================================================
+  HOOKS
+  ========================================================================== */
+function evinyl_album_preprocess_node(&$variables) {
+  $parameters = \Drupal::routeMatch()->getParameters()->all();
+
+  if (isset($parameters['node'])) {
+    // $node = Drupal::request()->attributes->get('node');
+    $node = $parameters['node'];
+    $id = $node->id();
+    $url = Url::fromRoute('entity.node.edit_form', ['node' => $node->id()])->toString();
+    // Redirecting to edit.
+    $response = new RedirectResponse($url);
+    $response->send();
+
+  } elseif (isset($parameters['taxonomy_term'])) {
+
+    $term = $parameters['taxonomy_term'];
+    $id = $term->id();
+    $url = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $id])->toString();
+    // Redirecting to edit.
+    $response = new RedirectResponse($url);
+    $response->send();
+  }
+}

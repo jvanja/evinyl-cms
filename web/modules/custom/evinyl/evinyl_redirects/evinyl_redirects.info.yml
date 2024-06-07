@@ -1,0 +1,6 @@
+name: Evinyl Redirects
+description: Handles front end pages redirects for evinyl.net
+package: Evinyl
+type: module
+version: 1.0
+core_version_requirement: ^9.2 || ^10
