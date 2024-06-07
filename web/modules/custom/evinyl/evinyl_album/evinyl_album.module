@@ -32,17 +32,6 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
   }
 }
 
-/**
- * Force sorting direction for search by date
- *
- */
-// function evinyl_album_form_alter(&$form, &$form_state, $form_id) {
-//   if (strstr($form_id, 'node_')) {
-//     $form['actions']['submit']['#submit'][] = 'evinyl_album_node_form_submit';
-//   }
-// }
-
-
 /* ==========================================================================
   CUSTOM METHODS
   ========================================================================== */
