@@ -19,8 +19,7 @@ function evinyl_redirects_preprocess_node() {
     $node = $parameters['node'];
     $id = $node->id();
     $url = Url::fromRoute('entity.node.edit_form', ['node' => $node->id()])->toString();
-  }
-  elseif (isset($parameters['taxonomy_term'])) {
+  } elseif (isset($parameters['taxonomy_term'])) {
     $term = $parameters['taxonomy_term'];
     $id = $term->id();
     $url = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $id])->toString();
@@ -40,11 +39,9 @@ function evinyl_redirects_preprocess_user() {
 
   if ($host === 'localhost' || $host === 'evinyl-cms.test') {
     $url = 'http://localhost:3000' . $node_alias;
-  }
-  elseif ($host === 'cms.evinyl.net') {
+  } elseif ($host === 'cms.evinyl.net') {
     $url = 'http://evinyl.net' . $node_alias;
-  }
-  else {
+  } else {
     $url = 'https://dev.evinyl.net' . $node_alias;
   }
 
@@ -76,11 +73,9 @@ function evinyl_redirects_user_login_form_submit($form, FormStateInterface $form
 
   if ($host === 'localhost' || $host === 'evinyl-cms.test') {
     $url = 'http://localhost:3000/members/';
-  }
-  elseif ($host === 'cms.evinyl.net') {
+  } elseif ($host === 'cms.evinyl.net') {
     $url = 'http://evinyl.net' . $node_alias;
-  }
-  else {
+  } else {
     $url = 'https://dev.evinyl.net' . $node_alias;
   }
   $form_state->setResponse(new TrustedRedirectResponse($url, 301));
