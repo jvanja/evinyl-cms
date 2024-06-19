@@ -1,9 +1,9 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Drupal\Core\Routing\TrustedRedirectResponse;
 
 /* ==========================================================================
   HOOKS
@@ -13,15 +13,14 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
  * Redirects nodes to edit form on for save.
  */
 function evinyl_redirects_preprocess_node() {
-  $parameters = \Drupal::routeMatch()->getParameters()->all();
+  $parameters = Drupal::routeMatch()->getParameters()->all();
 
   if (isset($parameters['node'])) {
     $node = $parameters['node'];
     $id = $node->id();
     $url = Url::fromRoute('entity.node.edit_form', ['node' => $node->id()])->toString();
-  $response = new RedirectResponse($url);
-  $response->send();
-  } elseif (isset($parameters['taxonomy_term'])) {
+  }
+  elseif (isset($parameters['taxonomy_term'])) {
     $term = $parameters['taxonomy_term'];
     $id = $term->id();
     $url = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $id])->toString();
@@ -29,30 +28,30 @@ function evinyl_redirects_preprocess_node() {
   // Redirecting to edit.
   $response = new RedirectResponse($url);
   $response->send();
-  // \Drupal::service('request_stack')->getCurrentRequest()->query->set('destination', $url);
 }
 
 /**
  * Redirects Drupal's user pages to the NUXTJS front end.
  */
 function evinyl_redirects_preprocess_user() {
-  $current_path = \Drupal::service('path.current')->getPath();
-  $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-  $host = \Drupal::request()->getHost();
+  $current_path = Drupal::service('path.current')->getPath();
+  $node_alias = Drupal::service('path_alias.manager')->getAliasByPath($current_path);
+  $host = Drupal::request()->getHost();
 
   if ($host === 'localhost' || $host === 'evinyl-cms.test') {
     $url = 'http://localhost:3000' . $node_alias;
-  } elseif ($host === 'cms.evinyl.net') {
+  }
+  elseif ($host === 'cms.evinyl.net') {
     $url = 'http://evinyl.net' . $node_alias;
-  } else {
+  }
+  else {
     $url = 'https://dev.evinyl.net' . $node_alias;
   }
 
-  \Drupal::logger('evinyl_user')->notice('Redirecting user page ' . $url);
+  Drupal::logger('evinyl_user')->notice('Redirecting user page ' . $url);
 
   $response = new RedirectResponse($url, 301);
   $response->send();
-  // \Drupal::service('request_stack')->getCurrentRequest()->query->set('destination', $url);
   Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
 }
 
@@ -69,19 +68,20 @@ function evinyl_redirects_form_user_login_form_alter(&$form, FormStateInterface 
  * Custom submit handler for the login form.
  */
 function evinyl_redirects_user_login_form_submit($form, FormStateInterface $form_state) {
-  $host = \Drupal::request()->getHost();
+  $host = Drupal::request()->getHost();
 
-  $current_user = \Drupal::currentUser();
+  $current_user = Drupal::currentUser();
   $uid = $current_user->id();
-  $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath('/user/' . $uid);
+  $node_alias = Drupal::service('path_alias.manager')->getAliasByPath('/user/' . $uid);
 
   if ($host === 'localhost' || $host === 'evinyl-cms.test') {
     $url = 'http://localhost:3000/members/';
-  } elseif ($host === 'cms.evinyl.net') {
+  }
+  elseif ($host === 'cms.evinyl.net') {
     $url = 'http://evinyl.net' . $node_alias;
-  } else {
+  }
+  else {
     $url = 'https://dev.evinyl.net' . $node_alias;
   }
   $form_state->setResponse(new TrustedRedirectResponse($url, 301));
 }
-
