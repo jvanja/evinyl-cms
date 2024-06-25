@@ -25,8 +25,10 @@ function evinyl_redirects_preprocess_node() {
     $url = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $id])->toString();
   }
   // Redirecting to edit.
-  $response = new RedirectResponse($url);
-  $response->send();
+  if ($url) {
+    $response = new RedirectResponse($url);
+    $response->send();
+  }
 }
 
 /**
