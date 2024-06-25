@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SearchController {
 
   public function buildNodesArray($nodes) {
-    $output = ['albums' => [], 'artists' => []];
+    $output = ['albums' => [], 'podcasts' => [], 'artists' => []];
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
 
     foreach ($nodes as $node) {
@@ -35,6 +35,16 @@ class SearchController {
       if ($node->type === 'album') {
         $path_base = '/node/';
         $output['albums'][] = [
+          'name' => $node->title,
+          'id' => $node->nid,
+          'type' => $node->type,
+          'thumb' => $thumb,
+          'path' => \Drupal::service('path_alias.manager')->getAliasByPath($path_base . $node->nid),
+        ];
+      }
+      elseif ($node->type === 'podcast') {
+        $path_base = '/node/';
+        $output['podcasts'][] = [
           'name' => $node->title,
           'id' => $node->nid,
           'type' => $node->type,
@@ -67,7 +77,7 @@ class SearchController {
       FROM node_field_data
       LEFT JOIN `node__field_image` ON `node_field_data`.`nid` = `node__field_image`.`entity_id`
       WHERE node_field_data.status = '1' AND
-            node_field_data.type = 'album' AND
+            (node_field_data.type = 'album' OR node_field_data.type = 'podcast') AND
             title LIKE '%{$needle}%'
       UNION
       SELECT `taxonomy_term_field_data`.`tid` AS nid,
