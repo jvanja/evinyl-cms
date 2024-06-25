@@ -325,6 +325,24 @@ class SMTPConfigForm extends ConfigFormBase {
       <br /><strong>Warning!</strong> Debugging interrupts the request and will cause AJAX, Batch, and other operations to fail. Use in test environments only.'),
       '#disabled' => $this->isOverridden('smtp_debugging'),
     ];
+    $form['smtp_debug_level'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Debug level'),
+      '#options' => [
+        1 => $this->t('Debug client'),
+        2 => $this->t('Debug server'),
+        3 => $this->t('Debug connection'),
+        4 => $this->t('Debug lowlevel'),
+      ],
+      '#default_value' => $config->get('smtp_debug_level'),
+      '#description' => $this->t('Choose the appropriate log level.'),
+      '#disabled' => $this->isOverridden('smtp_debug_level'),
+      '#states' => [
+        'visible' => [
+          ':input[name="smtp_debugging"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
 
     $form['server']['smtp_keepalive'] = [
       '#type' => 'checkbox',
@@ -430,6 +448,7 @@ class SMTPConfigForm extends ConfigFormBase {
       'smtp_test_address',
       'smtp_reroute_address',
       'smtp_debugging',
+      'smtp_debug_level',
       'smtp_keepalive',
     ];
     foreach ($config_keys as $name) {

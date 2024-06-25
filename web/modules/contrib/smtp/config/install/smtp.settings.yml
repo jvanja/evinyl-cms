@@ -15,5 +15,6 @@ smtp_allowhtml: ''
 smtp_test_address: ''
 smtp_reroute_address: ''
 smtp_debugging: false
+smtp_debug_level: 1
 prev_mail_system: 'php_mail'
 smtp_keepalive: false

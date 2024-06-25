@@ -18,6 +18,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Modify the drupal mail system to use smtp when sending emails.
@@ -82,7 +84,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
   /**
    * The file mime type guesser service.
    *
-   * @var \Symfony\Component\Mime\MimeTypeGuesserInterface|\Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface
+   * @var \Symfony\Component\Mime\MimeTypeGuesserInterface|\Symfony\Component\Mime\MimeTypesInterface
    */
   protected $mimeTypeGuesser;
 
@@ -92,6 +94,20 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
    * @var \PHPMailer\PHPMailer\SMTP
    */
   protected $persistentSmtp;
+
+  /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * The session object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
+   */
+  protected $session;
 
   /**
    * Constructs a SMPTMailSystem object.
@@ -114,8 +130,12 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
    *   The current user service.
    * @param \Drupal\Core\File\FileSystemInterface $file_system
    *   The file system service.
-   * @param \Symfony\Component\Mime\MimeTypeGuesserInterface|\Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesserInterface $mime_type_guesser
+   * @param \Symfony\Component\Mime\MimeTypeGuesserInterface|\Symfony\Component\Mime\MimeTypesInterface $mime_type_guesser
    *   The file mime type guesser service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
+   * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+   *   The session.
    */
   public function __construct(array $configuration,
                               $plugin_id,
@@ -126,7 +146,9 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
                               ConfigFactoryInterface $config_factory,
                               AccountProxyInterface $account,
                               FileSystemInterface $file_system,
-                              $mime_type_guesser) {
+                              MimeTypeGuesserInterface $mime_type_guesser,
+                              RendererInterface $renderer,
+                              SessionInterface $session) {
     $this->smtpConfig = $config_factory->get('smtp.settings');
     $this->logger = $logger;
     $this->messenger = $messenger;
@@ -135,6 +157,8 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
     $this->currentUser = $account;
     $this->fileSystem = $file_system;
     $this->mimeTypeGuesser = $mime_type_guesser;
+    $this->renderer = $renderer;
+    $this->session = $session;
   }
 
   /**
@@ -163,7 +187,9 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
       $container->get('config.factory'),
       $container->get('current_user'),
       $container->get('file_system'),
-      $container->get('file.mime_type.guesser')
+      $container->get('file.mime_type.guesser'),
+      $container->get('renderer'),
+      $container->get('session')
     );
   }
 
@@ -233,7 +259,15 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
     // Turn on debugging, if requested.
     if ($this->smtpConfig->get('smtp_debugging')
       && $this->currentUser->hasPermission('administer smtp module')) {
-      $mailer->SMTPDebug = TRUE;
+      $mailer->SMTPDebug = $this->smtpConfig->get('smtp_debug_level');
+      $mailer->Debugoutput = function ($message, $debug_level) {
+        $debug_logs = $this->session->get('smtp_debug', []);
+        $debug_logs[] = [
+          'message' => $message,
+          'level' => $debug_level,
+        ];
+        $this->session->set('smtp_debug', $debug_logs);
+      };
     }
 
     // Turn on KeepAlive feature if requested.
@@ -639,7 +673,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
               }
               else {
                 // @phpstan-ignore-next-line
-                $file_path = file_save_data($attachment, $attachment_new_filename, FileSystemInterface::EXISTS_REPLACE);
+                $file_path = \Drupal::service('file.repository')->writeData($attachment, $attachment_new_filename, FileSystemInterface::EXISTS_REPLACE);
               }
               $real_path = $this->fileSystem->realpath($file_path->uri);
 
@@ -709,6 +743,7 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
       'mailer' => $mailer,
       'to' => $to,
       'from' => $from,
+      'mail_system' => $this,
     ];
     if ($this->smtpConfig->get('smtp_queue')) {
       $logger->info($this->t('Queue sending mail to: @to (subject: %subject)', ['@to' => $to, '%subject' => $subject]));
@@ -933,6 +968,26 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
     }
     else {
       return new PHPMailer(TRUE);
+    }
+  }
+
+  /**
+   * Log debug messages.
+   */
+  public function debug() {
+    $logger = $this->logger->get('smtp');
+    $debug_logs = $this->session->get('smtp_debug', []);
+    if ($this->smtpConfig->get('smtp_debugging') && $this->currentUser->hasPermission('administer smtp module') && !empty($debug_logs)) {
+      $item_list = [
+        '#theme' => 'item_list',
+        '#items' => [],
+      ];
+      foreach ($debug_logs as $debug_log) {
+        $item_list['#items'][] = $debug_log['message'];
+      }
+      $debug_logs_message = $this->renderer->render($item_list);
+      $logger->log('debug', $debug_logs_message);
+      $this->session->remove('smtp_debug');
     }
   }
 

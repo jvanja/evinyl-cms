@@ -109,7 +109,7 @@ class ConnectionTester {
     $smtp_enabled = $this->smtpConfig->get('smtp_on');
     // Check to see if MailSystem is enabled and is using SMTPMailSystem.
     if (\Drupal::moduleHandler()->moduleExists('mailsystem')) {
-      $mailsystem_defaults = $this->configFactory->get('mailsystem.settings')->get('defaults');
+      $mailsystem_defaults = (array) $this->configFactory->get('mailsystem.settings')->get('defaults');
       $smtp_enabled = in_array('SMTPMailSystem', $mailsystem_defaults);
     }
 
