@@ -34,11 +34,12 @@ class SearchController {
 
       if ($node->type === 'album' || $node->type === 'podcast') {
         $path_base = '/node/';
+        $node->type = $node->type . 's'; // make sure all type is plural.
       } else {
         $path_base = '/taxonomy/term/';
       }
 
-      $output[$node->type . 's'][] = [
+      $output[$node->type][] = [
         'name' => $node->title,
         'id' => $node->nid,
         'type' => $node->type,
