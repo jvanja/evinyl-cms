@@ -29,6 +29,7 @@ class SMTPConfigFormTest extends UnitTestCase {
    * Test setup.
    */
   public function setup(): void {
+    parent::setup();
     $this->mockConfigFactory = $this->prophesize(ConfigFactoryInterface::class);
     $this->mockConfig = $this->prophesize(Config::class);
     $this->mockConfigFactory->get('smtp.settings')->willReturn($this->mockConfig->reveal());
@@ -80,6 +81,7 @@ class SMTPConfigFormTest extends UnitTestCase {
     $this->mockConfig->get('smtp_client_hostname')->willReturn('');
     $this->mockConfig->get('smtp_client_helo')->willReturn('');
     $this->mockConfig->get('smtp_debugging')->willReturn('');
+    $this->mockConfig->get('smtp_debug_level')->willReturn(1);
     $this->mockConfig->get('smtp_keepalive')->willReturn(FALSE);
     $this->mockConfig->get('smtp_reroute_address')->willReturn('');
   }

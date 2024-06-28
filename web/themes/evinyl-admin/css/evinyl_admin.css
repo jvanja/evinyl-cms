@@ -1,61 +1,74 @@
 body,
 ul.tips, div.description, .form-item .description {
-  color: #777 !important; }
+  color: #777 !important;
+}
 
 a, .link {
-  color: #af8b3d !important; }
+  color: #af8b3d !important;
+}
 
 .toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded {
   position: relative;
-  background-image: none; }
-  .toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded:before {
-    color: #af8b3d;
-    border-style: solid;
-    border-width: 0.15em 0.15em 0 0;
-    content: '';
-    display: inline-block;
-    height: 0.35em;
-    width: 0.35em;
-    right: 0.7em;
-    position: absolute;
-    top: 50%;
-    transform: rotate(45deg) translateY(-50%);
-    vertical-align: top; }
+  background-image: none;
+}
+.toolbar-tray-horizontal ul li.menu-item--expanded ul li.menu-item--expanded:before {
+  color: #af8b3d;
+  border-style: solid;
+  border-width: 0.15em 0.15em 0 0;
+  content: "";
+  display: inline-block;
+  height: 0.35em;
+  width: 0.35em;
+  right: 0.7em;
+  position: absolute;
+  top: 50%;
+  transform: rotate(45deg) translateY(-50%);
+  vertical-align: top;
+}
 
 .adminimal .toolbar .toolbar-menu a:hover, .adminimal .toolbar .toolbar-menu a:focus {
   background-color: #af8b3d;
-  color: black !important; }
-
+  color: black !important;
+}
 .adminimal .toolbar .toolbar-menu a.is-active {
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 label,
 legend {
-  color: #333; }
+  color: #333;
+}
 
 .adminimal .button:hover, .adminimal .button:focus {
-  border-color: #af8b3d; }
+  border-color: #af8b3d;
+}
 
 .adminimal .button--primary {
   background: white;
   border-color: #af8b3d;
-  color: #af8b3d; }
-  .adminimal .button--primary:focus, .adminimal .button--primary:hover {
-    background-color: #c6a359;
-    border-color: #c6a359;
-    color: white !important; }
+  color: #af8b3d;
+}
+.adminimal .button--primary:focus, .adminimal .button--primary:hover {
+  background-color: #c6a359;
+  border-color: #c6a359;
+  color: white !important;
+}
 
 .adminimal .action-links .button--primary {
   border: 2px solid #af8b3d;
-  color: #af8b3d; }
-  .adminimal .action-links .button--primary:focus, .adminimal .action-links .button--primary:hover {
-    background-color: #af8b3d; }
+  color: #af8b3d;
+}
+.adminimal .action-links .button--primary:focus, .adminimal .action-links .button--primary:hover {
+  background-color: #af8b3d;
+}
 
 .seven-details__summary {
-  color: #af8b3d !important; }
+  color: #af8b3d !important;
+}
 
 input[type=checkbox]:checked, input[type=checkbox]:disabled:checked, input[type=checkbox].error:checked, input[type=checkbox].error:focus:checked, input[type=radio]:checked, input[type=radio]:disabled:checked, input[type=radio].error:checked, input[type=radio].error:focus:checked {
-  background: #af8b3d; }
+  background: #af8b3d;
+}
 
 html {
   font-size: 14px;
@@ -63,125 +76,157 @@ html {
   -webkit-text-size-adjust: 100%;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 body.adminimal {
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
-  font-size: 1rem !important; }
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-size: 1rem !important;
+}
 
 header {
   padding: 0.45rem 0 !important;
   background-color: #343a40 !important;
-  box-shadow: 1px 1px 2px #333; }
-  header .layout-container {
-    margin: 0 1rem !important; }
+  box-shadow: 1px 1px 2px #333;
+}
+header .layout-container {
+  margin: 0 1rem !important;
+}
 
 nav#block-evinyl-admin-main-menu {
   display: flex;
-  justify-content: space-between; }
-  nav#block-evinyl-admin-main-menu ul {
-    margin-left: 0;
-    padding-left: 0;
-    font-size: 14px; }
-    nav#block-evinyl-admin-main-menu ul li {
-      display: inline-block;
-      padding: 0; }
-      nav#block-evinyl-admin-main-menu ul li:first-child a {
-        position: relative;
-        display: block;
-        width: 25px;
-        height: 25px;
-        padding: 0;
-        text-indent: -9999px;
-        margin-right: 10px; }
-        nav#block-evinyl-admin-main-menu ul li:first-child a:before {
-          position: absolute;
-          top: 0;
-          left: 0;
-          display: block;
-          width: 25px;
-          height: 100%;
-          content: "";
-          background-image: url(../images/nav-logo-white.png);
-          background-color: #0000;
-          background-repeat: no-repeat;
-          background-attachment: scroll;
-          background-position: center center;
-          background-size: 100% auto; }
-      nav#block-evinyl-admin-main-menu ul li a {
-        color: #fffc !important;
-        letter-spacing: .02em;
-        margin-right: 7px;
-        padding: 0 1rem;
-        line-height: 25px;
-        font-weight: 600; }
-  nav#block-evinyl-admin-main-menu .user-menu {
-    align-self: center; }
-    nav#block-evinyl-admin-main-menu .user-menu .toolbar-icon-user {
-      height: 20px;
-      line-height: 20px; }
+  justify-content: space-between;
+}
+nav#block-evinyl-admin-main-menu ul {
+  margin-left: 0;
+  padding-left: 0;
+  font-size: 14px;
+}
+nav#block-evinyl-admin-main-menu ul li {
+  display: inline-block;
+  padding: 0;
+}
+nav#block-evinyl-admin-main-menu ul li:first-child a {
+  position: relative;
+  display: block;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  text-indent: -9999px;
+  margin-right: 10px;
+}
+nav#block-evinyl-admin-main-menu ul li:first-child a:before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 25px;
+  height: 100%;
+  content: "";
+  background-image: url(../images/nav-logo-white.png);
+  background-color: rgba(0, 0, 0, 0);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: center center;
+  background-size: 100% auto;
+}
+nav#block-evinyl-admin-main-menu ul li a {
+  color: rgba(255, 255, 255, 0.8) !important;
+  letter-spacing: 0.02em;
+  margin-right: 7px;
+  padding: 0 1rem;
+  line-height: 25px;
+  font-weight: 600;
+}
+nav#block-evinyl-admin-main-menu .user-menu {
+  align-self: center;
+}
+nav#block-evinyl-admin-main-menu .user-menu .toolbar-icon-user {
+  height: 20px;
+  line-height: 20px;
+}
 
 main.page-content h1.page-title {
   color: inherit;
-  margin-top: 1rem; }
+  margin-top: 1rem;
+}
 
 body.role_authenticated:not(.role_administrator) {
   padding-top: 0 !important;
-  margin-left: 0 !important; }
-  body.role_authenticated:not(.role_administrator).adminimal.toolbar-fixed.toolbar-vertical {
-    padding-top: 0 !important; }
-  body.role_authenticated:not(.role_administrator) #toolbar-bar {
-    display: none; }
-    body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
-      display: none; }
-    body.role_authenticated:not(.role_administrator) #toolbar-bar .home-toolbar-tab {
-      display: block; }
-    body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-icon-escape-admin {
-      text-indent: -9999px !important; }
-      body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-icon-escape-admin:before {
-        background-image: url(../images/nav-logo-white.png);
-        width: 25px; }
-    body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-tab:nth-child(3) {
-      display: none; }
-    body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-tab:nth-child(5) {
-      float: right; }
+  margin-left: 0 !important;
+}
+body.role_authenticated:not(.role_administrator).adminimal.toolbar-fixed.toolbar-vertical {
+  padding-top: 0 !important;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar {
+  display: none;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar #admin-toolbar-search-tab {
+  display: none;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar .home-toolbar-tab {
+  display: block;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-icon-escape-admin {
+  text-indent: -9999px !important;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-icon-escape-admin:before {
+  background-image: url(../images/nav-logo-white.png);
+  width: 25px;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-tab:nth-child(3) {
+  display: none;
+}
+body.role_authenticated:not(.role_administrator) #toolbar-bar .toolbar-tab:nth-child(5) {
+  float: right;
+}
 
 .node-album-form .layout-node-form .layout-region,
 .node-album-edit-form .layout-node-form .layout-region {
   float: none;
   width: 100%;
-  padding: 0; }
-  .node-album-form .layout-node-form .layout-region #edit-preview,
-  .node-album-edit-form .layout-node-form .layout-region #edit-preview {
-    display: none; }
-  .node-album-form .layout-node-form .layout-region .media-library-item__attributes,
-  .node-album-edit-form .layout-node-form .layout-region .media-library-item__attributes {
-    max-height: none !important; }
-  .node-album-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper,
-  .node-album-edit-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper {
-    display: none; }
-  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type,
-  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type {
-    display: none; }
-  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p, .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description,
-  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p,
-  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description {
-    display: none; }
-  .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview,
-  .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview {
-    padding-right: 100px;
-    margin-top: -30px; }
-    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label,
-    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label {
-      color: #666; }
-    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first,
-    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first {
-      font-weight: bold;
-      font-size: 1.1em;
-      flex: 0 1 15% !important; }
-    .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second,
-    .node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second {
-      color: #999; }
+  padding: 0;
+}
+.node-album-form .layout-node-form .layout-region #edit-preview,
+.node-album-edit-form .layout-node-form .layout-region #edit-preview {
+  display: none;
+}
+.node-album-form .layout-node-form .layout-region .media-library-item__attributes,
+.node-album-edit-form .layout-node-form .layout-region .media-library-item__attributes {
+  max-height: none !important;
+}
+.node-album-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper,
+.node-album-edit-form .layout-node-form .layout-region #tracks .tabledrag-toggle-weight-wrapper {
+  display: none;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph-top .paragraph-type {
+  display: none;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p, .node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper > p,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .field--name-field-song fieldset .fieldset-wrapper .description {
+  display: none;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview {
+  padding-right: 100px;
+  margin-top: -30px;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .field__label {
+  color: #666;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--first {
+  font-weight: bold;
+  font-size: 1.1em;
+  flex: 0 1 15% !important;
+}
+.node-album-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second,
+.node-album-edit-form .layout-node-form .layout-region .paragraph-type--a-side-songs .paragraph--view-mode--preview .layout__region--second {
+  color: #999;
+}
 
 /* ==========================================================================
   Album ADD page
@@ -190,29 +235,44 @@ body.role_authenticated:not(.role_administrator) {
   Album EDIT page
   ========================================================================== */
 .node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper {
-  padding: 0; }
-  .node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > * {
-    margin-top: 20px;
-    padding: 20px;
-    border-bottom: 2px solid #e6e4df; }
-  .node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > *:first-child {
-    margin-top: 0; }
-
+  padding: 0;
+}
+.node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > * {
+  margin-top: 20px;
+  padding: 20px;
+  border-bottom: 2px solid #e6e4df;
+}
+.node-album-edit-form .layout-node-form .layout-region #tracks > .details-wrapper > *:first-child {
+  margin-top: 0;
+}
 .node-album-edit-form .layout-node-form .layout-region #tracks details {
   border: none;
-  border-radius: 0; }
-  .node-album-edit-form .layout-node-form .layout-region #tracks details > summary {
-    display: none; }
-  .node-album-edit-form .layout-node-form .layout-region #tracks details .details-wrapper {
-    padding-left: 0;
-    padding-right: 0;
-    background: white; }
+  border-radius: 0;
+}
+.node-album-edit-form .layout-node-form .layout-region #tracks details > summary {
+  display: none;
+}
+.node-album-edit-form .layout-node-form .layout-region #tracks details .details-wrapper {
+  padding-left: 0;
+  padding-right: 0;
+  background: white;
+}
 
 body.role_authenticated:not(.role_administrator) .filter-wrapper {
-  display: none; }
+  display: none;
+}
 
 #user-form .horizontal-tabs-panes table thead {
-  display: none; }
-
+  display: none;
+}
 #user-form .horizontal-tabs-panes .form-item > .clearfix {
-  color: transparent; }
+  color: transparent;
+}
+
+.node-podcast-edit-form .layout-node-form .layout-region #field_podcast_image-media-library-wrapper .block-field-blockmediaimagethumbnail:nth-child(2) {
+  display: none;
+}
+
+#media-library-wrapper .block-field-blockmediaimagethumbnail:nth-child(2) {
+  display: none;
+}

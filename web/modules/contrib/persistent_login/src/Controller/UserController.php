@@ -5,9 +5,9 @@ namespace Drupal\persistent_login\Controller;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\persistent_login\TokenManager;
 use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\persistent_login\TokenManager;
 
 /**
  * Class UserTokens.
@@ -43,7 +43,7 @@ class UserController extends ControllerBase {
   public function __construct(
     TokenManager $token_manager,
     ConfigFactoryInterface $config_factory,
-    DateFormatterInterface $date_formatter
+    DateFormatterInterface $date_formatter,
   ) {
     $this->tokenManager = $token_manager;
     $this->configFactory = $config_factory;
@@ -67,7 +67,7 @@ class UserController extends ControllerBase {
    * @param \Drupal\user\UserInterface $user
    *   The user account object.
    *
-   * @return string Render array with list of user's active tokens.
+   * @return string
    *   Render array with list of user's active tokens.
    */
   public function listTokens(UserInterface $user) {

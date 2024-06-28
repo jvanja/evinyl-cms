@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\content_translation\Functional;
 
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -52,7 +53,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
   /**
    * Tests the basic translation UI.
    */
-  public function testTranslationUI() {
+  public function testTranslationUI(): void {
     $this->doTestBasicTranslation();
     $this->doTestTranslationOverview();
     $this->doTestOutdatedStatus();
@@ -328,7 +329,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
       $user = $this->drupalCreateUser();
       $values[$langcode] = [
         'uid' => $user->id(),
-        'created' => REQUEST_TIME - mt_rand(0, 1000),
+        'created' => \Drupal::time()->getRequestTime() - mt_rand(0, 1000),
       ];
       $edit = [
         'content_translation[uid]' => $user->getAccountName(),
@@ -576,7 +577,7 @@ abstract class ContentTranslationUITestBase extends ContentTranslationTestBase {
         $entity = $storage->load($this->entityId);
         $this->assertEquals(
           $entity->getChangedTimeAcrossTranslations(), $entity->getTranslation($langcode)->getChangedTime(),
-          new FormattableMarkup('Changed time for language %language is the latest change over all languages.', ['%language' => $language->getName()])
+          "Changed time for language {$language->getName()} is the latest change over all languages."
         );
       }
 

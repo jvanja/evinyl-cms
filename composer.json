@@ -50,6 +50,7 @@
         "drupal/recaptcha": "^3.2",
         "drupal/redirect": "^1.9",
         "drupal/redis": "^1.7",
+        "drupal/rest_absolute_urls": "^1.0@beta",
         "drupal/rest_password": "^8.1",
         "drupal/restui": "^1.21",
         "drupal/simple_sitemap": "^4.1",
@@ -58,7 +59,7 @@
         "drupal/social_auth_google": "^4.0",
         "drupal/webform_rest": "^4.0",
         "drupal/yoast_seo": "^1.8",
-        "drush/drush": "^12.4"
+        "drush/drush": "^12.5"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -87,6 +88,9 @@
                 "extra": {
                     "issue-tracker-url": "https://www.drupal.org/project/smtp/issues/3323386"
                 }
+            },
+            "drupal/entity_browser": {
+                "Fixes the image browser 500 error for when entity_brower is selected": "https://www.drupal.org/files/issues/2024-04-15/entity_browser-3440973.patch"
             }
         },
         "drupal-scaffold": {

@@ -1,9 +1,10 @@
 <?php
 
-// use getID3;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\user\Entity\User;
+// use Drupal\Core\Form\FormStateInterface;
+
 
 /* ==========================================================================
   HOOKS
@@ -15,110 +16,19 @@ use Drupal\user\Entity\User;
 function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
   // die;
   switch ($entity->bundle()) {
-    case 'album':
-      // update_json_output();
-      break;
 
     case 'a_side_songs':
     case 'b_side_songs':
       // calculate_song_duration($entity);
       break;
 
+    case 'podcast':
+      calculate_podcast_duration($entity);
+      break;
+
     case 'comment':
       sendNodeJsMessageToAll($entity);
-
       break;
-
-    case 'article':
-      // // dpm($entity);
-      // $nid = $entity->id();
-      // $current_path = \Drupal::service('path.current')->getPath();
-      // $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $nid);
-      // // dpm($node_alias);
-      // $host = \Drupal::request()->getHost();
-      // if ($host == 'localhost') {
-      //   $redirect = 'http://localhost:3000' . $node_alias;
-      // } elseif ($host == 'cms.evinyl.net') {
-      //   $redirect = 'http://evinyl.net' . $node_alias;
-      // } else {
-      //   $redirect = 'https://dev.evinyl.net' . $node_alias;
-      // }
-      //
-      // $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-      // $response->send();
-
-      break;
-  }
-}
-
-/**
- * Implements hook_entity_delete().
- */
-function evinyl_album_entity_delete(Drupal\Core\Entity\EntityInterface $entity) {
-  switch ($entity->bundle()) {
-    case 'album':
-      // update_json_output();
-      break;
-  }
-}
-
-function evinyl_album_preprocess_node(&$variables) {
-  // dpm($variables);
-  // $node = Drupal::request()->attributes->get('node');
-  // $node = \Drupal::routeMatch()->getParameter('node');
-  $parameters = \Drupal::routeMatch()->getParameters()->all();
-
-  if (isset($parameters['node'])) {
-    // $type = $node->getType();
-    $type = $parameters['node']->getType();
-
-    // if($type == 'album' && $node->isPublished() == true){
-    if ($type === 'album') {
-      $current_path = \Drupal::service('path.current')->getPath();
-      $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-      $host = \Drupal::request()->getHost();
-
-      if ($host === 'localhost') {
-        $redirect = 'http://localhost:3000' . $node_alias;
-      }
-      elseif ($host === 'cms.evinyl.net') {
-        $redirect = 'http://evinyl.net' . $node_alias;
-      }
-      else {
-        $redirect = 'https://dev.evinyl.net' . $node_alias;
-      }
-
-      $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-      $response->send();
-      Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
-
-      return;
-    }
-  }
-  elseif (isset($parameters['taxonomy_term'])) {
-    $term = $parameters['taxonomy_term'];
-
-    // dpm($term->getVocabularyId()); // this returns 'artist' or 'genre'
-
-    $current_path = \Drupal::service('path.current')->getPath();
-    $node_alias = \Drupal::service('path_alias.manager')->getAliasByPath($current_path);
-    $host = \Drupal::request()->getHost();
-
-    if ($host === 'localhost') {
-      $redirect = 'http://localhost:3000' . $node_alias;
-    }
-    elseif ($host === 'cms.evinyl.net') {
-      $redirect = 'http://evinyl.net' . $node_alias;
-    }
-    else {
-      $redirect = 'https://dev.evinyl.net' . $node_alias;
-    }
-
-    $response = new Symfony\Component\HttpFoundation\RedirectResponse($redirect);
-    $response->send();
-    Drupal::entityTypeManager()->getViewBuilder('node')->resetCache();
-
-    return;
   }
 }
 
@@ -141,8 +51,7 @@ function sendNodeJsMessageToAll($entity) {
   if ($userPhoto) {
     $userPhotoUri = $userPhoto->getFileUri();
     $userPhotoUrl = $style->buildUrl($userPhotoUri);
-  }
-  else {
+  } else {
     $userPhotoUrl = 'https://lab.evinyl.net/sites/default/files/styles/thumbnail__100x100__cropped/public/default_images/default-user-image.png';
   }
 
@@ -167,24 +76,36 @@ function sendNodeJsMessageToAll($entity) {
   nodejs_enqueue_message($message);
 }
 
-function calculate_song_duration($entity) {
-  $getID3 = new getID3();
-  $id3 = $getID3->version();
-  $file_id = $entity->field_song->getValue()[0]['target_id'];
-  $database = \Drupal::database();
-  $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
-    ':entity_id' => $file_id,
-  ]);
-  $result = $query->fetchAll();
+// function calculate_song_duration($entity) {
+//   $getID3 = new getID3();
+//   $file_id = $entity->field_song->getValue()[0]['target_id'];
+//   $database = \Drupal::database();
+//   $query = $database->query('SELECT field_media_audio_file_target_id FROM {media__field_media_audio_file} WHERE entity_id = :entity_id', [
+//     ':entity_id' => $file_id,
+//   ]);
+//   $result = $query->fetchAll();
+//   if (count($result) > 0) {
+//     $final_file_id = $result[0]->field_media_audio_file_target_id;
+//     $file = \Drupal\file\Entity\File::load($final_file_id);
+//     $uri = $file->getFileUri();
+//     $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
+//     $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
+//     $entity->set('field_song_duration', $song_duration);
+//   }
+// }
 
-  if (count($result) > 0) {
-    $final_file_id = $result[0]->field_media_audio_file_target_id;
-    $file = \Drupal\file\Entity\File::load($final_file_id);
-    $uri = $file->getFileUri();
-    $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
-    $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
-    $entity->set('field_song_duration', $song_duration);
-  }
+function calculate_podcast_duration($entity) {
+
+  require_once(__DIR__ . '/getid3/getid3.php');
+  $getID3 = new getID3;
+
+  $file_id = $entity->field_audio->getValue()[0]['target_id'];
+  $file = \Drupal\file\Entity\File::load($file_id);
+  $uri = $file->getFileUri();
+  $song_path = \Drupal::service('stream_wrapper_manager')->getViaUri($uri)->realpath();
+
+  $song_duration = round($getID3->analyze($song_path)['playtime_seconds']);
+  $entity->set('field_audio_duration', $song_duration);
 }
 
 function update_json_output() {
@@ -193,8 +114,7 @@ function update_json_output() {
   if ($_SERVER['SERVER_NAME'] === 'localhost') {
     $wget = '/usr/local/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "http://localhost/evinyl8/web/jsonapi/node/album';
-  }
-  else {
+  } else {
     $wget = '/usr/bin/wget --header="Accept: application/vnd.api+json"';
     $api = ' -O album.json "https://lab.evinyl.net/jsonapi/node/album';
   }

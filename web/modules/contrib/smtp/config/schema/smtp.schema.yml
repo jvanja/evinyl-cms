@@ -53,6 +53,9 @@ smtp.settings:
     smtp_debugging:
       type: boolean
       label: 'Enable debugging'
+    smtp_debug_level:
+      type: integer
+      label: 'Debug level'
     prev_mail_system:
       type: string
       label: 'Previous mail system'

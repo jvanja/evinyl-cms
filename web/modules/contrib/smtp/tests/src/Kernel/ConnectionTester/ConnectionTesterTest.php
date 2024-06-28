@@ -61,7 +61,7 @@ class ConnectionTesterTest extends KernelTestBase {
   /**
    * Provider for testHookRequirements().
    */
-  public function providerHookRequirements() {
+  public static function providerHookRequirements() {
     return [
       [
         'message' => 'SMTP on, working.',

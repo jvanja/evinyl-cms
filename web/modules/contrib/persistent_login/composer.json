@@ -11,6 +11,6 @@
     "source": "https://git.drupalcode.org/project/persistent_login"
   },
   "require": {
-    "drupal/core" : "^10"
+    "drupal/core" : "^10 || ^11"
   }
 }

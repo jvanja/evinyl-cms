@@ -19,8 +19,6 @@ class AlbumController {
     // $root_path = str_replace('index.php', '', $_SERVER['SCRIPT_NAME']);
 
     $output = [];
-    // TODO:  <20-12-21, vanja> //
-    // remove FEATURED from genre stuff and change 'ff' field to 'featured'
     $FEATURED_GENRE_ID = 62;
     $thumb_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('thumbnail');
     $medium_style = \Drupal::entityTypeManager()->getStorage('image_style')->load('medium');

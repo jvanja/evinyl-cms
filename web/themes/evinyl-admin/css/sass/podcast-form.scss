@@ -1,0 +1,13 @@
+.node-podcast-edit-form .layout-node-form .layout-region {
+  #field_podcast_image-media-library-wrapper {
+    .block-field-blockmediaimagethumbnail:nth-child(2) {
+      display: none;
+    }
+  }
+}
+
+#media-library-wrapper {
+  .block-field-blockmediaimagethumbnail:nth-child(2) {
+    display: none;
+  }
+}

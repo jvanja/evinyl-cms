@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
  */
 class RssResponseRelativeUrlFilterTest extends UnitTestCase {
 
-  public function providerTestOnResponse() {
+  public static function providerTestOnResponse() {
     $data = [];
 
     $valid_feed = <<<RSS
@@ -26,7 +26,7 @@ class RssResponseRelativeUrlFilterTest extends UnitTestCase {
 <channel>
   <title>Drupal.org</title>
   <link>https://www.drupal.org</link>
-  <description>Come for the software, stay for the community
+  <description>Come for the software &amp; stay for the community
 Drupal is an open source content management platform powering millions of websites and applications. It’s built, used, and supported by an active and diverse community of people around the world.</description>
   <language>en</language>
   <item>
@@ -45,7 +45,7 @@ RSS;
 <channel>
   <title>Drupal.org</title>
   <link>https://www.drupal.org</link>
-  <description>Come for the software, stay for the community
+  <description>Come for the software &amp; stay for the community
 Drupal is an open source content management platform powering millions of websites and applications. It’s built, used, and supported by an active and diverse community of people around the world.</description>
   <language>en</language>
   <item>
@@ -114,7 +114,7 @@ RSS;
    * @param string $expected_content
    *   The expected content from the response.
    */
-  public function testOnResponse($content, $expected_content) {
+  public function testOnResponse($content, $expected_content): void {
     $event = new ResponseEvent(
       $this->prophesize(HttpKernelInterface::class)->reveal(),
       Request::create('/'),

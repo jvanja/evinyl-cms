@@ -4,7 +4,6 @@ namespace Drupal\Tests\persistent_login\Unit;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionConfiguration;
 use Drupal\persistent_login\CookieHelperInterface;
 use Drupal\persistent_login\EventSubscriber\TokenHandler;
@@ -12,6 +11,8 @@ use Drupal\persistent_login\TokenManager;
 use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request;
+
+// cspell:ignoreRegExp /[a-zA-Z0-9_-]{40,}/
 
 /**
  * Test the Token Handler service.
@@ -36,7 +37,7 @@ class TokenHandlerTest extends UnitTestCase {
   private $sessionConfigMock;
 
   /**
-   * @var LoggerChannelFactoryInterface|\Prophecy\Prophecy\ObjectProphecy
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface|\Prophecy\Prophecy\ObjectProphecy
    */
   private $loggerChannelFactoryMock;
 
@@ -49,6 +50,7 @@ class TokenHandlerTest extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp(): void {
+    parent::setUp();
     $this->tokenManagerMock = $this->prophesize(TokenManager::class);
     $this->cookieHelperMock = $this->prophesize(CookieHelperInterface::class);
     $this->sessionConfigMock = $this->prophesize(SessionConfiguration::class);

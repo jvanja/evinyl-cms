@@ -50,6 +50,7 @@ class TokenManagerValidationTest extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp(): void {
+    parent::setUp();
     $this->connectionMock = $this->prophesize(Connection::class);
     $this->csrfTokenMock = $this->prophesize(CsrfTokenGenerator::class);
     $this->loggerMock = $this->prophesize(LoggerChannel::class);
@@ -57,7 +58,7 @@ class TokenManagerValidationTest extends UnitTestCase {
   }
 
   /**
-   *
+   * A valid token.
    */
   public function testValidToken() {
     $tokenManager = new TokenManager(
@@ -79,7 +80,7 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectMock->condition('expires', Argument::type('int'), '>')
       ->shouldBeCalled()
       ->willReturn($selectMock);
-    $selectMock->condition('series', Crypt::hashBase64('testseries'))
+    $selectMock->condition('series', Crypt::hashBase64('test_series'))
       ->shouldBeCalled()
       ->willReturn($selectMock);
 
@@ -90,13 +91,13 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectResultMock->fetchObject()
       ->willReturn((object) [
         'uid' => 42,
-        'instance' => Crypt::hashBase64('testinstance'),
+        'instance' => Crypt::hashBase64('test_instance'),
         'created' => 1675169467,
         'refreshed' => 1675169467,
         'expires' => 1682855467,
       ]);
 
-    $inputToken = new PersistentToken('testseries', 'testinstance');
+    $inputToken = new PersistentToken('test_series', 'test_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 
@@ -127,7 +128,7 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectMock->condition('expires', Argument::type('int'), '>')
       ->shouldBeCalled()
       ->willReturn($selectMock);
-    $selectMock->condition('series', Crypt::hashBase64('testinvalidseries'))
+    $selectMock->condition('series', Crypt::hashBase64('test_invalid_series'))
       ->shouldBeCalled()
       ->willReturn($selectMock);
 
@@ -138,7 +139,7 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectResultMock->fetchObject()
       ->willReturn(NULL);
 
-    $inputToken = new PersistentToken('testinvalidseries', 'testinstance');
+    $inputToken = new PersistentToken('test_invalid_series', 'test_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 
@@ -169,7 +170,7 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectMock->condition('expires', Argument::type('int'), '>')
       ->shouldBeCalled()
       ->willReturn($selectMock);
-    $selectMock->condition('series', Crypt::hashBase64('testseries'))
+    $selectMock->condition('series', Crypt::hashBase64('test_series'))
       ->shouldBeCalled()
       ->willReturn($selectMock);
 
@@ -180,13 +181,13 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectResultMock->fetchObject()
       ->willReturn((object) [
         'uid' => 42,
-        'instance' => 'testinstance',
+        'instance' => 'test_instance',
         'created' => 1675169467,
         'refreshed' => 1675169467,
         'expires' => 1682855467,
       ]);
 
-    $inputToken = new PersistentToken('testseries', 'testinvalidinstance');
+    $inputToken = new PersistentToken('test_series', 'test_invalid_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 

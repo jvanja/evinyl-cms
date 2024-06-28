@@ -4,7 +4,7 @@ description: Module that provides infrastructure for common cache warming/pre-fe
 core_version_requirement: '^9 || ^10'
 configure: warmer.settings
 
-# Information added by Drupal.org packaging script on 2023-11-06
-version: '2.0.12'
+# Information added by Drupal.org packaging script on 2024-02-19
+version: '2.0.13'
 project: 'warmer'
-datestamp: 1699265417
+datestamp: 1708323104
