@@ -80,15 +80,6 @@
     "extra": {
         "enable-patching": true,
         "patches": {
-            "drupal/core": {
-                "Fixes the Decoupled Router serving non cached routes bug;": "https://www.drupal.org/files/issues/2020-09-10/2638686-43.patch"
-            },
-            "drupal/smtp": {
-                "Error sending e-mail: Invalid address": "https://www.drupal.org/files/issues/2023-03-16/error-sending-email-16.patch",
-                "extra": {
-                    "issue-tracker-url": "https://www.drupal.org/project/smtp/issues/3323386"
-                }
-            },
             "drupal/entity_browser": {
                 "Fixes the image browser 500 error for when entity_brower is selected": "https://www.drupal.org/files/issues/2024-04-15/entity_browser-3440973.patch"
             }
