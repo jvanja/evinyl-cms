@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionConfigurationInterface;
 use Drupal\persistent_login\CookieHelperInterface;
 use Drupal\persistent_login\PersistentToken;
+use Drupal\persistent_login\RawPersistentToken;
 use Drupal\persistent_login\TokenException;
 use Drupal\persistent_login\TokenManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -69,7 +70,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
   /**
    * The persistent token of the current request.
    *
-   * @var \Drupal\persistent_login\PersistentToken|null
+   * @var \Drupal\persistent_login\RawPersistentToken|null
    */
   protected $token;
 
@@ -218,7 +219,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
       $response->headers->setCookie(
         Cookie::create(
           $this->cookieHelper->getCookieName($request),
-          $this->token,
+          (string) $this->token,
           $this->token->getExpiry(),
           $sessionOptions['cookie_path'] ?? '/',
           $sessionOptions['cookie_domain'],
@@ -262,7 +263,7 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
     if (empty($cookieValue) || !preg_match('<[a-z0-9_-]+:[a-z0-9+_-]+>i', $cookieValue)) {
       return NULL;
     }
-    return PersistentToken::createFromString($cookieValue);
+    return RawPersistentToken::createFromString($cookieValue);
   }
 
   /**

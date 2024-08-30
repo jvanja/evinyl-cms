@@ -2,10 +2,10 @@
 
 namespace Drupal\persistent_login;
 
+// phpcs:disable Drupal.Commenting.FunctionComment.InvalidNoReturn
+
 /**
  * A Persistent Token.
- *
- * @package Drupal\persistent_login
  */
 class PersistentToken {
 
@@ -198,6 +198,26 @@ class PersistentToken {
   }
 
   /**
+   * Get the unhashed series value.
+   *
+   * @return string
+   *   The series value.
+   */
+  public function getRawSeries(): string {
+    throw new \RuntimeException('Cannot get raw series value from ' . static::class);
+  }
+
+  /**
+   * Get the hashed series value.
+   *
+   * @return string
+   *   The series value.
+   */
+  public function getHashedSeries(): string {
+    throw new \RuntimeException('Cannot get hashed series value from ' . static::class);
+  }
+
+  /**
    * Get the instance identifier of this token.
    *
    * @return string
@@ -205,6 +225,26 @@ class PersistentToken {
    */
   public function getInstance() {
     return $this->instance;
+  }
+
+  /**
+   * Get the unhashed instance value.
+   *
+   * @return string
+   *   The instance value.
+   */
+  public function getRawInstance(): string {
+    throw new \RuntimeException('Cannot get raw instance value from ' . static::class);
+  }
+
+  /**
+   * Get the hashed instance value.
+   *
+   * @return string
+   *   The instance value.
+   */
+  public function getHashedInstance(): string {
+    throw new \RuntimeException('Cannot get hashed instance value from ' . static::class);
   }
 
   /**

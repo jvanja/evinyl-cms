@@ -67,7 +67,7 @@ class UserController extends ControllerBase {
    * @param \Drupal\user\UserInterface $user
    *   The user account object.
    *
-   * @return string
+   * @return array
    *   Render array with list of user's active tokens.
    */
   public function listTokens(UserInterface $user) {
