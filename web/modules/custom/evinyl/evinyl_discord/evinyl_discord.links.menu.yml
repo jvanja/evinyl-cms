@@ -1,0 +1,12 @@
+evinyl_discord.admin:
+  title: 'Evinyl Discord settings'
+  description: 'example of how to make an admin settings page link'
+  parent: system.admin_config_development
+  route_name: evinyl_discord.content
+  weight: 100
+
+evinyl_discord.admin_settings:
+  title: configuration
+  description: 'discord configuration page'
+  route_name: evinyl_discord.admin_settings
+  parent: evinyl_discord.admin_home
