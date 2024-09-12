@@ -69,15 +69,16 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   Used for dispatching social auth events.
    */
-  public function __construct(AccountProxyInterface $current_user,
-                              MessengerInterface $messenger,
-                              LoggerChannelFactoryInterface $logger_factory,
-                              UserManager $user_manager,
-                              SocialAuthDataHandler $data_handler,
-                              ConfigFactoryInterface $config_factory,
-                              RouteProviderInterface $route_provider,
-                              EventDispatcherInterface $event_dispatcher) {
-
+  public function __construct(
+    AccountProxyInterface $current_user,
+    MessengerInterface $messenger,
+    LoggerChannelFactoryInterface $logger_factory,
+    UserManager $user_manager,
+    SocialAuthDataHandler $data_handler,
+    ConfigFactoryInterface $config_factory,
+    RouteProviderInterface $route_provider,
+    EventDispatcherInterface $event_dispatcher,
+  ) {
     parent::__construct($current_user, $messenger, $logger_factory, $user_manager, $data_handler);
 
     $this->configFactory = $config_factory;

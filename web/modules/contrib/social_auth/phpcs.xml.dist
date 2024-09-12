@@ -12,6 +12,10 @@
     <file>.</file>
     <exclude-pattern>vendor</exclude-pattern>
 
+    <!-- phpstan already taking for this rule. -->
+    <rule ref="DrupalPractice">
+      <exclude name="DrupalPractice.Objects.GlobalDrupal.GlobalDrupal"/>
+    </rule>
     <rule ref="./vendor/drupal/coder/coder_sniffer/Drupal"/>
     <rule ref="./vendor/drupal/coder/coder_sniffer/DrupalPractice"/>
     <rule ref="./vendor/phpcompatibility/php-compatibility/PHPCompatibility"/>

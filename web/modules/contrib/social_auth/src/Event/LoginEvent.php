@@ -39,7 +39,7 @@ final class LoginEvent extends SocialAuthEventBase {
   public function __construct(
     AccountInterface $drupal_user,
     SocialAuthUserInterface $social_auth_user,
-    string $plugin_id
+    string $plugin_id,
   ) {
     $this->drupalAccount = $drupal_user;
     $this->socialAuthUser = $social_auth_user;

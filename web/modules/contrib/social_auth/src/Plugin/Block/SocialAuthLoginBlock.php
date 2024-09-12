@@ -51,7 +51,7 @@ class SocialAuthLoginBlock extends BlockBase implements ContainerFactoryPluginIn
     string $plugin_id,
     $plugin_definition,
     ImmutableConfig $social_auth_config,
-    NetworkManager $network_manager
+    NetworkManager $network_manager,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->networkManager = $network_manager;

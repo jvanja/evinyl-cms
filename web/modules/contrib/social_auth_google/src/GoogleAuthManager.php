@@ -4,6 +4,7 @@ namespace Drupal\social_auth_google;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\social_auth\AuthManager\OAuth2Manager;
 use Drupal\social_auth\User\SocialAuthUser;
 use Drupal\social_auth\User\SocialAuthUserInterface;
@@ -18,26 +19,29 @@ class GoogleAuthManager extends OAuth2Manager {
   /**
    * GoogleAuthManager constructor.
    */
-  public function __construct(ConfigFactory $configFactory,
-                              LoggerChannelFactoryInterface $logger_factory,
-                              RequestStack $request_stack) {
-
-    parent::__construct($configFactory->get('social_auth_google.settings'),
-                        $logger_factory,
-                        $request_stack->getCurrentRequest());
+  public function __construct(
+    ConfigFactory $configFactory,
+    LoggerChannelFactoryInterface $logger_factory,
+    RequestStack $request_stack,
+  ) {
+    parent::__construct(
+      $configFactory->get('social_auth_google.settings'),
+      $logger_factory,
+      $request_stack->getCurrentRequest(),
+    );
   }
 
   /**
    * {@inheritdoc}
    */
   public function authenticate(): void {
-    try {
-      $this->setAccessToken($this->client->getAccessToken('authorization_code',
-        ['code' => $this->request->query->get('code')]));
-    }
-    catch (IdentityProviderException $e) {
-      $this->loggerFactory->get('social_auth_google')
-        ->error('There was an error during authentication. Exception: ' . $e->getMessage());
+    if ($code = $this->request->query->get('code')) {
+      try {
+        $this->setAccessToken($this->client->getAccessToken('authorization_code', ['code' => $code]));
+      }
+      catch (\Throwable $e) {
+        $this->loggerFactory->get('social_auth_google')->error('There was an error during authentication. ' . Error::DEFAULT_ERROR_MESSAGE . ' @backtrace_string', Error::decodeException($e));
+      }
     }
   }
 
@@ -45,9 +49,9 @@ class GoogleAuthManager extends OAuth2Manager {
    * {@inheritdoc}
    */
   public function getUserInfo(): SocialAuthUserInterface {
-    if (!$this->user) {
+    if (!$this->user && $access_token = $this->getAccessToken()) {
       /** @var \League\OAuth2\Client\Provider\GoogleUser $owner */
-      $owner = $this->client->getResourceOwner($this->getAccessToken());
+      $owner = $this->client->getResourceOwner($access_token);
       $this->user = new SocialAuthUser(
         $owner->getName(),
         $owner->getId(),

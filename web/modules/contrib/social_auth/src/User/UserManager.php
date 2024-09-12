@@ -108,18 +108,19 @@ class UserManager extends SocialApiUserManager {
    * @param \Drupal\Core\Password\PasswordGeneratorInterface $password_generator
    *   Used for generating a new usr password randomly.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager,
-                              MessengerInterface $messenger,
-                              LoggerChannelFactoryInterface $logger_factory,
-                              ConfigFactoryInterface $config_factory,
-                              EntityFieldManagerInterface $entity_field_manager,
-                              PhpTransliteration $transliteration,
-                              LanguageManagerInterface $language_manager,
-                              EventDispatcherInterface $event_dispatcher,
-                              Token $token,
-                              FileSystemInterface $file_system,
-                              PasswordGeneratorInterface $password_generator) {
-
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    MessengerInterface $messenger,
+    LoggerChannelFactoryInterface $logger_factory,
+    ConfigFactoryInterface $config_factory,
+    EntityFieldManagerInterface $entity_field_manager,
+    PhpTransliteration $transliteration,
+    LanguageManagerInterface $language_manager,
+    EventDispatcherInterface $event_dispatcher,
+    Token $token,
+    FileSystemInterface $file_system,
+    PasswordGeneratorInterface $password_generator,
+  ) {
     parent::__construct('social_auth', $entity_type_manager, $messenger, $logger_factory);
 
     $this->configFactory = $config_factory;
@@ -591,7 +592,16 @@ class UserManager extends SocialApiUserManager {
    * @see system_retrieve_file
    */
   protected function systemRetrieveFile(string $url, string $destination, bool $managed, int $replace): mixed {
-    return system_retrieve_file($url, $destination, $managed, $replace);
+    // See change record for deprecation: https://www.drupal.org/node/3223362
+    // @phpstan-ignore-next-line
+    $data = (string) \Drupal::httpClient()->get($url)->getBody();
+    // @phpstan-ignore-next-line as it is deprecated in D10.3.0 version.
+    $file_replace = FileSystemInterface::EXISTS_REPLACE;
+    if ($managed) {
+      // @phpstan-ignore-next-line
+      return \Drupal::service('file.repository')->writeData($data, $destination, $file_replace);
+    }
+    return $this->fileSystem->saveData($data, $destination, $file_replace);
   }
 
 }

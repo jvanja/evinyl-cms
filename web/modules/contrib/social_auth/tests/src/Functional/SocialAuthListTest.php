@@ -20,6 +20,34 @@ class SocialAuthListTest extends SocialApiTestBase {
   protected static $modules = ['views', 'social_auth'];
 
   /**
+   * The social auth data handler.
+   *
+   * @var \Drupal\social_auth\SocialAuthDataHandler
+   */
+  protected $dataHandler;
+
+  /**
+   * The entity type manager object.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * A user without any particular permissions to be used in testing.
+   *
+   * @var \Drupal\user\Entity\User
+   */
+  protected $user;
+
+  /**
+   * The social auth user authenticator.
+   *
+   * @var \Drupal\social_auth\User\UserAuthenticator
+   */
+  protected $userAuthenticator;
+
+  /**
    * {@inheritdoc}
    *
    * @throws \Drupal\Core\Entity\EntityStorageException
@@ -34,11 +62,10 @@ class SocialAuthListTest extends SocialApiTestBase {
     $this->user = $this->drupalCreateUser();
     $this->userAuthenticator = \Drupal::getContainer()->get('social_auth.user_authenticator');
     // Create a new role, which implicitly checks if the permission exists.
-    $this->ownDeleteRole = $this
-      ->createRole([
-        'delete own social auth profile',
-      ]);
-    $this->user->addRole($this->ownDeleteRole);
+    $ownDeleteRole = $this->createRole([
+      'delete own social auth profile',
+    ]);
+    $this->user->addRole($ownDeleteRole);
     $this->user->save();
   }
 

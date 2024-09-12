@@ -3,12 +3,12 @@
 namespace Drupal\social_auth\Form;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\social_api\Plugin\NetworkManager;
 use Drupal\social_auth\Plugin\Network\NetworkInterface;
+use Drupal\user\Entity\Role;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -31,30 +31,14 @@ class SocialAuthSettingsForm extends ConfigFormBase {
   protected RouteProviderInterface $routeProvider;
 
   /**
-   * Constructor.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The configuration factory.
-   * @param \Drupal\social_api\Plugin\NetworkManager $network_manager
-   *   Network manager.
-   * @param \Drupal\Core\Routing\RouteProviderInterface $route_provider
-   *   Used to check if route exists.
-   */
-  public function __construct(ConfigFactoryInterface $config_factory, NetworkManager $network_manager, RouteProviderInterface $route_provider) {
-    parent::__construct($config_factory);
-    $this->networkManager = $network_manager;
-    $this->routeProvider = $route_provider;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    return new static(
-      $container->get('config.factory'),
-      $container->get('plugin.network.manager'),
-      $container->get('router.route_provider')
-    );
+    $instance = parent::create($container);
+    $instance->networkManager = $container->get('plugin.network.manager');
+    $instance->routeProvider = $container->get('router.route_provider');
+
+    return $instance;
   }
 
   /**
@@ -176,7 +160,8 @@ class SocialAuthSettingsForm extends ConfigFormBase {
     ];
 
     // Option to disable Social Auth for specific roles.
-    $roles = user_roles();
+    // phpcs:ignore
+    $roles = Role::loadMultiple();
     $options = [];
     foreach ($roles as $key => $role_object) {
       if ($key != 'anonymous' && $key != 'authenticated') {

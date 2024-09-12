@@ -93,12 +93,14 @@ class SocialAuthUser implements SocialAuthUserInterface {
    * @param array|null $additional_data
    *   The additional user data to be stored in database.
    */
-  public function __construct(string $name,
-                              string $provider_user_id,
-                              string $token,
-                              ?string $email = NULL,
-                              ?string $picture_url = NULL,
-                              ?array $additional_data = NULL) {
+  public function __construct(
+    string $name,
+    string $provider_user_id,
+    string $token,
+    ?string $email = NULL,
+    ?string $picture_url = NULL,
+    ?array $additional_data = NULL,
+  ) {
     $this->name = $name;
     $this->providerUserID = $provider_user_id;
     $this->token = $token;
