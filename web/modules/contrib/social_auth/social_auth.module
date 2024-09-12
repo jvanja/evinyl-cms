@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Utility\Error;
 
 /**
  * Implements hook_theme().
@@ -83,12 +84,12 @@ function social_auth_form_user_form_alter(&$form, FormStateInterface $form_state
   if ($form_id == 'user_form') {
     $current_user = Drupal::currentUser();
     if (_social_auth_can_grant_permission($current_user)) {
-      // Add a button to authorize twitter autoposting.
+      // Add a button to authorize twitter auto posting.
       try {
         $form += _social_auth_user_edit_form($current_user);
       }
       catch (Exception $e) {
-        watchdog_exception('social_auth', $e);
+        Error::logException(\Drupal::logger('social_auth'), $e);
       }
     }
   }

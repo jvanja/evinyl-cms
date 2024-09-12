@@ -121,15 +121,17 @@ class OAuth2ControllerBase extends ControllerBase {
    * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $dispatcher
    *   Event dispatcher.
    */
-  public function __construct(ConfigFactoryInterface $config_factory,
-                              LoggerChannelFactoryInterface $logger,
-                              MessengerInterface $messenger,
-                              NetworkManager $network_manager,
-                              UserAuthenticator $user_authenticator,
-                              RequestStack $request,
-                              SocialAuthDataHandler $data_handler,
-                              RendererInterface $renderer,
-                              EventDispatcherInterface $dispatcher) {
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    LoggerChannelFactoryInterface $logger,
+    MessengerInterface $messenger,
+    NetworkManager $network_manager,
+    UserAuthenticator $user_authenticator,
+    RequestStack $request,
+    SocialAuthDataHandler $data_handler,
+    RendererInterface $renderer,
+    EventDispatcherInterface $dispatcher,
+  ) {
     $this->configFactory = $config_factory;
     $this->loggerFactory = $logger;
     $this->messenger = $messenger;

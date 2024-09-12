@@ -1,0 +1,12 @@
+--- src/Plugin/Mail/SMTPMailSystem.php
++++ src/Plugin/Mail/SMTPMailSystem.php
+@@ -430,7 +430,8 @@ class SMTPMailSystem implements MailInterface, ContainerFactoryPluginInterface {
+           break;
+ 
+         case 'return-path':
+-          $mailer->Sender = $value;
++          $sender_comp = $this->getComponents($value);
++          $mailer->Sender = $sender_comp['email'];
+           break;
+ 
+         case 'from':

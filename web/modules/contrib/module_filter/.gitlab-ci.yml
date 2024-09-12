@@ -50,21 +50,13 @@ include:
 ################
 
 variables:
-  OPT_IN_TEST_PREVIOUS_MAJOR: 1
-  OPT_IN_TEST_PREVIOUS_MINOR: 1
-  OPT_IN_TEST_NEXT_MINOR: 1
-  OPT_IN_TEST_NEXT_MAJOR: 0
-  OPT_IN_TEST_MAX_PHP: 0
+  # OPT_IN_TEST_PREVIOUS_MINOR: '1'
+  OPT_IN_TEST_NEXT_MINOR: '1'
+  OPT_IN_TEST_NEXT_MAJOR: '1'
   # _PHPUNIT_CONCURRENT=1 uses run-tests.sh, 0 uses phpunit directly.
   _PHPUNIT_CONCURRENT: 1
-  # Skip (1) or execute (0) the following jobs.
-  SKIP_COMPOSER: 0
-  SKIP_COMPOSER_LINT: 0
-  SKIP_ESLINT: 0
-  SKIP_STYLELINT: 0
-  SKIP_PHPCS: 0
-  SKIP_PHPSTAN: 0
-  SKIP_PHPUNIT: 0
+  # There are several part-words used for matching in tests. Tell CSpell not to report these.
+  _CSPELL_WORDS: 'nana, untain, toco, ctools, interdif'
 
 eslint:
   before_script:
@@ -86,9 +78,9 @@ phpcs:
   # Apply core patch from https://www.drupal.org/project/drupal/issues/2895388 which is on MR 3273 (for core 10.1) and MR 5496 for 10.2
   # This adds the machine to the uninstall page and includes the small tableresponsive change from issue 3331975
   # @todo Remove this when the above issue is committed and the new core version is used in this job step.
-  - echo $_TARGET_CORE | grep 10.1 && export MR_DIFF="3273.diff"
-  - echo $_TARGET_CORE | grep 10.2 && export MR_DIFF="5496.diff"
-  - echo $_TARGET_CORE | grep 11. && export MR_DIFF="5496.diff"
+  - echo $_TARGET_CORE | grep 10.3 && export MR_DIFF="6065.diff"
+  - echo $_TARGET_CORE | grep 10.4 && export MR_DIFF="6065.diff"
+  - echo $_TARGET_CORE | grep 11. && export MR_DIFF="6065.diff"
   - echo "_TARGET_CORE=$_TARGET_CORE, MR_DIFF is $MR_DIFF"
   - |
     if [ "$MR_DIFF" != "" ]; then

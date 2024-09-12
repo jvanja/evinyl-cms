@@ -5,7 +5,7 @@ package: Testing
 dependencies:
   - decoupled_router:decoupled_router
 
-# Information added by Drupal.org packaging script on 2022-11-30
-version: '2.0.4'
+# Information added by Drupal.org packaging script on 2024-07-10
+version: '2.0.5'
 project: 'decoupled_router'
-datestamp: 1669803948
+datestamp: 1720638604

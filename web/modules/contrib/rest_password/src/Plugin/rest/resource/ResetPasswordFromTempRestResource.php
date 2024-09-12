@@ -4,8 +4,9 @@ namespace Drupal\rest_password\Plugin\rest\resource;
 
 use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\rest\Plugin\ResourceBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\rest\ModifiedResourceResponse;
+use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest_password\Event\PasswordResetEvent;
 use Drupal\user\UserStorageInterface;
 use Psr\Log\LoggerInterface;
@@ -25,8 +26,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class ResetPasswordFromTempRestResource extends ResourceBase {
 
+  use StringTranslationTrait;
   /**
-   * A current user instance.
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
@@ -40,7 +42,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
   protected $userStorage;
 
   /**
-   * Event dispatcher.
+   * The event dispatcher.
    *
    * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
    */
@@ -58,13 +60,13 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
    * @param array $serializer_formats
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
-   *   A logger instance.
+   *   The logger.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    *   A current user instance.
    * @param \Drupal\user\UserStorageInterface $user_storage
-   *   User storage.
+   *   The user storage.
    * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
-   *   Event dispatcher.
+   *   The event dispatcher.
    */
   public function __construct(
     array $configuration,
@@ -102,7 +104,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
    * Example {"name":"username", "temp_pass":"TEMPPASS", "new_pass": "NEWPASS"}.
    *
    * @param array $data
-   *   Post data array.
+   *   The post data array.
    *
    * @return \Drupal\rest\ModifiedResourceResponse
    *   Returns ModifiedResourceResponse.
@@ -128,7 +130,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
         if ($account && $account->id()) {
           // Blocked accounts cannot request a new password.
           if (!$account->isActive()) {
-            $response = t('This account is blocked or has not been activated yet.');
+            $response = $this->t('This account is blocked or has not been activated yet.');
           }
           else {
             // CHECK the temp password.

@@ -7,10 +7,10 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Flood\FloodInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\user\UserAuthInterface;
 use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
-use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -123,7 +123,7 @@ class UserAuthenticationTempPassController extends ControllerBase implements Con
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
-   * @param \Drupal\Core\TempStore\SharedTempStoreFactory
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $shared_temp_store
    *   The shared temp store.
    */
   public function __construct(FloodInterface $flood, UserStorageInterface $user_storage, CsrfTokenGenerator $csrf_token, UserAuthInterface $user_auth, RouteProviderInterface $route_provider, Serializer $serializer, array $serializer_formats, LoggerInterface $logger, SharedTempStoreFactory $shared_temp_store) {

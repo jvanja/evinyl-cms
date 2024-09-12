@@ -13,14 +13,14 @@ class ModuleFilterSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'module_filter_settings_form';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state): array {
     $config = $this->config('module_filter.settings');
     $form = parent::buildForm($form, $form_state);
 
@@ -64,7 +64,7 @@ class ModuleFilterSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
     $values = $form_state->getValues();
     $this->config('module_filter.settings')
       ->set('tabs', $values['tabs'])
@@ -78,7 +78,7 @@ class ModuleFilterSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  protected function getEditableConfigNames() {
+  protected function getEditableConfigNames(): array {
     return ['module_filter.settings'];
   }
 

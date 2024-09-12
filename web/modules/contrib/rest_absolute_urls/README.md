@@ -1,6 +1,6 @@
 # REST Absolute URLs
 
-Retrieve an entire menu tree in a single endpoint.
+Replaces relative URLs with absolute URLs in web services.
 
 ## Introduction
 
@@ -22,6 +22,16 @@ visible. That's because the image's URL is relative, and can't be found.
 This module automatically replaces such relative internal URLs with absolute
 URLs, so they point to the right server with Drupal where the files are really
 located.
+
+### Override the base URL
+
+When using tools like Docker and node.js Drupal sometimes uses the container
+name instead of the real URL (e.g. http://nginx/). To solve this you can
+set the base URL explicitly:
+
+```
+$config['rest_absolute_urls']['base_url'] = 'https://example.com';
+```
 
 ## Requirements
 

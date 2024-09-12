@@ -3,11 +3,11 @@
 namespace Drupal\rest_password\Plugin\rest\resource;
 
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ModifiedResourceResponse;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Psr\Log\LoggerInterface;
+use Drupal\rest\Plugin\ResourceBase;
 use Drupal\user\UserStorageInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a resource to Email new password to user.
@@ -24,7 +24,7 @@ use Drupal\user\UserStorageInterface;
 class GetPasswordRestResource extends ResourceBase {
 
   /**
-   * A current user instance.
+   * The current user.
    *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
@@ -49,9 +49,11 @@ class GetPasswordRestResource extends ResourceBase {
    * @param array $serializer_formats
    *   The available serialization formats.
    * @param \Psr\Log\LoggerInterface $logger
-   *   A logger instance.
+   *   The logger.
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   *   A current user instance.
+   *   The current user.
+   * @param \Drupal\user\UserStorageInterface $user_storage
+   *   The user storage.
    */
   public function __construct(
     array $configuration,

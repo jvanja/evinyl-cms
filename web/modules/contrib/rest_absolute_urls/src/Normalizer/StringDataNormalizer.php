@@ -48,6 +48,11 @@ class StringDataNormalizer extends PrimitiveDataNormalizer {
       $base_url = Request::createFromGlobals()->getSchemeAndHttpHost();
     }
 
+    // Skip converting if field value is empty array.
+    if (empty($value) && is_array($value)) {
+      return '';
+    }
+
     // Convert the whole message body. Returns string.
     return Html::transformRootRelativeUrlsToAbsolute($value, $base_url);
   }

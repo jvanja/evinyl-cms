@@ -32,8 +32,8 @@
     ],
     "require" : {
         "ext-openssl": "*",
-        "drupal/core": "^9.1 || ^10",
-        "league/oauth2-client": "^2.0"
+        "league/oauth2-client": "^2.0",
+        "drupal/core": "^9.5 || ^10 || ^11"
     },
     "require-dev": {
         "drupal/coder": "^8.3",

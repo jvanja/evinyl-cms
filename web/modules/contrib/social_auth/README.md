@@ -37,7 +37,7 @@ RECOMMENDED MODULES
   Implements methods and templates that will be used by login-related modules.
 
 * [Social Post](https://www.drupal.org/project/social_post):
-  Provides methods to allow autoposting to social network accounts.
+  Provides methods to allow auto posting to social network accounts.
 
 * [Social Widgets](https://www.drupal.org/project/social_widgets):
   Allows sub-modules to add functionality to add widgets (like buttons, embedded

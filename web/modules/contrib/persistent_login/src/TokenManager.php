@@ -99,14 +99,14 @@ class TokenManager {
     $selectResult = $this->connection->select('persistent_login', 'pl')
       ->fields('pl', ['instance', 'uid', 'created', 'refreshed', 'expires'])
       ->condition('expires', $this->time->getRequestTime(), '>')
-      ->condition('series', Crypt::hashBase64($token->getSeries()))
+      ->condition('series', $token->getHashedSeries())
       ->execute();
 
     $storedToken = $selectResult->fetchObject();
     if (!$storedToken) {
       return $token->setInvalid();
     }
-    elseif ($storedToken->instance !== Crypt::hashBase64($token->getInstance())) {
+    elseif ($storedToken->instance !== $token->getHashedInstance()) {
       $this->logger->warning('Invalid instance value provided in token for user %uid', [
         '%uid' => $storedToken->uid,
       ]);
@@ -134,7 +134,7 @@ class TokenManager {
 
     $config = $this->configFactory->get('persistent_login.settings');
 
-    $token = new PersistentToken(
+    $token = new RawPersistentToken(
         $this->generateTokenValue(),
         $this->generateTokenValue(),
         $uid
@@ -150,8 +150,8 @@ class TokenManager {
       $this->connection->insert('persistent_login')
         ->fields([
           'uid' => $uid,
-          'series' => Crypt::hashBase64($token->getSeries()),
-          'instance' => Crypt::hashBase64($token->getInstance()),
+          'series' => $token->getHashedSeries(),
+          'instance' => $token->getHashedInstance(),
           'created' => $token->getCreated()->getTimestamp(),
           'refreshed' => $token->getRefreshed()->getTimestamp(),
           'expires' => $token->getExpiry()->getTimestamp(),
@@ -202,18 +202,22 @@ class TokenManager {
   public function updateToken(
     #[\SensitiveParameter] PersistentToken $token,
   ) {
-    $originalInstance = $token->getInstance();
+    if ($token instanceof HashedPersistentToken) {
+      throw new \RuntimeException("Cannot update hashed tokens");
+    }
+
+    $originalHashedInstance = $token->getHashedInstance();
     $token = $token->updateInstance($this->generateTokenValue());
 
     try {
       $this->connection->update('persistent_login')
         ->fields([
-          'instance' => Crypt::hashBase64($token->getInstance()),
+          'instance' => $token->getHashedInstance(),
           'refreshed' => $token->getRefreshed()->getTimestamp(),
           'expires' => $token->getExpiry()->getTimestamp(),
         ])
-        ->condition('series', Crypt::hashBase64($token->getSeries()))
-        ->condition('instance', Crypt::hashBase64($originalInstance))
+        ->condition('series', $token->getHashedSeries())
+        ->condition('instance', $originalHashedInstance)
         ->execute();
     }
     catch (\Exception $e) {
@@ -236,7 +240,7 @@ class TokenManager {
   ) {
     try {
       $this->connection->delete('persistent_login')
-        ->condition('series', Crypt::hashBase64($token->getSeries()))
+        ->condition('series', $token->getHashedSeries())
         ->execute();
     }
     catch (\Exception $e) {
@@ -280,7 +284,7 @@ class TokenManager {
         ->execute();
 
       while (($tokenArray = $tokensResult->fetchAssoc())) {
-        $tokens[] = PersistentToken::createFromArray($tokenArray);
+        $tokens[] = HashedPersistentToken::createFromArray($tokenArray);
       }
     }
     catch (\Exception $e) {

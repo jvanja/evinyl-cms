@@ -10,6 +10,7 @@ use Drupal\Core\Database\Query\Select;
 use Drupal\Core\Database\StatementInterface;
 use Drupal\Core\Logger\LoggerChannel;
 use Drupal\persistent_login\PersistentToken;
+use Drupal\persistent_login\RawPersistentToken;
 use Drupal\persistent_login\TokenManager;
 use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
@@ -97,7 +98,7 @@ class TokenManagerValidationTest extends UnitTestCase {
         'expires' => 1682855467,
       ]);
 
-    $inputToken = new PersistentToken('test_series', 'test_instance');
+    $inputToken = new RawPersistentToken('test_series', 'test_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 
@@ -139,7 +140,7 @@ class TokenManagerValidationTest extends UnitTestCase {
     $selectResultMock->fetchObject()
       ->willReturn(NULL);
 
-    $inputToken = new PersistentToken('test_invalid_series', 'test_instance');
+    $inputToken = new RawPersistentToken('test_invalid_series', 'test_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 
@@ -187,7 +188,7 @@ class TokenManagerValidationTest extends UnitTestCase {
         'expires' => 1682855467,
       ]);
 
-    $inputToken = new PersistentToken('test_series', 'test_invalid_instance');
+    $inputToken = new RawPersistentToken('test_series', 'test_invalid_instance');
 
     $validatedToken = $tokenManager->validateToken($inputToken);
 
