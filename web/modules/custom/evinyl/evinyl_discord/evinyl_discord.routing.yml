@@ -7,7 +7,7 @@ evinyl_discord.get:
     _permission: 'access content'
 
 evinyl_discord.admin_settings:
-  path: '/admin/config/services/evinyl_discord/config'
+  path: '/admin/config/services/evinyl_discord'
   defaults:
     _title: 'Discord - Configuration'
     _description: 'Adjust Discord settings.'
