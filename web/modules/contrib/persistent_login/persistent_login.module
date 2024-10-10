@@ -5,7 +5,9 @@
  * Contains persistent_login.module.
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -101,6 +103,22 @@ function persistent_login_user_edit_form_submit(&$form, FormStateInterface $form
 function persistent_login_user_logout($account) {
   \Drupal::service('persistent_login.token_handler')
     ->clearSessionToken(\Drupal::request());
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function persistent_login_user_cancel($edit, UserInterface $account, $method): void {
+  \Drupal::service('persistent_login.token_manager')
+    ->clearUsersTokens($account);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function persistent_login_user_delete(EntityInterface $entity): void {
+  \Drupal::service('persistent_login.token_manager')
+    ->clearUsersTokens($entity);
 }
 
 /**

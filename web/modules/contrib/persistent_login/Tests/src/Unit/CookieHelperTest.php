@@ -3,8 +3,8 @@
 namespace Drupal\Tests\persistent_login\Unit;
 
 use Drupal\Core\Session\SessionConfiguration;
-use Drupal\persistent_login\CookieHelper;
 use Drupal\Tests\UnitTestCase;
+use Drupal\persistent_login\CookieHelper;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

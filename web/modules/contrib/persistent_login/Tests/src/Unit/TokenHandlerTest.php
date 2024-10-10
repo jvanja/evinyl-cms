@@ -5,10 +5,10 @@ namespace Drupal\Tests\persistent_login\Unit;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Session\SessionConfiguration;
+use Drupal\Tests\UnitTestCase;
 use Drupal\persistent_login\CookieHelperInterface;
 use Drupal\persistent_login\EventSubscriber\TokenHandler;
 use Drupal\persistent_login\TokenManager;
-use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request;
 

@@ -165,3 +165,105 @@ function persistent_login_update_8106(&$sandbox) {
       ->execute();
   }
 }
+
+/**
+ * Clear tokens for disabled users.
+ */
+function persistent_login_update_8107(&$sandbox) {
+  if (!isset($sandbox['total'])) {
+    $sandbox['current'] = 0;
+    $sandbox['processed'] = 0;
+    $sandbox['total'] = \Drupal::entityQuery('user')
+      ->count()
+      ->accessCheck(FALSE)
+      ->condition('status', 0)
+      ->condition('uid', 0, '>')
+      ->execute();
+
+    if (0 === (int) $sandbox['total']) {
+      $sandbox['#finished'] = 1;
+      return;
+    }
+  }
+
+  $users = \Drupal::entityQuery('user')
+    ->accessCheck(FALSE)
+    ->condition('status', 0)
+    ->condition('uid', $sandbox['current'], '>')
+    ->sort('uid')
+    ->range(0, 100)
+    ->execute();
+
+  \Drupal::database()->delete('persistent_login')
+    ->condition('uid', $users, 'IN')
+    ->execute();
+
+  $sandbox['processed'] += count($users);
+  $sandbox['current'] = end($users);
+
+  $sandbox['message'] = t('Processed @count/@total users', [
+    '@count' => $sandbox['processed'],
+    '@total' => $sandbox['total'],
+  ]);
+
+  $sandbox['#finished'] = $sandbox['processed'] / $sandbox['total'];
+}
+
+/**
+ * Clear tokens for deleted users.
+ */
+function persistent_login_update_8108(&$sandbox) {
+  if (!isset($sandbox['total'])) {
+    $sandbox['current'] = 0;
+    $sandbox['processed'] = 0;
+    $sandbox['total'] = (int) \Drupal::database()
+      ->select('persistent_login', 'pl')
+      ->distinct()
+      ->fields('pl', ['uid'])
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    if (0 === $sandbox['total']) {
+      $sandbox['#finished'] = 1;
+      return;
+    }
+  }
+
+  $token_users = \Drupal::database()
+    ->select('persistent_login', 'pl')
+    ->distinct()
+    ->fields('pl', ['uid'])
+    ->condition('uid', $sandbox['current'], '>')
+    ->orderBy('uid')
+    ->range(0, 100)
+    ->execute()
+    ->fetchCol();
+
+  if (empty($token_users)) {
+    $sandbox['#finished'] = 1;
+    return;
+  }
+
+  $valid_users = \Drupal::entityQuery('user')
+    ->accessCheck(FALSE)
+    ->condition('uid', $token_users, 'IN')
+    ->execute();
+
+  $to_delete = array_diff($token_users, $valid_users);
+  if (!empty($to_delete)) {
+    \Drupal::database()->delete('persistent_login')
+      ->condition('uid', $to_delete, 'IN')
+      ->execute();
+  }
+
+  $sandbox['processed'] += count($token_users);
+  $sandbox['current'] = end($token_users);
+
+  $sandbox['message'] = t('Processed @count/@total users', [
+    '@count' => $sandbox['processed'],
+    '@total' => $sandbox['total'],
+  ]);
+
+  $sandbox['#finished'] = $sandbox['processed'] / $sandbox['total'];
+}
