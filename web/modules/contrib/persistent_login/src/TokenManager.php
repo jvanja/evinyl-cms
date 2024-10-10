@@ -202,9 +202,9 @@ class TokenManager {
   public function updateToken(
     #[\SensitiveParameter] PersistentToken $token,
   ) {
-    if ($token instanceof HashedPersistentToken) {
-      throw new \RuntimeException("Cannot update hashed tokens");
-    }
+    // Hashed tokens shouldn't be updated because the raw values are needed when
+    // setting a new cookie value.
+    assert(!($token instanceof HashedPersistentToken));
 
     $originalHashedInstance = $token->getHashedInstance();
     $token = $token->updateInstance($this->generateTokenValue());
@@ -294,6 +294,25 @@ class TokenManager {
     }
 
     return $tokens;
+  }
+
+  /**
+   * Clear all tokens for a user.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user to remove tokens for.
+   */
+  public function clearUsersTokens(UserInterface $user): void {
+    try {
+      $this->connection->delete('persistent_login')
+        ->condition('uid', $user->id())
+        ->execute();
+    }
+    catch (\Exception $e) {
+      $this->logger->error('Unable to clear tokens for user with uid @uid', [
+        '@uid' => $user->id(),
+      ]);
+    }
   }
 
   /**

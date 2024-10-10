@@ -166,6 +166,11 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
         $user = $this->entityTypeManager->getStorage('user')
           ->load($this->token->getUid());
 
+        if (!$user || $user->isBlocked()) {
+          $this->token = $this->token->setInvalid();
+          return NULL;
+        }
+
         // @see user_login_finalize().
         $session = $request->getSession();
         $session->migrate();
@@ -287,13 +292,8 @@ class TokenHandler implements AuthenticationProviderInterface, EventSubscriberIn
    * This will cause the token to be removed from the database at the end of the
    * request.
    */
-  public function clearSessionToken(Request $request = NULL) {
-    if (!$this->token) {
-      if (!$request) {
-        $request = \Drupal::request();
-      }
-      $this->token = $this->getTokenFromCookie($request);
-    }
+  public function clearSessionToken(?Request $request = NULL) {
+    $this->token ??= $this->getTokenFromCookie($request ?? \Drupal::request());
 
     if ($this->token) {
       $this->token = $this->token->setInvalid();

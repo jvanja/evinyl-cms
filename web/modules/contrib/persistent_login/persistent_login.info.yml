@@ -5,7 +5,7 @@ configure: persistent_login.settings
 core_version_requirement: ^10 || ^11
 package: Other
 
-# Information added by Drupal.org packaging script on 2024-07-22
-version: '2.2.1'
+# Information added by Drupal.org packaging script on 2024-10-04
+version: '2.2.4'
 project: 'persistent_login'
-datestamp: 1721689506
+datestamp: 1728082566

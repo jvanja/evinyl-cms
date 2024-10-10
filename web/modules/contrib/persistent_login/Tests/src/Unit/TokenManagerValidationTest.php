@@ -9,10 +9,10 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Database\Query\Select;
 use Drupal\Core\Database\StatementInterface;
 use Drupal\Core\Logger\LoggerChannel;
+use Drupal\Tests\UnitTestCase;
 use Drupal\persistent_login\PersistentToken;
 use Drupal\persistent_login\RawPersistentToken;
 use Drupal\persistent_login\TokenManager;
-use Drupal\Tests\UnitTestCase;
 use Prophecy\Argument;
 
 /**
