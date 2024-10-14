@@ -3,5 +3,4 @@ description: Uses musicmatch.com API to fetch and populate lyrics for an album
 package: Evinyl
 type: module
 version: 1.0
-core_version_requirement: ^9 || ^10
-
+core_version_requirement: ^9.2 || ^10 || ^11
