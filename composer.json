@@ -32,6 +32,8 @@
         "drupal/entity_browser": "^2.9",
         "drupal/field_group": "^3.4",
         "drupal/field_permissions": "^1.2",
+        "drupal/gin": "^3.0@rc",
+        "drupal/gin_toolbar": "^1.0@rc",
         "drupal/jsonapi_boost": "^2.0",
         "drupal/jsonapi_extras": "^3.24",
         "drupal/mass_contact": "^1.0",
