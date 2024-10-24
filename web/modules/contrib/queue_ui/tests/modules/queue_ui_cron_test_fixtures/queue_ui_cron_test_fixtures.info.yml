@@ -5,7 +5,7 @@ package: Testing
 dependencies:
   - queue_ui:queue_ui
 
-# Information added by Drupal.org packaging script on 2024-10-07
-version: '3.2.0'
+# Information added by Drupal.org packaging script on 2024-10-23
+version: '3.2.1'
 project: 'queue_ui'
-datestamp: 1728285691
+datestamp: 1729672833

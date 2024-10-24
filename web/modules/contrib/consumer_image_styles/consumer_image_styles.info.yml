@@ -6,8 +6,9 @@ package: Web services
 dependencies:
   - drupal:image
   - consumers:consumers
+  - drupal:jsonapi
 
-# Information added by Drupal.org packaging script on 2024-10-10
-version: '4.0.9'
+# Information added by Drupal.org packaging script on 2024-10-15
+version: '4.0.10'
 project: 'consumer_image_styles'
-datestamp: 1728590279
+datestamp: 1729009526
