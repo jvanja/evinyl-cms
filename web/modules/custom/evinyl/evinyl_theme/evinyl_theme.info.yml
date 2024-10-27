@@ -1,0 +1,7 @@
+name: "Evinyl Theme"
+type: module
+description: "Custom module to override Mime Mail email templates."
+core_version_requirement: ^10
+package: Evinyl
+dependencies:
+  - mimemail:mimemail
