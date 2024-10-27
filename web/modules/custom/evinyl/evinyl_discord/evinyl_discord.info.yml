@@ -1,6 +1,6 @@
 name: Evinyl Discord Module
 description: Communicated with the eVinyl Discord server.
-package: evinyl
+package: Evinyl
 type: module
 version: 1.0
 configure: evinyl_discord.admin_settings
