@@ -2,6 +2,8 @@
 
 namespace Drupal\warmer_cdn\Plugin\warmer;
 
+use Drupal\Core\Utility\Error;
+use Psr\Log\LoggerInterface;
 use vipnytt\SitemapParser\Exceptions\SitemapParserException;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\SubformStateInterface;
@@ -27,17 +29,20 @@ final class SitemapWarmer extends WarmerPluginBase {
 
   /**
    * The sitemap parser.
-   *
-   * @var \vipnytt\SitemapParser
    */
-  private $sitemapParser;
+  private SitemapParser $sitemapParser;
 
   /**
    * The URL collection.
    *
    * @var array|null
    */
-  private $urlCollection;
+  private ?array $urlCollection = NULL;
+
+  /**
+   * The logger service.
+   */
+  protected LoggerInterface $logger;
 
   /**
    * {@inheritdoc}
@@ -63,6 +68,7 @@ final class SitemapWarmer extends WarmerPluginBase {
     $warmer_manager = $container->get('plugin.manager.warmer');
     assert($warmer_manager instanceof WarmerPluginManager);
     $instance->setWarmerManager($warmer_manager);
+    $instance->setLogger($container->get('logger.factory')->get('warmer_cdn'));
     return $instance;
   }
 
@@ -149,8 +155,18 @@ final class SitemapWarmer extends WarmerPluginBase {
    * @param \vipnytt\SitemapParser $parser
    *   The client.
    */
-  public function setSitemapParser(SitemapParser $parser) {
+  public function setSitemapParser(SitemapParser $parser): void {
     $this->sitemapParser = $parser;
+  }
+
+  /**
+   * Injects the logger.
+   *
+   * @param \Psr\Log\LoggerInterface $logger
+   *   Logger.
+   */
+  public function setLogger(LoggerInterface $logger): void {
+    $this->logger = $logger;
   }
 
   /**
@@ -159,7 +175,7 @@ final class SitemapWarmer extends WarmerPluginBase {
    * @return string[]
    *   The URLs from parsing the sitemap.
    */
-  private function parseSitemaps() {
+  private function parseSitemaps(): array {
     if (isset($this->urlCollection)) {
       return $this->urlCollection;
     }
@@ -186,12 +202,12 @@ final class SitemapWarmer extends WarmerPluginBase {
    * @param string $location
    *   The fully loaded URL for the sitemap.
    */
-  private function parseSitemap($location) {
+  private function parseSitemap(string $location): void {
     try {
       $this->sitemapParser->parseRecursive($location);
     }
     catch (SitemapParserException $exception) {
-      watchdog_exception('warmer_cdn', $exception);
+      Error::logException($this->logger, $exception);
       $message = $this->t(
         'There was an error parsing the Sitemap in %location. Please check the watchdog logs for more information.',
         ['%location' => $location]

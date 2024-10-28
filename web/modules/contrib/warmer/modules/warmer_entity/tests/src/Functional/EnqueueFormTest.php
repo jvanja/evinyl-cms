@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\warmer_entity\Functional;
 
 use Drupal\Core\Queue\QueueInterface;
@@ -34,7 +36,7 @@ class EnqueueFormTest extends BrowserTestBase {
   private $adminUser;
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
@@ -130,7 +132,7 @@ class EnqueueFormTest extends BrowserTestBase {
    * @return array[]
    *   The test values.
    */
-  public function enqueueFormData() {
+  public static function enqueueFormData() {
     return [
       [
         FALSE,

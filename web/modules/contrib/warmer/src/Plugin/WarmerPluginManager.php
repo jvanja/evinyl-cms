@@ -48,7 +48,7 @@ class WarmerPluginManager extends DefaultPluginManager {
       try {
         return $this->createInstance($plugin_id);
       }
-      catch (PluginException $exception) {
+      catch (PluginException) {
         return NULL;
       }
     }, $plugin_ids);

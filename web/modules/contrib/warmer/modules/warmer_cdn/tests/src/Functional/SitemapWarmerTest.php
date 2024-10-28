@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\warmer_cdn\Functional;
 
 use Drupal\Core\File\FileSystem;
@@ -48,7 +50,7 @@ final class SitemapWarmerTest extends BrowserTestBase {
   private $adminUser;
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();
