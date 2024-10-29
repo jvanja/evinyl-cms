@@ -37,15 +37,15 @@ class AlbumController {
       if ($key !== FALSE) {
         $output[$key]['featured'] = $node->featured;
 
-        if ($node->genre_id && !\in_array($node->genre_id, $output[$key]['genres_ids'], TRUE)) {
+        if ($node->genre_id && !\in_array($node->genre_id, $output[$key]['genres_ids'])) {
           $output[$key]['genres_ids'][] = (int) $node->genre_id;
         }
 
-        if ($node->artist_id && !\in_array($node->artist_id, $output[$key]['artists_ids'], TRUE)) {
+        if ($node->artist_id && !\in_array($node->artist_id, $output[$key]['artists_ids'])) {
           $output[$key]['artists_ids'][] = (int) $node->artist_id;
         }
 
-        if ($node->likes && !\in_array($node->likes, $output[$key]['likes_ids'], TRUE)) {
+        if ($node->likes && !\in_array($node->likes, $output[$key]['likes_ids'])) {
           $output[$key]['likes_ids'][] = $node->likes;
         }
       } else {
