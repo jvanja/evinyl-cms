@@ -12,7 +12,6 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Promise\Utils;
 // use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\Core\Url;
 
 
 /**
@@ -75,12 +74,13 @@ class EvinylDeezerController extends ControllerBase {
     try {
       $responses = Utils::unwrap($promises);
     } catch (ConnectException $e) {
+      \Drupal::logger('evinyl_deezer')->error($e->getMessage());
       return FALSE;
     }
 
     foreach ($responses as $response) {
       if ($response->getStatusCode() !== 200) {
-        return $build;
+        return FALSE;
       }
       $posts = $response->getBody()->getContents();
 
@@ -88,9 +88,9 @@ class EvinylDeezerController extends ControllerBase {
       $postObject = json_decode($posts);
 
       if ($postObject->error) {
-        return $build;
+        return FALSE;
       }
-      $album = $this->createAlbums($postObject);
+      $this->createAlbums($postObject);
     }
 
     return TRUE;
@@ -134,7 +134,10 @@ class EvinylDeezerController extends ControllerBase {
   protected function createAlbums($albumData) {
     $path_parts = pathinfo($albumData->cover_xl);
     $rename_filename = \Drupal::service('pathauto.alias_cleaner')->cleanString($albumData->title) . '.' . $path_parts['extension'];
-    $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
+    // $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
+    $data = (string) \Drupal::httpClient()->get($albumData->cover_xl)->getBody();
+    $destination = 'public://covers/' . $rename_filename;
+    $albumCover = \Drupal::service('file.repository')->writeData($data, $destination, \Drupal\Core\File\FileExists::Replace);
     $artistTerms = $this->addTaxonomyTerm('artists', [$albumData->artist]);
     $labelTerms = $this->addTaxonomyTerm('labels', [$albumData->label]);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres->data);
@@ -168,8 +171,6 @@ class EvinylDeezerController extends ControllerBase {
   }
 
   protected function createAlbumsCredits($albumCredits) {
-    // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
-
     if (\count($albumCredits) > 0) {
       $credits = [];
       $creditsString = '';
@@ -192,7 +193,6 @@ class EvinylDeezerController extends ControllerBase {
 
       return $creditsString;
     }
-
     return '';
   }
 
@@ -215,8 +215,6 @@ class EvinylDeezerController extends ControllerBase {
     $paragraphs = [];
 
     foreach ($tracksArray as $track) {
-      $credits = [];
-      $creditsString = '';
       $track_local_url = $this->download_mp3_to_public_files($track->preview, $track->title);
       if (!$track_local_url) $track_local_url = '';
 
@@ -241,7 +239,7 @@ class EvinylDeezerController extends ControllerBase {
    *
    * @return string|null The URL of the saved file, or NULL if the download failed.
    */
-  protected function download_mp3_to_public_files(string $url, string $title) {
+  public static function download_mp3_to_public_files(string $url, string $title) {
     // Get the file system and file repository services.
     $file_system = \Drupal::service('file_system');
     $file_repository = \Drupal::service('file.repository');
@@ -265,7 +263,7 @@ class EvinylDeezerController extends ControllerBase {
       }
 
       // Write the data to the file repository.
-      $file = $file_repository->writeData($data, $destination, FileSystemInterface::EXISTS_REPLACE);
+      $file = $file_repository->writeData($data, $destination, \Drupal\Core\File\FileExists::Replace);
 
       if (!$file) {
         throw new \Exception('Failed to save MP3 file.');
@@ -274,15 +272,15 @@ class EvinylDeezerController extends ControllerBase {
       // Convert the file URI to a URL.
       return $file_url_generator->generateAbsoluteString($file->getFileUri());
     } catch (\Exception $e) {
-      \Drupal::logger('custom_module')->error($e->getMessage());
+      \Drupal::logger('evinyl_deezer')->error($e->getMessage());
       return NULL;
     }
   }
 
-  private function hhmmss_to_seconds($str_time = '0:0') {
-    $str_time = preg_replace('/^([\\d]{1,2})\\:([\\d]{2})$/', '00:$1:$2', $str_time);
-    sscanf($str_time, '%d:%d:%d', $hours, $minutes, $seconds);
-
-    return $hours * 3600 + $minutes * 60 + $seconds;
-  }
+  // private function hhmmss_to_seconds($str_time = '0:0') {
+  //   $str_time = preg_replace('/^([\\d]{1,2})\\:([\\d]{2})$/', '00:$1:$2', $str_time);
+  //   sscanf($str_time, '%d:%d:%d', $hours, $minutes, $seconds);
+  //
+  //   return $hours * 3600 + $minutes * 60 + $seconds;
+  // }
 }
