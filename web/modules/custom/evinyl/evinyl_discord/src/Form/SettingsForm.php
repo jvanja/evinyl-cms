@@ -40,7 +40,7 @@ class SettingsForm extends ConfigFormBase {
      $form['discord_token'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Discord Bot Token'),
-      '#default_value' => $config->get('discord_token'), // MTI4MzM2NjI0NjE2Njk1ODEzMQ.GpYGSR.kCIF_OY9JmEc8Ryx929Vm9-JNyfD-dPxnN0r_o
+      '#default_value' => $config->get('discord_token'),
     ];
 
     $form['discord_channel_id'] = [
