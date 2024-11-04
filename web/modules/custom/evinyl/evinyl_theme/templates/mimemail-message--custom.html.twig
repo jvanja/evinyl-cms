@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{{ subject }}</title>
+    <style>
+      /* Add custom styling */
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+      .email-header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+      }
+      .email-body {
+        padding: 20px;
+        background-color: #ffffff;
+      }
+      .email-footer {
+        font-size: 12px;
+        text-align: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-header">
+      <h1>{{ subject }}</h1>
+    </div>
+
+    <div class="email-body">
+      {{ body }}
+    </div>
+
+    <div class="email-footer">
+      {{ footer }}
+    </div>
+  </body>
+</html>

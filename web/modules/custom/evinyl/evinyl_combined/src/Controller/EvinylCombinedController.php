@@ -2,8 +2,8 @@
 
 namespace Drupal\evinyl_combined\Controller;
 
+use Drupal\evinyl_deezer\Controller\EvinylDeezerController;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Link;
 use Drupal\node\Entity\Node;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\taxonomy\Entity\Term;
@@ -60,8 +60,7 @@ class EvinylCombinedController extends ControllerBase {
 
     try {
       $responses = Utils::unwrap($promises);
-    }
-    catch (RequestException $e) {
+    } catch (RequestException $e) {
       $response = $e->getResponse();
       $responseBody = json_decode($response->getBody()->getContents());
       $requestUri = (string) $e->getRequest()->getUri();
@@ -141,8 +140,7 @@ class EvinylCombinedController extends ControllerBase {
         ]);
         $new_term->save();
         $terms[] = ['target_id' => $new_term->id()];
-      }
-      else {
+      } else {
         $terms[] = ['target_id' => $term->id()];
       }
     }
@@ -151,7 +149,14 @@ class EvinylCombinedController extends ControllerBase {
   }
 
   protected function createAlbums($albumData, $deezerData) {
-    $albumCover = system_retrieve_file($deezerData->cover_xl, 'public://covers/', TRUE);
+    // $albumCover = system_retrieve_file($deezerData->cover_xl, 'public://covers/', TRUE);
+
+    $cover_extension = pathinfo($deezerData->cover_xl, PATHINFO_EXTENSION);
+    $rename_filename = \Drupal::service('pathauto.alias_cleaner')->cleanString($albumData->title) . '.' . $cover_extension;
+    $data = (string) \Drupal::httpClient()->get($deezerData->cover_xl)->getBody();
+    $destination = 'public://covers/' . $rename_filename;
+    $albumCover = \Drupal::service('file.repository')->writeData($data, $destination, \Drupal\Core\File\FileExists::Replace);
+
     $artistTerms = $this->addTaxonomyTerm('artists', $albumData->artists);
     $labelTerms = $this->addTaxonomyTerm('labels', $albumData->labels);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres);
@@ -176,7 +181,7 @@ class EvinylCombinedController extends ControllerBase {
 
     $credits = $this->createAlbumsCredits($albumData->extraartists);
 
-    if (strtolower($albumData->title) !== strtolower($deezerObject->title)) {
+    if (strtolower($albumData->title) !== strtolower($deezerData->title)) {
       $this->importStatus = 'warning';
       $this->importMessage = 'Discogs and Deezer release titles do not match.';
     }
@@ -200,14 +205,11 @@ class EvinylCombinedController extends ControllerBase {
     $node->save();
 
     $url = $node->toUrl('edit-form');
-    $link = Link::fromTextAndUrl($albumData->title, $url);
 
-    return $url; // $link->toString();
+    return $url;
   }
 
   protected function createAlbumsCredits($albumCredits) {
-    // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
-
     if (\count($albumCredits) > 0) {
       $credits = [];
       $creditsString = '';
@@ -219,8 +221,7 @@ class EvinylCombinedController extends ControllerBase {
 
         if (\array_key_exists($role, $credits)) {
           $credits[$role] .= ', ' . $artistName;
-        }
-        else {
+        } else {
           $credits[$role] = $artistName;
         }
       }
@@ -269,8 +270,7 @@ class EvinylCombinedController extends ControllerBase {
 
         if (\array_key_exists($role, $credits)) {
           $credits[$role] .= ', ' . $artistName;
-        }
-        else {
+        } else {
           $credits[$role] = $artistName;
         }
       }
@@ -284,10 +284,12 @@ class EvinylCombinedController extends ControllerBase {
 
       if (\is_int($key)) {
         $deezerPreview = $deezerTracksData[$key]->preview;
-      }
-      else {
+        // $EvinylDeezer = new EvinylDeezerController;
+        // $track_local_url = $EvinylDeezer->download_mp3_to_public_files($deezerPreview, $track->title);
+        $track_local_url = EvinylDeezerController::download_mp3_to_public_files($deezerPreview, $track->title);
+      } else {
         $this->importStatus = 'warning';
-        $deezerPreview = '';
+        $track_local_url = '';
         $this->importMessage = 'Some song titles did not match between Discogs and Deezer';
       }
 
@@ -296,7 +298,7 @@ class EvinylCombinedController extends ControllerBase {
         'field_song_duration' => $this->hhmmss_to_seconds($track->duration),
         'field_song_name' => $track->title,
         'field_song_credits' => $creditsString,
-        'field_song_preview_url' => $deezerPreview,
+        'field_song_preview_url' => $track_local_url,
       ]);
       $paragraphs[] = $song_paragraph;
     }
@@ -310,5 +312,4 @@ class EvinylCombinedController extends ControllerBase {
 
     return $hours * 3600 + $minutes * 60 + $seconds;
   }
-
 }

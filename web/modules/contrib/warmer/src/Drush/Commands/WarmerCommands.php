@@ -51,7 +51,6 @@ class WarmerCommands extends DrushCommands implements SiteAliasManagerAwareInter
     $this->queueManager = $queue_manager;
   }
 
-
   /**
    * {@inheritdoc}
    */

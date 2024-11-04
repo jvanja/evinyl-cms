@@ -1,0 +1,11 @@
+<?php
+
+use Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for mimemail_message template.
+ */
+function evinyl_theme_theme_suggestions_mimemail_message_alter(array &$suggestions, array $variables) {
+  // Add a suggestion if needed, such as for a specific email type.
+  $suggestions[] = 'mimemail_message__custom';
+}

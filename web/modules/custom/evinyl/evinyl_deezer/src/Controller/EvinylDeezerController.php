@@ -10,7 +10,9 @@ use Drupal\taxonomy\Entity\Term;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Promise\Utils;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+// use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\File\FileSystemInterface;
+
 
 /**
  * Class MyController.
@@ -71,14 +73,14 @@ class EvinylDeezerController extends ControllerBase {
     // if any of the requests fail
     try {
       $responses = Utils::unwrap($promises);
-    }
-    catch (ConnectException $e) {
+    } catch (ConnectException $e) {
+      \Drupal::logger('evinyl_deezer')->error($e->getMessage());
       return FALSE;
     }
 
     foreach ($responses as $response) {
       if ($response->getStatusCode() !== 200) {
-        return $build;
+        return FALSE;
       }
       $posts = $response->getBody()->getContents();
 
@@ -86,9 +88,9 @@ class EvinylDeezerController extends ControllerBase {
       $postObject = json_decode($posts);
 
       if ($postObject->error) {
-        return $build;
+        return FALSE;
       }
-      $album = $this->createAlbums($postObject);
+      $this->createAlbums($postObject);
     }
 
     return TRUE;
@@ -121,8 +123,7 @@ class EvinylDeezerController extends ControllerBase {
         ]);
         $new_term->save();
         $terms[] = ['target_id' => $new_term->id()];
-      }
-      else {
+      } else {
         $terms[] = ['target_id' => $term->id()];
       }
     }
@@ -133,7 +134,10 @@ class EvinylDeezerController extends ControllerBase {
   protected function createAlbums($albumData) {
     $path_parts = pathinfo($albumData->cover_xl);
     $rename_filename = \Drupal::service('pathauto.alias_cleaner')->cleanString($albumData->title) . '.' . $path_parts['extension'];
-    $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
+    // $albumCover = system_retrieve_file($albumData->cover_xl, 'public://covers/' . $rename_filename, TRUE, 0);
+    $data = (string) \Drupal::httpClient()->get($albumData->cover_xl)->getBody();
+    $destination = 'public://covers/' . $rename_filename;
+    $albumCover = \Drupal::service('file.repository')->writeData($data, $destination, \Drupal\Core\File\FileExists::Replace);
     $artistTerms = $this->addTaxonomyTerm('artists', [$albumData->artist]);
     $labelTerms = $this->addTaxonomyTerm('labels', [$albumData->label]);
     $genreTerms = $this->addTaxonomyTerm('genre', $albumData->genres->data);
@@ -167,8 +171,6 @@ class EvinylDeezerController extends ControllerBase {
   }
 
   protected function createAlbumsCredits($albumCredits) {
-    // Drums – Max M. Weinberg* (tracks: A1 to A4, B2, B4)
-
     if (\count($albumCredits) > 0) {
       $credits = [];
       $creditsString = '';
@@ -180,8 +182,7 @@ class EvinylDeezerController extends ControllerBase {
 
         if (\array_key_exists($role, $credits)) {
           $credits[$role] .= ', ' . $artistName;
-        }
-        else {
+        } else {
           $credits[$role] = $artistName;
         }
       }
@@ -192,7 +193,6 @@ class EvinylDeezerController extends ControllerBase {
 
       return $creditsString;
     }
-
     return '';
   }
 
@@ -215,13 +215,14 @@ class EvinylDeezerController extends ControllerBase {
     $paragraphs = [];
 
     foreach ($tracksArray as $track) {
-      $credits = [];
-      $creditsString = '';
+      $track_local_url = $this->download_mp3_to_public_files($track->preview, $track->title);
+      if (!$track_local_url) $track_local_url = '';
+
       $song_paragraph = Paragraph::create([
         'type' => $paragraphName,
         'field_song_name' => $track->title,
         'field_song_duration' => $track->duration,
-        'field_song_preview_url' => $track->preview,
+        'field_song_preview_url' => $track_local_url,
         'field_song_credits' => $track->artist->name,
       ]);
       $paragraphs[] = $song_paragraph;
@@ -230,11 +231,56 @@ class EvinylDeezerController extends ControllerBase {
     return $paragraphs;
   }
 
-  private function hhmmss_to_seconds($str_time = '0:0') {
-    $str_time = preg_replace('/^([\\d]{1,2})\\:([\\d]{2})$/', '00:$1:$2', $str_time);
-    sscanf($str_time, '%d:%d:%d', $hours, $minutes, $seconds);
+  /**
+   * Downloads an MP3 file from a given URL and saves it to the public files directory.
+   *
+   * @param string $url The URL of the MP3 file to download.
+   * @param string $title The title of the MP3 file.
+   *
+   * @return string|null The URL of the saved file, or NULL if the download failed.
+   */
+  public static function download_mp3_to_public_files(string $url, string $title) {
+    // Get the file system and file repository services.
+    $file_system = \Drupal::service('file_system');
+    $file_repository = \Drupal::service('file.repository');
+    $file_url_generator = \Drupal::service('file_url_generator');
 
-    return $hours * 3600 + $minutes * 60 + $seconds;
+
+    // Define the destination path in the public files directory.
+    $destination_dir = 'public://audio';
+    $file_name = str_replace(" ", "-", strtolower($title));
+    $file_name = preg_replace('/[^a-zA-Z0-9_-]+/', '', $file_name);
+    $destination = 'public://audio/' . $file_name . '.mp3';
+
+    try {
+      // Ensure the destination directory exists.
+      $file_system->prepareDirectory($destination_dir, FileSystemInterface::CREATE_DIRECTORY);
+
+      // Download the file data.
+      $data = file_get_contents($url);
+      if ($data === FALSE) {
+        throw new \Exception('Failed to download MP3 file.');
+      }
+
+      // Write the data to the file repository.
+      $file = $file_repository->writeData($data, $destination, \Drupal\Core\File\FileExists::Replace);
+
+      if (!$file) {
+        throw new \Exception('Failed to save MP3 file.');
+      }
+
+      // Convert the file URI to a URL.
+      return $file_url_generator->generateAbsoluteString($file->getFileUri());
+    } catch (\Exception $e) {
+      \Drupal::logger('evinyl_deezer')->error($e->getMessage());
+      return NULL;
+    }
   }
 
+  // private function hhmmss_to_seconds($str_time = '0:0') {
+  //   $str_time = preg_replace('/^([\\d]{1,2})\\:([\\d]{2})$/', '00:$1:$2', $str_time);
+  //   sscanf($str_time, '%d:%d:%d', $hours, $minutes, $seconds);
+  //
+  //   return $hours * 3600 + $minutes * 60 + $seconds;
+  // }
 }

@@ -8,7 +8,9 @@ use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\SubformStateInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\warmer\Plugin\WarmerPluginBase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -27,30 +29,33 @@ final class EntityWarmer extends WarmerPluginBase {
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  private $entityTypeManager;
+  private EntityTypeManagerInterface $entityTypeManager;
 
   /**
    * The in-memory static entity cache.
    *
    * @var \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface
    */
-  private $entityMemoryCache;
+  private MemoryCacheInterface $entityMemoryCache;
 
   /**
    * Entity type bundle info service.
    *
    * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
    */
-  protected $bundleInfo;
+  protected EntityTypeBundleInfoInterface $bundleInfo;
+
+  /**
+   * The logger service.
+   */
+  protected LoggerInterface $logger;
 
   /**
    * The list of all item IDs for all entities in the system.
    *
    * Consists of <entity-type-id>:<entity-id>.
-   *
-   * @var array
    */
-  private $iids = [];
+  private array $iids = [];
 
   /**
    * {@inheritdoc}
@@ -61,6 +66,7 @@ final class EntityWarmer extends WarmerPluginBase {
     $instance->setEntityTypeManager($container->get('entity_type.manager'));
     $instance->setEntityMemoryCache($container->get('entity.memory_cache'));
     $instance->setEntityTypeBundleInfoManager($container->get('entity_type.bundle.info'));
+    $instance->setLogger($container->get('logger.factory')->get('warmer'));
     return $instance;
   }
 
@@ -70,7 +76,7 @@ final class EntityWarmer extends WarmerPluginBase {
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $bundle_info
    *   The entity type bundle info service.
    */
-  public function setEntityTypeBundleInfoManager(EntityTypeBundleInfoInterface $bundle_info) {
+  public function setEntityTypeBundleInfoManager(EntityTypeBundleInfoInterface $bundle_info): void {
     $this->bundleInfo = $bundle_info;
   }
 
@@ -80,7 +86,7 @@ final class EntityWarmer extends WarmerPluginBase {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    */
-  public function setEntityTypeManager(EntityTypeManagerInterface $entity_type_manager) {
+  public function setEntityTypeManager(EntityTypeManagerInterface $entity_type_manager): void {
     $this->entityTypeManager = $entity_type_manager;
   }
 
@@ -90,8 +96,18 @@ final class EntityWarmer extends WarmerPluginBase {
    * @param \Drupal\Core\Cache\MemoryCache\MemoryCacheInterface $memory_cache
    *   The memory cache.
    */
-  public function setEntityMemoryCache(MemoryCacheInterface $memory_cache) {
+  public function setEntityMemoryCache(MemoryCacheInterface $memory_cache): void {
     $this->entityMemoryCache = $memory_cache;
+  }
+
+  /**
+   * Injects the logger.
+   *
+   * @param \Psr\Log\LoggerInterface $logger
+   *   Logger.
+   */
+  public function setLogger(LoggerInterface $logger): void {
+    $this->logger = $logger;
   }
 
   /**
@@ -117,10 +133,10 @@ final class EntityWarmer extends WarmerPluginBase {
         $this->entityMemoryCache->deleteAll();
       }
       catch (PluginException $exception) {
-        watchdog_exception('warmer', $exception);
+        Error::logException($this->logger, $exception);
       }
       catch (DatabaseExceptionWrapper $exception) {
-        watchdog_exception('warmer', $exception);
+        Error::logException($this->logger, $exception);
       }
     }
     return $output;

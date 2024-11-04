@@ -1,0 +1,5 @@
+services:
+  evinyl_discord.evinyl_discord_service:
+    class: Drupal\evinyl_discord\EvinylDiscordController
+    arguments: ['@config.factory', '@http_client', '@logger.factory']
+

@@ -22,7 +22,7 @@ class HookImplementations {
       try {
         return $warmer_manager->createInstance($warmer_definition['id']);
       }
-      catch (PluginException $exception) {
+      catch (PluginException) {
         return NULL;
       }
     }, $warmer_definitions);

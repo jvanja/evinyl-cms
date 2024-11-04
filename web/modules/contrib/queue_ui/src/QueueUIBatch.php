@@ -47,8 +47,15 @@ class QueueUIBatch implements QueueUIBatchInterface {
     protected ModuleHandlerInterface $moduleHandler,
     protected MessengerInterface $messenger,
     protected mixed $queueFactory,
-    protected LoggerChannelFactoryInterface $logger,
-  ) {}
+    protected ?LoggerChannelFactoryInterface $logger = NULL,
+  ) {
+    if (is_null($logger)) {
+      @trigger_error('Calling ' . __METHOD__ . '() without the $logger argument is deprecated in queue_ui:3.2.0 and will be required in queue_ui:4.0.0. See https://www.drupal.org/node/3482168', E_USER_DEPRECATED);
+
+      // @phpstan-ignore-next-line
+      $this->logger = \Drupal::service('logger.factory');
+    }
+  }
 
   /**
    * {@inheritdoc}

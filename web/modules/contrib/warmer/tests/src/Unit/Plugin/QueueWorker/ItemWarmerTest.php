@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Drupal\Tests\warmer\Unit\Plugin\QueueWorker;
 
 use Drupal\Tests\UnitTestCase;
@@ -20,7 +22,7 @@ class ItemWarmerTest extends UnitTestCase {
   protected $sut;
 
   /**
-   * {@inheritDoc}
+   * {@inheritdoc}
    */
   protected function setUp(): void {
     parent::setUp();

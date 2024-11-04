@@ -67,11 +67,15 @@ trait UserInputParserTrait {
     try {
       return Url::fromUri($user_input, ['absolute' => TRUE])->toString();
     }
-    catch (\InvalidArgumentException $e) {}
+    catch (\InvalidArgumentException) {
+
+    }
     try {
       return Url::fromUserInput($user_input, ['absolute' => TRUE])->toString();
     }
-    catch (\InvalidArgumentException $e) {}
+    catch (\InvalidArgumentException) {
+
+    }
     return $user_input;
   }
 

@@ -130,7 +130,7 @@ final class EnqueueForm extends FormBase {
         '#url' => Url::fromRoute('queue_ui.overview_form'),
       ];
     }
-    catch (RouteNotFoundException $e) {
+    catch (RouteNotFoundException) {
     }
 
     return $form;

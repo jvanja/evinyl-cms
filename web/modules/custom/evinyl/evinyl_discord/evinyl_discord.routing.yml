@@ -1,0 +1,17 @@
+evinyl_discord.get:
+  path: '/api/discord'
+  defaults:
+    _controller: '\Drupal\evinyl_discord\Controller\EvinylDiscordController::get'
+    _title: 'Evinyl Discord'
+  requirements:
+    _permission: 'access content'
+
+evinyl_discord.admin_settings:
+  path: '/admin/config/services/evinyl_discord'
+  defaults:
+    _title: 'Discord - Configuration'
+    _description: 'Adjust Discord settings.'
+    _form: '\Drupal\evinyl_discord\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+
