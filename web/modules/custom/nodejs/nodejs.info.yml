@@ -1,0 +1,11 @@
+name: Nodejs Integration
+type: module
+description: 'Adds Node.js support to Drupal.'
+package: Nodejs
+core_version_requirement: ^8 || ^9 || ^10
+configure: nodejs.settings
+
+# Information added by Drupal.org packaging script on 2022-11-03
+version: '2.0.0-alpha2'
+project: 'nodejs'
+datestamp: 1667463800
