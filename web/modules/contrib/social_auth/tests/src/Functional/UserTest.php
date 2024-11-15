@@ -3,9 +3,9 @@
 namespace Drupal\Tests\social_auth\Functional;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Tests\BrowserTestBase;
 use Drupal\social_auth\SocialAuthDataHandler;
 use Drupal\social_auth\User\UserAuthenticator;
-use Drupal\Tests\BrowserTestBase;
 use Drupal\user\UserInterface;
 
 /**

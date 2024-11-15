@@ -409,7 +409,7 @@ class UserManager extends SocialApiUserManager {
    *   FileInterface object if file was successfully downloaded
    *   False otherwise
    */
-  public function downloadProfilePic(string $picture_url, string $id, string $directory = NULL): FileInterface|false {
+  public function downloadProfilePic(string $picture_url, string $id, ?string $directory = NULL): FileInterface|false {
     // Make sure that we have everything we need.
     if (!$picture_url || !$id) {
       return FALSE;

@@ -137,11 +137,17 @@ class UserAuthenticator extends SocialApiUserAuthenticator {
       }
     }
 
-    // At this point, create a new user.
-    $drupal_user = $this->userManager->createNewUser($user);
+    if (!$this->isRegistrationDisabled()) {
+      // At this point, create a new user.
+      $drupal_user = $this->userManager->createNewUser($user);
 
-    $this->authenticateNewUser($drupal_user);
-    return $this->response;
+      $this->authenticateNewUser($drupal_user);
+      return $this->response;
+    }
+
+    $this->messenger->addError($this->t('User registration is disabled, please contact the administrator.'));
+    $url = Url::fromRoute('<front>')->toString();
+    return new RedirectResponse($url);
   }
 
   /**

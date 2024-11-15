@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\social_auth\Functional;
 
-use Drupal\block\Entity\Block;
 use Drupal\Core\Url;
 use Drupal\Tests\social_api\Functional\SocialApiTestBase;
+use Drupal\block\Entity\Block;
 
 /**
  * Defines a base class for testing Social Auth implementers.

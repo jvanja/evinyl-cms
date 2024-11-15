@@ -36,7 +36,7 @@ class UserEvent extends SocialAuthEventBase {
    * @param \Drupal\social_auth\User\SocialAuthUserInterface|null $social_auth_user
    *   The user's data passed by Social Auth.
    */
-  public function __construct(UserInterface $user, string $plugin_id, SocialAuthUserInterface $social_auth_user = NULL) {
+  public function __construct(UserInterface $user, string $plugin_id, ?SocialAuthUserInterface $social_auth_user = NULL) {
     $this->user = $user;
     $this->pluginId = $plugin_id;
     $this->socialAuthUser = $social_auth_user;

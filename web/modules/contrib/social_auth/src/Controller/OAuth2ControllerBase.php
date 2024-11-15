@@ -100,6 +100,13 @@ class OAuth2ControllerBase extends ControllerBase {
   protected ?string $module = NULL;
 
   /**
+   * Error code produced in the processCallback method.
+   *
+   * @var string|null
+   */
+  private ?string $processCallbackError = NULL;
+
+  /**
    * OAuth2ControllerBase constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -197,10 +204,22 @@ class OAuth2ControllerBase extends ControllerBase {
     $social_auth_user = $this->processCallback();
     if ($social_auth_user !== NULL) {
       $redirect = $this->userAuthenticator->authenticateUser($social_auth_user);
-      $event = new LoginEvent($this->currentUser(), $social_auth_user, $this->pluginId);
-      $this->dispatcher->dispatch($event, SocialAuthEvents::USER_LOGIN);
+      // Only trigger the event if Drupal fully authenticated the user.
+      if ($this->currentUser()->isAuthenticated()) {
+        $event = new LoginEvent($this->currentUser(), $social_auth_user, $this->pluginId);
+        $this->dispatcher->dispatch($event, SocialAuthEvents::USER_LOGIN);
+      }
       return $redirect;
     }
+    else {
+      $callbackError = $this->getProcessCallbackError();
+      if (!is_null($callbackError)) {
+        $this->messenger->addError($callbackError);
+        // Redirecting to user.login would cause infinite loop.
+        return $this->redirect('<front>');
+      }
+    }
+
     return $this->redirect('user.login');
   }
 
@@ -274,18 +293,59 @@ class OAuth2ControllerBase extends ControllerBase {
   }
 
   /**
+   * Gets the error details for the processCallbackError property.
+   *
+   * @return string|null
+   *   Error detail or null otherwise.
+   */
+  private function getProcessCallbackError(): ?string {
+    $errors = [
+      'config' => $this->t('%module not configured properly. Contact site administrator.', ['%module' => $this->module]),
+      'oauth' => $this->t('Login failed. Invalid OAuth2 state.'),
+      'token' => $this->t('Authentication failed. Contact site administrator.'),
+      'user_info' => $this->t('Login failed, could not load user profile. Contact site administrator.'),
+      'exception' => $this->t('There has been an error when creating plugin.'),
+      'unknown' => $this->t('Unknown error.'),
+    ];
+
+    return is_null($this->processCallbackError) ?
+      NULL :
+      ($errors[$this->processCallbackError] ?? $errors['unknown']);
+  }
+
+  /**
+   * Sets the error code for the processCallbackError property.
+   *
+   * @param string $errorCode
+   *   Error code to set.
+   */
+  private function setProcessCallbackError(string $errorCode) {
+    $this->processCallbackError = $errorCode;
+  }
+
+  /**
+   * Resets the error code for the processCallbackError property.
+   */
+  private function resetProcessCallbackError() {
+    $this->processCallbackError = NULL;
+  }
+
+  /**
    * Process implementer callback path.
    *
    * @return \Drupal\social_auth\User\SocialAuthUserInterface|null
    *   The user info if successful. Null otherwise.
    */
   private function processCallback(): ?SocialAuthUserInterface {
+    // Clean up any possible previous value first.
+    $this->resetProcessCallbackError();
+
     try {
       $client = $this->networkManager->createInstance($this->pluginId)->getSdk();
 
       // If provider client could not be obtained.
       if (!$client) {
-        $this->messenger->addError($this->t('%module not configured properly. Contact site administrator.', ['%module' => $this->module]));
+        $this->setProcessCallbackError('config');
         return NULL;
       }
 
@@ -293,25 +353,30 @@ class OAuth2ControllerBase extends ControllerBase {
       $retrievedState = $this->request->getCurrentRequest()->query->get('state');
       if (empty($retrievedState) || ($retrievedState !== $state)) {
         $this->userAuthenticator->nullifySessionKeys();
-        $this->messenger->addError($this->t('Login failed. Invalid OAuth2 state.'));
+        $this->setProcessCallbackError('oauth');
         return NULL;
       }
 
       $this->providerManager->setClient($client)->authenticate();
 
+      $access_token = $this->providerManager->getAccessToken();
+      if (empty($access_token)) {
+        $this->setProcessCallbackError('token');
+        return NULL;
+      }
       // Saves access token to session.
-      $this->dataHandler->set('access_token', $this->providerManager->getAccessToken());
+      $this->dataHandler->set('access_token', $access_token);
 
       // Gets user's info from provider.
       if (!$profile = $this->providerManager->getUserInfo()) {
-        $this->messenger->addError($this->t('Login failed, could not load user profile. Contact site administrator.'));
+        $this->setProcessCallbackError('user_info');
         return NULL;
       }
 
       return $profile;
     }
     catch (PluginException) {
-      $this->messenger->addError($this->t('There has been an error when creating plugin.'));
+      $this->setProcessCallbackError('exception');
       return NULL;
     }
   }
