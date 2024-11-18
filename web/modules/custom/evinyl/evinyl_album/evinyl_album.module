@@ -27,7 +27,9 @@ function evinyl_album_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
       break;
 
     case 'comment':
-      sendNodeJsMessageToAll($entity);
+      if(function_exists('nodejs_enqueue_message')) {
+        sendNodeJsMessageToAll($entity);
+      }
       break;
   }
 }
@@ -41,7 +43,7 @@ function sendNodeJsMessageToAll($entity) {
   $uid = $entity->uid->getValue()[0]['target_id'];
   $timestamp = $entity->created->getValue()[0]['value'];
   $created = date('Y-m-d\TH:i:s', $timestamp);
-  $subject = $entity->subject->getValue();
+  // $subject = $entity->subject->getValue();
   $body = $entity->comment_body->getValue()[0]['value'];
   $user = User::load($uid);
   $userPhoto = File::load($user->user_picture->getValue()[0]['target_id']);
@@ -71,8 +73,7 @@ function sendNodeJsMessageToAll($entity) {
     ],
     'channel' => $channel,
   ];
-  // var_dump($message);
-  // die;
+  /** @disregard The nodejs check is in the switch statement above */
   nodejs_enqueue_message($message);
 }
 
