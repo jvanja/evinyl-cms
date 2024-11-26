@@ -21,7 +21,7 @@
 
   $.extend(proto, {
     _initSource: function () {
-      if ($.isArray(this.options.source)) {
+      if (Array.isArray(this.options.source)) {
         this.source = function (request, response) {
           response(filter(this.options.source, request.term));
         };
