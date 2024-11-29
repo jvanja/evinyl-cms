@@ -387,7 +387,7 @@ class getID3
 	 */
 	protected $startup_warning = '';
 
-	const VERSION           = '1.9.23-202402191012';
+	const VERSION           = '1.9.23-202411221042';
 	const FREAD_BUFFER_SIZE = 32768;
 
 	const ATTACHMENTS_NONE   = false;
@@ -680,6 +680,8 @@ class getID3
 					catch (getid3_exception $e) {
 						throw $e;
 					}
+				} else {
+					$this->warning('skipping check for '.$tag_name.' tags since option_tag_'.$tag_name.'=FALSE');
 				}
 			}
 			if (isset($this->info['id3v2']['tag_offset_start'])) {
@@ -1900,8 +1902,8 @@ class getID3
 
 		// Calculate combined bitrate - audio + video
 		$CombinedBitrate  = 0;
-		$CombinedBitrate += (isset($this->info['audio']['bitrate']) ? $this->info['audio']['bitrate'] : 0);
-		$CombinedBitrate += (isset($this->info['video']['bitrate']) ? $this->info['video']['bitrate'] : 0);
+		$CombinedBitrate += (isset($this->info['audio']['bitrate']) && ($this->info['audio']['bitrate'] != 'free') ? $this->info['audio']['bitrate'] : 0);
+		$CombinedBitrate += (isset($this->info['video']['bitrate'])                                                ? $this->info['video']['bitrate'] : 0);
 		if (($CombinedBitrate > 0) && empty($this->info['bitrate'])) {
 			$this->info['bitrate'] = $CombinedBitrate;
 		}
@@ -2008,7 +2010,9 @@ class getID3
 		if (empty($this->info['audio']['bitrate']) || empty($this->info['audio']['channels']) || empty($this->info['audio']['sample_rate']) || !is_numeric($this->info['audio']['sample_rate'])) {
 			return false;
 		}
-		$this->info['audio']['compression_ratio'] = $this->info['audio']['bitrate'] / ($this->info['audio']['channels'] * $this->info['audio']['sample_rate'] * (!empty($this->info['audio']['bits_per_sample']) ? $this->info['audio']['bits_per_sample'] : 16));
+		if ($this->info['audio']['bitrate'] != 'free') {
+			$this->info['audio']['compression_ratio'] = $this->info['audio']['bitrate'] / ($this->info['audio']['channels'] * $this->info['audio']['sample_rate'] * (!empty($this->info['audio']['bits_per_sample']) ? $this->info['audio']['bits_per_sample'] : 16));
+		}
 
 		if (!empty($this->info['audio']['streams'])) {
 			foreach ($this->info['audio']['streams'] as $streamnumber => $streamdata) {
