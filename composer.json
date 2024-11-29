@@ -58,9 +58,10 @@
         "drupal/smtp": "^1.2",
         "drupal/social_auth": "^4.1",
         "drupal/social_auth_google": "^4.0",
+        "drupal/upgrade_status": "^4.3",
         "drupal/webform_rest": "^4.0",
         "drupal/yoast_seo": "^1.8",
-        "drush/drush": "^12.5"
+        "drush/drush": "^13.3"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -74,7 +75,9 @@
             "drupal/core-project-message": true,
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
+            "cweagans/composer-patches": true,
+            "php-http/discovery": true,
+            "tbachert/spi": true
         },
         "sort-packages": true
     },
@@ -145,5 +148,8 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "require-dev": {
+        "drupal/core-dev": "10.3.10"
     }
 }
