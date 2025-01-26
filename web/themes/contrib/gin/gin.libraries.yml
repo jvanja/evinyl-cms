@@ -4,7 +4,6 @@ gin:
       dist/css/base/gin.css: { minified: false }
   dependencies:
     - gin/gin_base
-    - gin/legacy_css
 
 # Base
 
