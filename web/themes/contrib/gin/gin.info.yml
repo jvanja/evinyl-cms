@@ -160,7 +160,7 @@ regions:
 regions_hidden:
   - sidebar_first
 
-# Information added by Drupal.org packaging script on 2024-12-20
-version: '4.0.0'
+# Information added by Drupal.org packaging script on 2024-12-28
+version: '4.0.2'
 project: 'gin'
-datestamp: 1734696943
+datestamp: 1735404751
