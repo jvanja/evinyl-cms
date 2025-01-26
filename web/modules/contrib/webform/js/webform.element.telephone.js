@@ -55,7 +55,7 @@
         };
 
         var validate = function () {
-          if ($.trim($telephone.val())) {
+          if ($telephone.val().trim()) {
             if (!$telephone.intlTelInput('isValidNumber')) {
               $telephone.addClass('error');
               var placeholder = $telephone.attr('placeholder');

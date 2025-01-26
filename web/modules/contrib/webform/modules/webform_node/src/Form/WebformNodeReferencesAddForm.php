@@ -60,7 +60,7 @@ class WebformNodeReferencesAddForm extends FormBase {
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, WebformInterface $webform = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ?WebformInterface $webform = NULL) {
     $bundles = [];
     /** @var \Drupal\field\FieldConfigInterface[] $field_configs */
     $field_configs = $this->entityTypeManager->getStorage('field_config')->loadByProperties(['entity_type' => 'node']);

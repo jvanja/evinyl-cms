@@ -20,7 +20,7 @@ interface WebformEntityInjectionInterface {
    * @return $this
    *   This webform handler.
    */
-  public function setWebform(WebformInterface $webform = NULL);
+  public function setWebform(?WebformInterface $webform = NULL);
 
   /**
    * Get the webform that this handler is attached to.
@@ -39,7 +39,7 @@ interface WebformEntityInjectionInterface {
    * @return $this
    *   This webform handler.
    */
-  public function setWebformSubmission(WebformSubmissionInterface $webform_submission = NULL);
+  public function setWebformSubmission(?WebformSubmissionInterface $webform_submission = NULL);
 
   /**
    * Get the webform submission that this handler is handling.

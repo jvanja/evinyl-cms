@@ -3,7 +3,7 @@
  * JavaScript behaviors for CodeMirror integration.
  */
 
-(function ($, Drupal, once) {
+(function ($, Drupal, once, tabbable) {
 
   'use strict';
 
@@ -54,7 +54,7 @@
               // its tabindex.
               var textarea = $(cm.getTextArea());
               $(textarea).show().addClass('visually-hidden');
-              var $tabbable = $(':tabbable');
+              var $tabbable = $(tabbable.tabbable(document));
               var tabindex = $tabbable.index(textarea);
               $(textarea).hide().removeClass('visually-hidden');
 
@@ -143,4 +143,4 @@
     }
   };
 
-})(jQuery, Drupal, once);
+})(jQuery, Drupal, once, tabbable);

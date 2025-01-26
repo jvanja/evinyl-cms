@@ -59,14 +59,14 @@
         "drupal/social_auth": "^4.1",
         "drupal/social_auth_google": "^4.0",
         "drupal/upgrade_status": "^4.3",
-        "drupal/webform_rest": "^4.0",
+        "drupal/webform_rest": "^4.2",
         "drupal/yoast_seo": "^2.1",
         "drush/drush": "^13.3"
     },
     "conflict": {
         "drupal/drupal": "*"
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "beta",
     "prefer-stable": true,
     "config": {
         "allow-plugins": {

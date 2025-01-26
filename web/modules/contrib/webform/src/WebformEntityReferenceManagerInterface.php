@@ -67,7 +67,7 @@ interface WebformEntityReferenceManagerInterface {
    * @return bool
    *   TRUE if the entity has a webform entity reference field.
    */
-  public function hasField(EntityInterface $entity = NULL);
+  public function hasField(?EntityInterface $entity = NULL);
 
   /**
    * Get an entity's webform field name.
@@ -78,7 +78,7 @@ interface WebformEntityReferenceManagerInterface {
    * @return string
    *   The name of the webform field or an empty string.
    */
-  public function getFieldName(EntityInterface $entity = NULL);
+  public function getFieldName(?EntityInterface $entity = NULL);
 
   /**
    * Get an entity's webform field names.
@@ -89,7 +89,7 @@ interface WebformEntityReferenceManagerInterface {
    * @return array
    *   An array of webform fields associate with an entity.
    */
-  public function getFieldNames(EntityInterface $entity = NULL);
+  public function getFieldNames(?EntityInterface $entity = NULL);
 
   /**
    * Get an entity's target webform.
@@ -100,7 +100,7 @@ interface WebformEntityReferenceManagerInterface {
    * @return \Drupal\webform\WebformInterface|null
    *   The entity's target webform or NULL.
    */
-  public function getWebform(EntityInterface $entity = NULL);
+  public function getWebform(?EntityInterface $entity = NULL);
 
   /**
    * Get an entity's target webform.
@@ -111,7 +111,7 @@ interface WebformEntityReferenceManagerInterface {
    * @return array
    *   An array of webforms.
    */
-  public function getWebforms(EntityInterface $entity = NULL);
+  public function getWebforms(?EntityInterface $entity = NULL);
 
   /* ************************************************************************ */
   // Table methods.

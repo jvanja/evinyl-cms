@@ -28,13 +28,6 @@
 
       $(once('webformTimePicker', 'input[data-webform-time-format]', context)).each(function () {
         var $input = $(this);
-
-        // Skip if time inputs are supported by the browser and input is not a text field.
-        // @see \Drupal\webform\Element\WebformDatetime
-        if (window.Modernizr && Modernizr.inputtypes && Modernizr.inputtypes.time === true && $input.attr('type') !== 'text') {
-          return;
-        }
-
         var options = {};
         options.timeFormat = $input.data('webformTimeFormat');
         if ($input.attr('min')) {

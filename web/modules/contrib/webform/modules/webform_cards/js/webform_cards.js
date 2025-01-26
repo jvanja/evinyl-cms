@@ -76,7 +76,7 @@
         }
 
         // Server-side validation errors.
-        // @see \Drupal\Core\Render\Element\RenderElement::setAttributes
+        // @see \Drupal\Core\Render\Element\RenderElementBase::setAttributes
         var $invalidCards = $allCards.filter(':has(.form-item--error-message)');
         if ($invalidCards.length) {
           // Hide progress.

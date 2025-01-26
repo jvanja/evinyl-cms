@@ -49,7 +49,7 @@ class WebformVariantViewForm extends FormBase {
    * @return array
    *   The form structure.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, WebformInterface $webform = NULL, $operation = 'view') {
+  public function buildForm(array $form, FormStateInterface $form_state, ?WebformInterface $webform = NULL, $operation = 'view') {
     $this->operation = $operation;
     $this->webform = $webform;
 

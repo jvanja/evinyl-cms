@@ -91,7 +91,7 @@ abstract class WebformVariantFormBase extends FormBase {
    *   Throws not found exception if the number of variant instances for this
    *   webform exceeds the variant's cardinality.
    */
-  public function buildForm(array $form, FormStateInterface $form_state, WebformInterface $webform = NULL, $webform_variant = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, ?WebformInterface $webform = NULL, $webform_variant = NULL) {
     $this->webform = $webform;
     try {
       $this->webformVariant = $this->prepareWebformVariant($webform_variant);
