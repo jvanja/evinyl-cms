@@ -5,4 +5,4 @@ administer yoast seo:
 
 use yoast seo:
   title: 'Use Real-time SEO for Drupal'
-  description: 'Modify Realtime SEO for Drupal configuration per individual nodes.'
+  description: 'Modify Realtime SEO for Drupal configuration per individual entities.'

@@ -1,7 +1,8 @@
 
 Real-time SEO for Drupal 8
 ----------------------
-Improve your Drupal SEO: write better content using Real-time SEO for Drupal module togheter with the Yoast SEO library.
+Improve your Drupal SEO: write better content using Real-time SEO for Drupal
+module together with the Yoast SEO library.
 https://www.drupal.org/project/yoast_seo
 
 HOW DOES IT WORK
@@ -22,8 +23,8 @@ HOW TO CONFIGURE
 ----------------
 By default, the Real-time SEO field is enabled for all the content types. You
 can change this setting in Configuration > Development > Real-time SEO Admin Settings.
-As of now, the Real-time SEO module only works on nodes and does not support
-taxonomy.
+The Real-time SEO module only works on entity types that implement
+ContentEntityInterface (node, media and block_content) and on taxonomy term pages.
 
 Make sure you have the "Real-time SEO" field under "Manage form display"
 Make sure you have the "Meta tags" field under "Manage form display"

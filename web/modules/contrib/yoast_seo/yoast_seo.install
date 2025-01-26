@@ -2,62 +2,105 @@
 
 /**
  * @file
- * Install, update, and uninstall functions for the Yoast SEO for Drupal module.
+ * Install, update, and uninstall functions for the Real-Time SEO module.
  */
+
+use Drupal\Core\DrupalKernelInterface;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\views\Views;
 
 /**
- * Implements hook_install().
- *
- * Insert the YoastSeo field in the content view.
+ * Remove the SEO status from the content overview.
  */
-function yoast_seo_install() {
-  // Enable Yoast SEO for all fields.
-  _yoast_seo_attach_to_all_content_types();
+function yoast_seo_update_8201() {
+  $content_view = Views::getView('content');
 
-  // Add status overview to content view.
-  _yoast_seo_add_status_to_content_view();
+  if ($content_view) {
+    $display_id = 'page_1';
+
+    $handlers = $content_view->getHandlers('field', $display_id);
+    if (isset($handlers['field_yoast_seo'])) {
+      $content_view->removeHandler($display_id, 'field', 'field_yoast_seo');
+      $content_view->save();
+    }
+  }
 }
 
 /**
- * Attach Yoast SEO field to all available content types.
+ * Add a title and description property to the yoast_seo field.
  */
-function _yoast_seo_attach_to_all_content_types() {
-  $supported_entities = [
-    'node' => 'Node',
+function yoast_seo_update_8202() {
+  $field_type = 'yoast_seo';
+  $add_properties = [
+    'title',
+    'description',
   ];
-  $yoast_seo_manager = \Drupal::service('yoast_seo.manager');
-  foreach ($supported_entities as $entity_type_id => $entity_type_label) {
-    $bundles = $yoast_seo_manager->getAvailableBundles($entity_type_id);
-    foreach ($bundles as $bundle_id => $bundle_label) {
-      $yoast_seo_manager->attachYoastSeoFields($entity_type_id, $bundle_id);
+
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $field_map = \Drupal::service('entity_field.manager')->getFieldMapByFieldType($field_type);
+
+  foreach ($field_map as $entity_type_id => $fields) {
+    foreach (array_keys($fields) as $field_name) {
+      $field_storage_definition = $manager->getFieldStorageDefinition($field_name, $entity_type_id);
+      $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
+
+      if ($storage instanceof SqlContentEntityStorage) {
+        $table_mapping = $storage->getTableMapping([
+          $field_name => $field_storage_definition,
+        ]);
+        $table_names = $table_mapping->getDedicatedTableNames();
+        $columns = $table_mapping->getColumnNames($field_name);
+
+        foreach ($table_names as $table_name) {
+          $field_schema = $field_storage_definition->getSchema();
+          $schema = \Drupal::database()->schema();
+
+          foreach ($add_properties as $new_property) {
+            $field_exists = $schema->fieldExists($table_name, $columns[$new_property]);
+            $table_exists = $schema->tableExists($table_name);
+
+            if (!$field_exists && $table_exists) {
+              $schema->addField($table_name, $columns[$new_property], $field_schema['columns'][$new_property]);
+            }
+          }
+        }
+      }
+      $manager->updateFieldStorageDefinition($field_storage_definition);
     }
   }
+
 }
 
 /**
- * Attach Yoast SEO field to the main content view.
+ * Move score label configuration into module settings.
  */
-function _yoast_seo_add_status_to_content_view() {
-  $yoast_seo_manager = \Drupal::service('yoast_seo.manager');
-  $yoast_seo_manager->attachFieldHandlerToContentView();
+function yoast_seo_update_8203() {
+  \Drupal::configFactory()
+    ->getEditable('yoast_seo.settings')
+    ->set('score_rules', [
+      0 => 'Not available',
+      8 => 'Good',
+      1 => 'Bad',
+      5 => 'Okay',
+    ])
+    ->save();
 }
 
 /**
- * Detach Yoast SEO fields from all taxonomies.
+ * Added an option to disable auto-refresh of the SEO results.
+ *
+ * In case you have complex pages that are being analysed and the form freezes
+ * during analysis, or you experience delays when editing,, consider disabling
+ * the feature in the module settings.
+ *
+ * Auto refresh remains enabled for existing installations.
  */
-function yoast_seo_update_8001() {
-  $yoast_seo_manager = \Drupal::service('yoast_seo.manager');
-  $entity_type_id = 'taxonomy_term';
-
-  $enabled_bundles = $yoast_seo_manager->getEnabledBundles($entity_type_id);
-  if (!empty($enabled_bundles)) {
-    foreach ($enabled_bundles as $bundle_id) {
-      $yoast_seo_manager->detachYoastSeoFields($entity_type_id, $bundle_id);
-    }
-  }
-
-  // Fields have been marked as deleted. Attempt to delete them straight away.
-  // Anything that's missed now will be cleaned up by cron later.
-  $limit = \Drupal::config('field.settings')->get('purge_batch_size');
-  field_purge_batch($limit);
+function yoast_seo_update_8204() : void {
+  // Keep enabled for BC on existing installations:
+  \Drupal::configFactory()->getEditable('yoast_seo.settings')
+    ->set('auto_refresh_seo_result', TRUE)
+    ->save();
+  $kernel = \Drupal::service('kernel');
+  assert($kernel instanceof DrupalKernelInterface);
+  $kernel->rebuildContainer();
 }

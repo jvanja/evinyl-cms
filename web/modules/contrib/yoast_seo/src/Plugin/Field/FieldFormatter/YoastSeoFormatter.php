@@ -2,8 +2,8 @@
 
 namespace Drupal\yoast_seo\Plugin\Field\FieldFormatter;
 
-use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Field\FormatterBase;
 
 /**
  * Plugin implementation of the 'example_formatter' formatter.
@@ -22,12 +22,12 @@ class YoastSeoFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $elements = array();
+    $elements = [];
     $yoast_seo_manager = \Drupal::service('yoast_seo.manager');
     foreach ($items as $delta => $item) {
       $status = $yoast_seo_manager->getScoreStatus($item->status);
 
-      // TODO : find a way to give a weight, so the column doesn't appear
+      // @todo find a way to give a weight, so the column doesn't appear
       // at the end.
       // Get template for the snippet.
       $overall_score_tpl = [
@@ -41,9 +41,9 @@ class YoastSeoFormatter extends FormatterBase {
       ];
       $output = \Drupal::service('renderer')->render($overall_score_tpl);
 
-      $elements[$delta] = array(
+      $elements[$delta] = [
         '#markup' => $output,
-      );
+      ];
     }
 
     return $elements;
