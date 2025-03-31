@@ -2,7 +2,6 @@
 
 namespace Drupal\rest_password\Plugin\rest\resource;
 
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\rest\ModifiedResourceResponse;
@@ -11,6 +10,7 @@ use Drupal\rest_password\Event\PasswordResetEvent;
 use Drupal\user\UserStorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides a resource to reset Drupal password for user.
@@ -44,7 +44,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
   /**
    * The event dispatcher.
    *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
    */
   protected $eventDispatcher;
 
@@ -65,7 +65,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
    *   A current user instance.
    * @param \Drupal\user\UserStorageInterface $user_storage
    *   The user storage.
-   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $eventDispatcher
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $eventDispatcher
    *   The event dispatcher.
    */
   public function __construct(
@@ -76,7 +76,7 @@ class ResetPasswordFromTempRestResource extends ResourceBase {
     LoggerInterface $logger,
     AccountProxyInterface $current_user,
     UserStorageInterface $user_storage,
-    ContainerAwareEventDispatcher $eventDispatcher) {
+    EventDispatcherInterface $eventDispatcher) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->currentUser = $current_user;
     $this->userStorage = $user_storage;

@@ -51,7 +51,7 @@
         "drupal/redirect": "^1.9",
         "drupal/redis": "^1.7",
         "drupal/rest_absolute_urls": "^2.0",
-        "drupal/rest_password": "^8.1",
+        "drupal/rest_password": "^2.0",
         "drupal/restui": "^1.21",
         "drupal/simple_sitemap": "^4.1",
         "drupal/smtp": "^1.2",
