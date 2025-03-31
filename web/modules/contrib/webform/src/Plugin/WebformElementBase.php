@@ -1000,7 +1000,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
    *
    * @param array $element
    *   An element.
-   * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
+   * @param \Drupal\webform\WebformSubmissionInterface|null $webform_submission
    *   A webform submission.
    */
   protected function prepareElementValidateCallbacks(array &$element, ?WebformSubmissionInterface $webform_submission = NULL) {
@@ -1027,7 +1027,7 @@ class WebformElementBase extends PluginBase implements WebformElementInterface, 
    *
    * @param array $element
    *   An element.
-   * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
+   * @param \Drupal\webform\WebformSubmissionInterface|null $webform_submission
    *   A webform submission.
    */
   protected function prepareElementPreRenderCallbacks(array &$element, ?WebformSubmissionInterface $webform_submission = NULL) {

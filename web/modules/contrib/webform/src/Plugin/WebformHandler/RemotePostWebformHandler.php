@@ -759,7 +759,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
             break;
 
           case 'bool':
-          case 'boolean';
+          case 'boolean':
             $data[$key] = (bool) $type_value;
             break;
 

@@ -72,7 +72,7 @@ interface WebformEntityReferenceManagerInterface {
   /**
    * Get an entity's webform field name.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface|null $entity
    *   A fieldable content entity.
    *
    * @return string
@@ -83,7 +83,7 @@ interface WebformEntityReferenceManagerInterface {
   /**
    * Get an entity's webform field names.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface|null $entity
    *   A fieldable content entity.
    *
    * @return array
@@ -105,7 +105,7 @@ interface WebformEntityReferenceManagerInterface {
   /**
    * Get an entity's target webform.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param \Drupal\Core\Entity\EntityInterface|null $entity
    *   A fieldable content entity.
    *
    * @return array

@@ -5,8 +5,6 @@
 
 (function ($, Drupal, once, tabbable) {
 
-  'use strict';
-
   // @see http://codemirror.net/doc/manual.html#config
   Drupal.webform = Drupal.webform || {};
   Drupal.webform.codeMirror = Drupal.webform.codeMirror || {};

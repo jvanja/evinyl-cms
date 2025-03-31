@@ -620,7 +620,7 @@ abstract class WebformManagedFileBase extends WebformElementBase implements Webf
   /**
    * Get the allowed file extensions for an element.
    *
-   * @param array $element
+   * @param array|null $element
    *   An element.
    *
    * @return string

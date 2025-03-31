@@ -5,8 +5,6 @@
 
 (function ($, Drupal, once) {
 
-  'use strict';
-
   /**
    * Display HTML5 range output in a left/right aligned number input.
    *

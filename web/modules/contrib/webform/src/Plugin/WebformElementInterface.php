@@ -321,7 +321,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *
    * @param array $element
    *   An element.
-   * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
+   * @param \Drupal\webform\WebformSubmissionInterface|null $webform_submission
    *   A webform submission. Webform submission is optional
    *   since it is not used by composite sub elements.
    *
@@ -334,7 +334,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *
    * @param array $element
    *   An element.
-   * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
+   * @param \Drupal\webform\WebformSubmissionInterface|null $webform_submission
    *   A webform submission. Webform submission is optional
    *   since it is not used by composite sub elements.
    *
@@ -362,7 +362,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *   Usually "create", "update", or "view".
    * @param array $element
    *   An element.
-   * @param \Drupal\Core\Session\AccountInterface $account
+   * @param \Drupal\Core\Session\AccountInterface|null $account
    *   The user session for which to check access.
    *
    * @return bool

@@ -2715,7 +2715,7 @@ class Webform extends ConfigEntityBundleBase implements WebformInterface {
     $handlers = $this->getHandlers();
 
     switch ($method) {
-      case 'overrideSettings';
+      case 'overrideSettings':
         // If webform submission and alter settings, make sure to completely
         // reset all settings to their original values.
         $this->resetSettings();

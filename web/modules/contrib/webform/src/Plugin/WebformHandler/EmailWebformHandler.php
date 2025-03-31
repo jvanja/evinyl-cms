@@ -1563,11 +1563,11 @@ class EmailWebformHandler extends WebformHandlerBase implements WebformHandlerMe
    *   TRUE if the element is required.
    * @param array $element_options
    *   The element options.
-   * @param array $options_options
+   * @param array|null $options_options
    *   The options options.
-   * @param array $role_options
+   * @param array|null $role_options
    *   The (user) role options.
-   * @param array $other_options
+   * @param array|null $other_options
    *   The other options.
    *
    * @return array

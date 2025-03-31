@@ -217,7 +217,7 @@ class WebformOptions extends FormElementBase {
   /**
    * Convert values from webform_multiple element to options.
    *
-   * @param array $values
+   * @param array|null $values
    *   An array of values.
    * @param bool $options_description
    *   Options has description.

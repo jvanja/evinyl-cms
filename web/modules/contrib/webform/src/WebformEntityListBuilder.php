@@ -620,9 +620,9 @@ class WebformEntityListBuilder extends ConfigEntityListBuilder {
 
     // Filter by (form) state.
     switch ($state) {
-      case WebformInterface::STATUS_OPEN;
-      case WebformInterface::STATUS_CLOSED;
-      case WebformInterface::STATUS_SCHEDULED;
+      case WebformInterface::STATUS_OPEN:
+      case WebformInterface::STATUS_CLOSED:
+      case WebformInterface::STATUS_SCHEDULED:
         $query->condition('status', $state);
         break;
     }

@@ -528,7 +528,7 @@ interface WebformHandlerInterface extends PluginInspectionInterface, Configurabl
    *   A webform submission.
    * @param string $operation
    *   The operation that is to be performed on $entity.
-   * @param \Drupal\Core\Session\AccountInterface $account
+   * @param \Drupal\Core\Session\AccountInterface|null $account
    *   The account trying to access the entity.
    *
    * @return \Drupal\Core\Core\AccessResultInterface
@@ -583,7 +583,7 @@ interface WebformHandlerInterface extends PluginInspectionInterface, Configurabl
    *   The element's properties.
    * @param string $operation
    *   The operation that is to be performed on $entity.
-   * @param \Drupal\Core\Session\AccountInterface $account
+   * @param \Drupal\Core\Session\AccountInterface|null $account
    *   The account trying to access the entity.
    *
    * @return \Drupal\Core\Access\AccessResultInterface
