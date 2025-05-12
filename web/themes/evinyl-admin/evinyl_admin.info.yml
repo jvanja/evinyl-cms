@@ -3,7 +3,8 @@ type: theme
 description: This is an eVinyl sub theme of Adminimal
 core_version_requirement: ^10 || ^11
 # Defines the base theme
-base theme: adminimal_theme
+# base theme: adminimal_theme
+base theme: gin
 
 # Defines libraries group in which we can add css/js.
 libraries:
