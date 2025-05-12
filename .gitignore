@@ -38,3 +38,5 @@ tools/
 
 bun.lockb
 package-lock.json
+
+.phpactor.json
